@@ -42,6 +42,11 @@ import {
   settingsScopeProjectMachines,
 } from "./settingsScopeAxis";
 
+const ALL_SCOPE_LABELS = {
+  allEnvironments: "All environments",
+  allProjects: "All projects",
+} as const;
+
 export const SETTINGS_DEVICE_ONLY_PATHS: ReadonlySet<string> = new Set([
   "/settings/general",
   "/settings/appearance",
@@ -276,7 +281,7 @@ function EnvironmentScopeMenu({
           ? null
           : {
               value: ALL_ENVIRONMENTS_VALUE,
-              label: "All environments",
+              label: ALL_SCOPE_LABELS.allEnvironments,
               icon: <LayersIcon aria-hidden className="size-3.5 shrink-0" />,
             }
       }
@@ -317,7 +322,7 @@ function ProjectScopeMenu({ value, groups, environments, onChange }: SettingsSco
       value={projectAxisValue(value)}
       onChange={(next) => onChange(selectProjectAxis(value, next))}
       searchLabel="Search projects"
-      allOption={{ value: ALL_PROJECTS_VALUE, label: "All projects" }}
+      allOption={{ value: ALL_PROJECTS_VALUE, label: ALL_SCOPE_LABELS.allProjects }}
       options={projects.map(({ group, machines }) => {
         const sameName = projects.filter(
           (other) =>

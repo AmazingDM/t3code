@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { observeResize } from "~/lib/observeResize";
+import { __IS_ZH__ } from "../../i18n/locale";
 
 export function DraftHeroProjectHeading({
   children,
@@ -39,24 +40,51 @@ export function DraftHeroProjectHeading({
           ref={inlineRef}
           className="flex w-max items-baseline gap-2 whitespace-nowrap font-normal text-3xl tracking-tight"
         >
-          <span>What should we build in</span>
-          <span>
-            <span className="font-medium">{projectName}</span>?
-          </span>
+          {__IS_ZH__ ? (
+            <>
+              <span>要在</span>
+              <span className="font-medium">{projectName}</span>
+              <span>中构建什么？</span>
+            </>
+          ) : (
+            <>
+              <span>What should we build in</span>
+              <span>
+                <span className="font-medium">{projectName}</span>?
+              </span>
+            </>
+          )}
         </span>
       </span>
       <h1 className="flex w-full flex-col items-center justify-center gap-2 text-center font-normal text-2xl text-foreground tracking-tight sm:text-3xl lg:group-data-[inline=true]/draft-hero:flex-row">
-        <span className="max-w-full lg:group-data-[inline=true]/draft-hero:shrink-0 [@media(max-height:28rem)]:sr-only">
-          What should we build
-          <span className="lg:group-data-[inline=true]/draft-hero:hidden">?</span>
-          <span className="hidden lg:group-data-[inline=true]/draft-hero:inline"> in</span>
-        </span>
-        <span className="flex min-w-0 max-w-full items-baseline justify-center text-base tracking-normal lg:group-data-[inline=true]/draft-hero:text-3xl lg:group-data-[inline=true]/draft-hero:tracking-tight">
-          <span className="min-w-0">{children}</span>
-          <span className="hidden shrink-0 lg:group-data-[inline=true]/draft-hero:inline [@media(max-height:28rem)]:hidden!">
-            ?
-          </span>
-        </span>
+        {__IS_ZH__ ? (
+          <>
+            <span className="max-w-full lg:group-data-[inline=true]/draft-hero:shrink-0 [@media(max-height:28rem)]:sr-only">
+              <span className="lg:group-data-[inline=true]/draft-hero:hidden">要构建什么？</span>
+              <span className="hidden lg:group-data-[inline=true]/draft-hero:inline">要在</span>
+            </span>
+            <span className="flex min-w-0 max-w-full items-baseline justify-center text-base tracking-normal lg:group-data-[inline=true]/draft-hero:text-3xl lg:group-data-[inline=true]/draft-hero:tracking-tight">
+              <span className="min-w-0">{children}</span>
+              <span className="ml-2 hidden shrink-0 lg:group-data-[inline=true]/draft-hero:inline [@media(max-height:28rem)]:hidden!">
+                中构建什么？
+              </span>
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="max-w-full lg:group-data-[inline=true]/draft-hero:shrink-0 [@media(max-height:28rem)]:sr-only">
+              What should we build
+              <span className="lg:group-data-[inline=true]/draft-hero:hidden">?</span>
+              <span className="hidden lg:group-data-[inline=true]/draft-hero:inline"> in</span>
+            </span>
+            <span className="flex min-w-0 max-w-full items-baseline justify-center text-base tracking-normal lg:group-data-[inline=true]/draft-hero:text-3xl lg:group-data-[inline=true]/draft-hero:tracking-tight">
+              <span className="min-w-0">{children}</span>
+              <span className="hidden shrink-0 lg:group-data-[inline=true]/draft-hero:inline [@media(max-height:28rem)]:hidden!">
+                ?
+              </span>
+            </span>
+          </>
+        )}
       </h1>
     </div>
   );

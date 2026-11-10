@@ -7,6 +7,7 @@ import * as Schema from "effect/Schema";
 import * as Electron from "electron";
 
 import { makeComponentLogger } from "../app/DesktopObservability.ts";
+import * as ElectronApp from "../electron/ElectronApp.ts";
 import * as ElectronDialog from "../electron/ElectronDialog.ts";
 import * as ElectronMenu from "../electron/ElectronMenu.ts";
 import * as DesktopEnvironment from "../app/DesktopEnvironment.ts";
@@ -64,7 +65,9 @@ const runMainContentsCommand = Effect.fn("desktop.menu.runMainContentsCommand")(
   yield* desktopWindow.runMainContentsCommand(command);
 });
 
-const checkForUpdatesFromMenu = Effect.gen(function* () {
+const checkForUpdatesFromMenu = Effect.fn("desktop.menu.checkForUpdates")(function* (
+  isZh: boolean,
+) {
   const updates = yield* DesktopUpdates.DesktopUpdates;
   const electronDialog = yield* ElectronDialog.ElectronDialog;
   const result = yield* updates.check("menu");
@@ -73,47 +76,56 @@ const checkForUpdatesFromMenu = Effect.gen(function* () {
   if (updateState.status === "up-to-date") {
     yield* electronDialog.showMessageBox({
       type: "info",
-      title: "You're up to date!",
-      message: `T3 Code ${updateState.currentVersion} is currently the newest version available.`,
-      buttons: ["OK"],
+      title: isZh ? "当前已是最新版本" : "You're up to date!",
+      message: isZh
+        ? `T3 Code ${updateState.currentVersion} 已是当前可用的最新版本。`
+        : `T3 Code ${updateState.currentVersion} is currently the newest version available.`,
+      buttons: [isZh ? "确定" : "OK"],
     });
   } else if (updateState.status === "error") {
     yield* electronDialog.showMessageBox({
       type: "warning",
-      title: "Update check failed",
-      message: "Could not check for updates.",
-      detail: updateState.message ?? "An unknown error occurred. Please try again later.",
-      buttons: ["OK"],
+      title: isZh ? "检查更新失败" : "Update check failed",
+      message: isZh ? "无法检查更新。" : "Could not check for updates.",
+      detail:
+        updateState.message ??
+        (isZh
+          ? "发生未知错误，请稍后重试。"
+          : "An unknown error occurred. Please try again later."),
+      buttons: [isZh ? "确定" : "OK"],
     });
   }
-}).pipe(Effect.withSpan("desktop.menu.checkForUpdates"));
+});
 
-const handleCheckForUpdatesMenuClick = Effect.gen(function* () {
-  const updates = yield* DesktopUpdates.DesktopUpdates;
-  const electronDialog = yield* ElectronDialog.ElectronDialog;
-  const disabledReason = yield* updates.disabledReason;
-  if (Option.isSome(disabledReason)) {
-    yield* logUpdaterInfo("manual update check requested, but updates are disabled", {
-      disabledReason: disabledReason.value,
-    });
-    yield* electronDialog.showMessageBox({
-      type: "info",
-      title: "Updates unavailable",
-      message: "Automatic updates are not available right now.",
-      detail: disabledReason.value,
-      buttons: ["OK"],
-    });
-    return;
-  }
+const handleCheckForUpdatesMenuClick = Effect.fn("desktop.menu.handleCheckForUpdatesClick")(
+  function* (isZh: boolean) {
+    const updates = yield* DesktopUpdates.DesktopUpdates;
+    const electronDialog = yield* ElectronDialog.ElectronDialog;
+    const disabledReason = yield* updates.disabledReason;
+    if (Option.isSome(disabledReason)) {
+      yield* logUpdaterInfo("manual update check requested, but updates are disabled", {
+        disabledReason: disabledReason.value,
+      });
+      yield* electronDialog.showMessageBox({
+        type: "info",
+        title: isZh ? "更新不可用" : "Updates unavailable",
+        message: isZh ? "当前无法使用自动更新。" : "Automatic updates are not available right now.",
+        detail: disabledReason.value,
+        buttons: [isZh ? "确定" : "OK"],
+      });
+      return;
+    }
 
-  // Opening a window before backend confirmation can strand it on failed auth bootstrap.
-  const desktopWindow = yield* DesktopWindow.DesktopWindow;
-  yield* desktopWindow.activate;
-  yield* checkForUpdatesFromMenu;
-}).pipe(Effect.withSpan("desktop.menu.handleCheckForUpdatesClick"));
+    // Opening a window before backend confirmation can strand it on failed auth bootstrap.
+    const desktopWindow = yield* DesktopWindow.DesktopWindow;
+    yield* desktopWindow.activate;
+    yield* checkForUpdatesFromMenu(isZh);
+  },
+);
 
 /** @public */
 export const make = Effect.gen(function* () {
+  const electronApp = yield* ElectronApp.ElectronApp;
   const electronMenu = yield* ElectronMenu.ElectronMenu;
   const environment = yield* DesktopEnvironment.DesktopEnvironment;
   const context = yield* Effect.context<DesktopApplicationMenuRuntimeServices>();
@@ -135,9 +147,13 @@ export const make = Effect.gen(function* () {
     );
   };
 
-  const configure = Effect.gen(function* () {
+  let systemIsZh = false;
+  let currentIsZh = false;
+
+  const buildTemplate = (isZh: boolean): Electron.MenuItemConstructorOptions[] => {
+    const t = (zh: string, en: string) => (isZh ? zh : en);
     const checkForUpdatesClick = () => {
-      runMenuEffect("check-for-updates", handleCheckForUpdatesMenuClick);
+      runMenuEffect("check-for-updates", handleCheckForUpdatesMenuClick(currentIsZh));
     };
     const settingsClick = () => {
       runMenuEffect("open-settings", dispatchMenuAction("open-settings"));
@@ -163,45 +179,54 @@ export const make = Effect.gen(function* () {
       template.push({
         label: environment.displayName,
         submenu: [
-          { role: "about", label: `About ${environment.displayName}` },
           {
-            label: "Check for Updates...",
+            role: "about",
+            label: t(`关于 ${environment.displayName}`, `About ${environment.displayName}`),
+          },
+          {
+            label: t("检查更新...", "Check for Updates..."),
             click: checkForUpdatesClick,
           },
           { type: "separator" },
           {
-            label: "Settings...",
+            label: t("设置...", "Settings..."),
             accelerator: "CmdOrCtrl+,",
             click: settingsClick,
           },
           { type: "separator" },
           { role: "services" },
           { type: "separator" },
-          { role: "hide", label: `Hide ${environment.displayName}` },
+          {
+            role: "hide",
+            label: t(`隐藏 ${environment.displayName}`, `Hide ${environment.displayName}`),
+          },
           { role: "hideOthers" },
           { role: "unhide" },
           { type: "separator" },
-          { role: "quit", label: `Quit ${environment.displayName}` },
+          {
+            role: "quit",
+            label: t(`退出 ${environment.displayName}`, `Quit ${environment.displayName}`),
+          },
         ],
       });
     }
 
     template.push(
       {
-        label: "File",
+        label: t("文件", "File"),
         submenu: [
           ...(environment.platform === "darwin"
             ? []
             : [
                 {
-                  label: "Settings...",
+                  label: t("设置...", "Settings..."),
                   accelerator: "CmdOrCtrl+,",
                   click: settingsClick,
                 },
                 { type: "separator" as const },
               ]),
           {
-            label: "Close Developer Tools",
+            label: t("关闭开发者工具", "Close Developer Tools"),
             accelerator: "CmdOrCtrl+W",
             visible: false,
             click: () => {
@@ -213,32 +238,35 @@ export const make = Effect.gen(function* () {
           },
           // Cmd/Ctrl+W belongs to the renderer's tab close; it must never close the window.
           environment.platform === "darwin"
-            ? { label: "Close Window", click: (_item, window) => window?.close() }
-            : { role: "quit" },
+            ? {
+                label: t("关闭窗口", "Close Window"),
+                click: (_item, window) => window?.close(),
+              }
+            : { role: "quit", ...(isZh ? { label: "退出" } : {}) },
         ],
       },
       {
-        label: "Edit",
+        label: t("编辑", "Edit"),
         submenu: [
-          { role: "undo" },
-          { role: "redo" },
+          { role: "undo", ...(isZh ? { label: "撤销" } : {}) },
+          { role: "redo", ...(isZh ? { label: "重做" } : {}) },
           { type: "separator" },
-          { role: "cut" },
-          { role: "copy" },
-          { role: "paste" },
+          { role: "cut", ...(isZh ? { label: "剪切" } : {}) },
+          { role: "copy", ...(isZh ? { label: "复制" } : {}) },
+          { role: "paste", ...(isZh ? { label: "粘贴" } : {}) },
           {
-            label: "Paste as Text",
+            label: t("粘贴为纯文本", "Paste as Text"),
             accelerator: "CmdOrCtrl+Shift+V",
             click: pasteAsTextClick,
           },
-          { role: "delete" },
+          { role: "delete", ...(isZh ? { label: "删除" } : {}) },
           { type: "separator" },
-          { role: "selectAll" },
+          { role: "selectAll", ...(isZh ? { label: "全选" } : {}) },
           ...(environment.platform === "darwin"
             ? [
                 { type: "separator" as const },
                 {
-                  label: "Speech",
+                  label: t("语音", "Speech"),
                   submenu: [{ role: "startSpeaking" as const }, { role: "stopSpeaking" as const }],
                 },
               ]
@@ -246,25 +274,37 @@ export const make = Effect.gen(function* () {
         ],
       },
       {
-        label: "View",
+        label: t("视图", "View"),
         submenu: [
           /* Native reload/DevTools/zoom roles target focused guests; these commands must target the app. */
-          { label: "Reload", accelerator: "CmdOrCtrl+R", click: mainContentsClick("reload") },
           {
-            label: "Force Reload",
+            label: t("重新加载", "Reload"),
+            accelerator: "CmdOrCtrl+R",
+            click: mainContentsClick("reload"),
+          },
+          {
+            label: t("强制重新加载", "Force Reload"),
             accelerator: "Shift+CmdOrCtrl+R",
             click: mainContentsClick("forceReload"),
           },
           {
-            label: "Toggle Developer Tools",
+            label: t("切换开发者工具", "Toggle Developer Tools"),
             accelerator: environment.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
             click: mainContentsClick("toggleDevTools"),
           },
           { type: "separator" },
-          { label: "Actual Size", accelerator: "CmdOrCtrl+0", click: zoomClick("reset") },
-          { label: "Zoom In", accelerator: "CmdOrCtrl+=", click: zoomClick("in") },
           {
-            label: "Zoom In",
+            label: t("实际大小", "Actual Size"),
+            accelerator: "CmdOrCtrl+0",
+            click: zoomClick("reset"),
+          },
+          {
+            label: t("放大", "Zoom In"),
+            accelerator: "CmdOrCtrl+=",
+            click: zoomClick("in"),
+          },
+          {
+            label: t("放大", "Zoom In"),
             accelerator: "CmdOrCtrl+Plus",
             visible: false,
             click: zoomClick("in"),
@@ -272,43 +312,48 @@ export const make = Effect.gen(function* () {
           ...(environment.platform === "darwin"
             ? [
                 {
-                  label: "Zoom In",
+                  label: t("放大", "Zoom In"),
                   accelerator: "CmdOrCtrl+Shift+=",
                   visible: false,
                   click: zoomClick("in"),
                 },
               ]
             : []),
-          { label: "Zoom Out", accelerator: "CmdOrCtrl+-", click: zoomClick("out") },
+          {
+            label: t("缩小", "Zoom Out"),
+            accelerator: "CmdOrCtrl+-",
+            click: zoomClick("out"),
+          },
           // Keypad codes do not match number-row accelerators.
           {
-            label: "Actual Size",
+            label: t("实际大小", "Actual Size"),
             accelerator: "CmdOrCtrl+num0",
             visible: false,
             click: zoomClick("reset"),
           },
           {
-            label: "Zoom In",
+            label: t("放大", "Zoom In"),
             accelerator: "CmdOrCtrl+numadd",
             visible: false,
             click: zoomClick("in"),
           },
           {
-            label: "Zoom Out",
+            label: t("缩小", "Zoom Out"),
             accelerator: "CmdOrCtrl+numsub",
             visible: false,
             click: zoomClick("out"),
           },
           { type: "separator" },
-          { role: "togglefullscreen" },
+          { role: "togglefullscreen", ...(isZh ? { label: "切换全屏" } : {}) },
         ],
       },
       {
         // Electron's default Window submenu adds a Ctrl+W close role off macOS.
         role: "windowMenu",
+        ...(isZh ? { label: "窗口" } : {}),
         submenu: [
-          { role: "minimize" },
-          { role: "zoom" },
+          { role: "minimize", ...(isZh ? { label: "最小化" } : {}) },
+          { role: "zoom", ...(isZh ? { label: "缩放" } : {}) },
           ...(environment.platform === "darwin"
             ? [{ type: "separator" as const }, { role: "front" as const }]
             : []),
@@ -316,16 +361,55 @@ export const make = Effect.gen(function* () {
       },
       {
         role: "help",
+        ...(isZh ? { label: "帮助" } : {}),
         submenu: [
           {
-            label: "Check for Updates...",
+            label: t("检查更新...", "Check for Updates..."),
             click: checkForUpdatesClick,
           },
         ],
       },
     );
 
-    yield* electronMenu.setApplicationMenu(template);
+    return template;
+  };
+
+  // Only sync locale from the main T3 Code renderer (preload exposes desktopBridge);
+  // ignore splash data: pages and external OAuth popups.
+  const READ_RENDERER_LOCALE_SCRIPT =
+    '(() => { try { return typeof window.desktopBridge === "object" && window.desktopBridge !== null ? (window.localStorage.getItem("t3code:locale") ?? "system") : null; } catch { return null; } })()';
+
+  yield* electronApp.on(
+    "browser-window-created",
+    (_event: unknown, window: Electron.BrowserWindow) => {
+      window.webContents.on("did-finish-load", () => {
+        if (window.isDestroyed() || window.webContents.isDestroyed()) return;
+        void window.webContents
+          .executeJavaScript(READ_RENDERER_LOCALE_SCRIPT)
+          .then((pref: unknown) => {
+            if (pref !== "zh-Hans" && pref !== "en" && pref !== "system") return;
+            const nextIsZh = pref === "zh-Hans" ? true : pref === "en" ? false : systemIsZh;
+            if (nextIsZh === currentIsZh) return;
+            currentIsZh = nextIsZh;
+            runMenuEffect(
+              "sync-menu-locale",
+              electronMenu.setApplicationMenu(buildTemplate(currentIsZh)),
+            );
+          })
+          .catch(() => {});
+      });
+    },
+  );
+
+  const configure = Effect.gen(function* () {
+    const preferredLanguages = yield* electronApp.preferredSystemLanguages;
+    const systemLocale = yield* electronApp.systemLocale;
+    systemIsZh = [...preferredLanguages, systemLocale].some(
+      (lang) => typeof lang === "string" && lang.toLowerCase().startsWith("zh"),
+    );
+    currentIsZh = systemIsZh;
+
+    yield* electronMenu.setApplicationMenu(buildTemplate(currentIsZh));
   }).pipe(Effect.withSpan("desktop.menu.configure"));
 
   return DesktopApplicationMenu.of({

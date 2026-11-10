@@ -12,6 +12,18 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <script>
       (() => {
+        try {
+          const localePref = window.localStorage.getItem("t3code:locale");
+          const navLangs =
+            Array.isArray(navigator.languages) && navigator.languages.length > 0
+              ? navigator.languages
+              : [navigator.language];
+          const isZh =
+            localePref === "zh-Hans" ||
+            (localePref !== "en" &&
+              navLangs.some((l) => typeof l === "string" && l.toLowerCase().startsWith("zh")));
+          document.documentElement.lang = isZh ? "zh-Hans" : "en";
+        } catch {}
         const LIGHT_BACKGROUND = "#ffffff";
         const DARK_BACKGROUND = "#000000";
         const CUSTOM_THEMES_STORAGE_KEY = "t3code:themes:v1";

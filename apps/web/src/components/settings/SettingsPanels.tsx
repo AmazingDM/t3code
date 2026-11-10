@@ -71,6 +71,11 @@ import {
 } from "../../modelSelection";
 import { useTextGenerationTargets } from "../../textGenerators";
 import { ensureLocalApi, readLocalApi } from "../../localApi";
+import {
+  type DisplayLocalePreference,
+  readLocalePreference,
+  setLocalePreference,
+} from "../../i18n/locale";
 import { isMacPlatform } from "../../lib/utils";
 import {
   useEnvironmentProviders,
@@ -138,6 +143,12 @@ const TIMESTAMP_FORMAT_LABELS = {
   "12-hour": "12-hour",
   "24-hour": "24-hour",
 } as const;
+
+const DISPLAY_LOCALE_LABELS: Record<DisplayLocalePreference, string> = {
+  system: "System default",
+  "zh-Hans": "简体中文",
+  en: "English",
+};
 
 const DIFF_LAYOUT_LABELS: Record<DiffLayout, string> = {
   stacked: "Stacked",
@@ -757,12 +768,59 @@ function AutoSettleDaysInput({
 export function GeneralSettingsPanel() {
   const settings = useScopedSettings();
   const updateSettings = useUpdateScopedSettings();
+  const [localePreference, setLocalePreferenceState] = useState<DisplayLocalePreference>(() =>
+    readLocalePreference(),
+  );
   const lastEnabledProjectGroupingMode = useRef<SidebarProjectGroupingMode>(
     readLastEnabledProjectGroupingMode(),
   );
+  const applyLocalePreference = (next: DisplayLocalePreference) => {
+    setLocalePreferenceState(next);
+    setLocalePreference(next);
+  };
 
   return (
     <SettingsPageContainer>
+      <SettingsSection id="language" title="Language">
+        <SettingsRow
+          {...searchableSetting("display-language")}
+          description="System default follows your browser or OS language."
+          resetAction={
+            localePreference !== "system" ? (
+              <SettingResetButton
+                label="display language"
+                onClick={() => applyLocalePreference("system")}
+              />
+            ) : null
+          }
+          control={
+            <Select
+              value={localePreference}
+              onValueChange={(value) => {
+                if (value === "system" || value === "zh-Hans" || value === "en") {
+                  applyLocalePreference(value);
+                }
+              }}
+            >
+              <SelectTrigger size="sm" className="w-full sm:w-44" aria-label="Display language">
+                <SelectValue>{DISPLAY_LOCALE_LABELS[localePreference]}</SelectValue>
+              </SelectTrigger>
+              <SelectPopup align="end" alignItemWithTrigger={false}>
+                <SelectItem hideIndicator value="system">
+                  {DISPLAY_LOCALE_LABELS.system}
+                </SelectItem>
+                <SelectItem hideIndicator value="zh-Hans">
+                  {DISPLAY_LOCALE_LABELS["zh-Hans"]}
+                </SelectItem>
+                <SelectItem hideIndicator value="en">
+                  {DISPLAY_LOCALE_LABELS.en}
+                </SelectItem>
+              </SelectPopup>
+            </Select>
+          }
+        />
+      </SettingsSection>
+
       <SettingsSection id="notifications" title="Notifications">
         <NotificationSettings />
         <SettingsRow

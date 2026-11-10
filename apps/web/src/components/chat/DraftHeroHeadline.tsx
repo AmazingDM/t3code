@@ -58,6 +58,13 @@ import { resolveNewThreadModelSelection } from "@t3tools/shared/usageLimits";
 
 const ADD_PROJECT_VALUE = "add-project";
 
+const DRAFT_HERO_LABELS = {
+  addProject: "Add project",
+  noProject: "No project",
+  chooseProject: "Choose a project",
+  addAProject: "Add a project",
+} as const;
+
 interface PickerItem {
   readonly value: string;
   readonly label: string;
@@ -165,7 +172,7 @@ export function DraftHeroHeadline({
   const pickerItems: readonly PickerItem[] = useOrderWhileOpen(
     [
       ...menuEntries.map(({ group }) => ({ value: group.projectKey, label: group.displayName })),
-      { value: ADD_PROJECT_VALUE, label: "Add project" },
+      { value: ADD_PROJECT_VALUE, label: DRAFT_HERO_LABELS.addProject },
     ],
     (item) => item.value,
     pickerOpen,
@@ -301,7 +308,11 @@ export function DraftHeroHeadline({
           }
         >
           <DraftProjectName
-            value={isScratchDraft ? "No project" : (activeProjectTitle ?? "Choose a project")}
+            value={
+              isScratchDraft
+                ? DRAFT_HERO_LABELS.noProject
+                : (activeProjectTitle ?? DRAFT_HERO_LABELS.chooseProject)
+            }
             singleLine
           />
         </TooltipTrigger>
@@ -370,7 +381,7 @@ export function DraftHeroHeadline({
       onClick={openAddProject}
       className="pointer-events-auto inline min-w-0 max-w-full cursor-pointer border-muted-foreground/35 border-b border-dotted text-muted-foreground/60 transition-colors hover:border-muted-foreground/60 hover:text-muted-foreground/80 focus-visible:rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
     >
-      <DraftProjectName value={activeProjectTitle ?? "Add a project"} singleLine />
+      <DraftProjectName value={activeProjectTitle ?? DRAFT_HERO_LABELS.addAProject} singleLine />
     </button>
   );
 
@@ -414,7 +425,9 @@ export function DraftHeroHeadline({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col items-center">
       {hasResolvedProject && !isScratchDraft ? (
-        <DraftHeroProjectHeading projectName={activeProjectTitle ?? "Choose a project"}>
+        <DraftHeroProjectHeading
+          projectName={activeProjectTitle ?? DRAFT_HERO_LABELS.chooseProject}
+        >
           {projectSelector}
         </DraftHeroProjectHeading>
       ) : (
