@@ -1,3 +1,4 @@
+import { tr } from "~/i18n/locale";
 import {
   findSearchTokenRanges,
   splitSearchText,
@@ -23,7 +24,7 @@ function HighlightedSearchText(props: { text: string; ranges: ReadonlyArray<Sear
 export function SearchMatchHintLine(props: { hint: SearchMatchHint }) {
   return (
     <span className="truncate text-xs text-muted-foreground/85">
-      <span className="text-muted-foreground/70">{props.hint.label}:</span>{" "}
+      <span className="text-muted-foreground/70">{tr(props.hint.label)}:</span>{" "}
       <HighlightedSearchText text={props.hint.text} ranges={props.hint.ranges} />
     </span>
   );

@@ -14,6 +14,7 @@ import {
 } from "@t3tools/contracts";
 import { PlusIcon, XIcon } from "lucide-react";
 
+import { tr } from "~/i18n/locale";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
 import { DraftInput } from "../ui/draft-input";
@@ -122,19 +123,20 @@ export function deriveProviderSettingsFields(
         {
           key,
           control: formAnnotation.control ?? "text",
-          label:
+          label: tr(
             isLocalAcp && key === "commandPath"
               ? "Executable"
               : (annotatedTitle ?? titleizeFieldKey(key)),
+          ),
           ...(isLocalAcp && key === "commandPath"
-            ? { description: "Executable name or path on this environment." }
+            ? { description: tr("Executable name or path on this environment.") }
             : annotatedDescription !== undefined
-              ? { description: annotatedDescription }
+              ? { description: tr(annotatedDescription) }
               : {}),
           ...(isLocalAcp && key === "commandPath"
-            ? { placeholder: "e.g. dsh" }
+            ? { placeholder: tr("e.g. dsh") }
             : formAnnotation.placeholder !== undefined
-              ? { placeholder: formAnnotation.placeholder }
+              ? { placeholder: tr(formAnnotation.placeholder) }
               : {}),
           clearWhenEmpty: formAnnotation.clearWhenEmpty ?? "omit",
           ...(isSecretSetting(fieldSchema) ? { secret: true } : {}),
@@ -143,7 +145,12 @@ export function deriveProviderSettingsFields(
             ? { defaultBooleanValue: readFieldBooleanDefault(fieldSchema) }
             : {}),
           ...(formAnnotation.control === "select" && formAnnotation.options
-            ? { options: formAnnotation.options }
+            ? {
+                options: formAnnotation.options.map((opt) => ({
+                  ...opt,
+                  label: tr(opt.label),
+                })),
+              }
             : {}),
         } satisfies ProviderSettingsFieldModel,
       ];

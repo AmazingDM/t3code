@@ -75,6 +75,7 @@ import {
   type DisplayLocalePreference,
   readLocalePreference,
   setLocalePreference,
+  tr,
 } from "../../i18n/locale";
 import { isMacPlatform } from "../../lib/utils";
 import {
@@ -1557,7 +1558,7 @@ function ScopedCompactIdleThreadsRow() {
               {(value: string | null) =>
                 value === null
                   ? "Mixed"
-                  : IDLE_COMPACTION_MODES.find((mode) => mode.value === value)?.label
+                  : tr(IDLE_COMPACTION_MODES.find((mode) => mode.value === value)?.label)
               }
             </SelectValue>
           </SelectTrigger>
@@ -1570,7 +1571,7 @@ function ScopedCompactIdleThreadsRow() {
                 // A server from before modes has only the on/off switch, so it cannot store "Never".
                 disabled={mode.value === "off" && !idleCompaction.neverAvailable}
               >
-                {mode.label}
+                {tr(mode.label)}
               </SelectItem>
             ))}
           </SelectPopup>

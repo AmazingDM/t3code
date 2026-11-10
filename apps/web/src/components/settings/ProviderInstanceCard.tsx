@@ -36,6 +36,7 @@ import {
   readCustomModelEntries,
   toCustomModelSetting,
 } from "@t3tools/shared/model";
+import { tr } from "~/i18n/locale";
 import { cn } from "../../lib/utils";
 import { useCopyToClipboard } from "../../hooks/useCopyToClipboard";
 import { useStableCallback } from "../../hooks/useStableCallback";
@@ -290,8 +291,8 @@ function ProviderEnvironmentFieldRow(props: {
 
   return (
     <SettingsRow
-      title={<label htmlFor={inputId}>{props.field.label}</label>}
-      description={props.field.description}
+      title={<label htmlFor={inputId}>{tr(props.field.label)}</label>}
+      description={tr(props.field.description)}
       managed={props.managedReason}
       control={
         <div className="flex w-full min-w-0 items-center gap-2 @min-[32rem]/settings-row:w-56">
@@ -303,7 +304,7 @@ function ProviderEnvironmentFieldRow(props: {
               autoComplete="off"
               value={typeof value === "string" ? value : ""}
               onCommit={(next) => props.onCommit(props.field, next)}
-              placeholder={props.field.placeholder}
+              placeholder={tr(props.field.placeholder)}
               spellCheck={false}
             />
           ) : (
@@ -313,10 +314,10 @@ function ProviderEnvironmentFieldRow(props: {
               className="min-w-0 flex-1"
               value={value}
               onCommit={(next) => props.onCommit(props.field, next)}
-              placeholder={props.field.placeholder}
+              placeholder={tr(props.field.placeholder)}
               configured={props.variable?.valueRedacted === true}
               spellCheck={false}
-              aria-label={props.field.label}
+              aria-label={tr(props.field.label)}
               sources={props.secretSources}
               onSecretChange={(secret) => props.onSecretChange(props.field, secret)}
             />
@@ -750,7 +751,7 @@ export function ProviderInstanceCard({
   const isAuthenticated = enabled && liveProvider?.auth.status === "authenticated";
   const authLabel =
     enabled && liveProvider?.auth.status === "authenticated"
-      ? (liveProvider.auth.label ?? liveProvider.auth.type ?? null)
+      ? tr(liveProvider.auth.label ?? liveProvider.auth.type ?? null)
       : null;
   const versionLabel = getProviderVersionLabel(liveProvider?.version);
   const versionAdvisory = getProviderVersionAdvisoryPresentation(
@@ -761,13 +762,15 @@ export function ProviderInstanceCard({
   const updateCommand = versionAdvisory?.updateCommand ?? null;
   const updateState = liveProvider?.updateState;
   const updateProgress = isUpdating
-    ? ((updateState?.status === "queued" || updateState?.status === "running"
-        ? updateState.message
-        : null) ?? "Starting update")
+    ? (tr(
+        updateState?.status === "queued" || updateState?.status === "running"
+          ? updateState.message
+          : null,
+      ) ?? "Starting update")
     : null;
   const updateProblem =
     !isUpdating && (updateState?.status === "failed" || updateState?.status === "unchanged")
-      ? updateState.message
+      ? tr(updateState.message)
       : null;
   const hasCompatibilityWarning =
     compatibility !== undefined &&
@@ -1172,7 +1175,7 @@ export function ProviderInstanceCard({
     <div className="flex shrink-0 items-center gap-1.5">
       {driverOption?.badgeLabel ? (
         <Badge variant="warning" size="sm" className="shrink-0">
-          {driverOption.badgeLabel}
+          {tr(driverOption.badgeLabel)}
         </Badge>
       ) : null}
       {versionCodeNode}
@@ -1213,7 +1216,7 @@ export function ProviderInstanceCard({
       </ProviderStatusDiagnostic>
       {urlAuthAction && onAcceptUrlAuth ? (
         <div className="grid max-w-xl gap-1.5 pt-1 text-xs">
-          <p>{urlAuthAction.message}</p>
+          <p>{tr(urlAuthAction.message)}</p>
           <code className="break-all text-2xs">{urlAuthAction.url}</code>
           <Button
             render={

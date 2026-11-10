@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { WizardFooter, WizardPanel } from "../ui/wizard";
 import { ProviderAuthenticationSection } from "./ProviderAuthenticationSection";
 import { SettingsGroup } from "./SettingsGroup";
+import { tr } from "~/i18n/locale";
 import { SettingsRow } from "./settingsLayout";
 
 export function ProviderWizardAuthenticationStep({
@@ -61,7 +62,7 @@ export function ProviderWizardAuthenticationStep({
                 isDiscovering
                   ? "Discovering sign-in methods…"
                   : (query.error ??
-                    auth?.message ??
+                    tr(auth?.message) ??
                     "No in-app sign-in advertised. Follow the provider's docs to finish setup.")
               }
               control={

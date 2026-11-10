@@ -48,6 +48,7 @@ import { RedactedSensitiveText } from "./RedactedSensitiveText";
 import { SettingsRow } from "./settingsLayout";
 import { AddCodexAccountDialog } from "./AddCodexAccountDialog";
 import { getOnboardingProviderState } from "../../onboarding/providerReadiness.logic";
+import { tr } from "~/i18n/locale";
 import { getProviderSummary } from "./providerStatus";
 import {
   settleAuthorizationPage,
@@ -613,14 +614,22 @@ function ManagedCodexSetup({
 
   const runtimeDescription =
     installation?.phase === "downloading"
-      ? `Downloading ${(installation.downloadedBytes / 1_000_000).toFixed(1)}${installation.totalBytes === null ? "" : ` of ${(installation.totalBytes / 1_000_000).toFixed(1)}`} MB.`
+      ? installation.totalBytes === null
+        ? `Downloading ${(installation.downloadedBytes / 1_000_000).toFixed(1)} MB.`
+        : `Downloading ${(installation.downloadedBytes / 1_000_000).toFixed(1)} of ${(installation.totalBytes / 1_000_000).toFixed(1)} MB.`
       : installation?.phase === "extracting"
         ? "Installing Codex."
         : installation?.phase === "verifying"
           ? "Checking Codex."
           : installed
-            ? `${installation?.source === "local" ? "Using your installed Codex" : "Managed by T3 Code"}${installation?.installedVersion ? ` · v${installation.installedVersion}` : ""}.`
-            : (installation?.message ?? "T3 Code downloads and manages Codex for you.");
+            ? installation?.source === "local"
+              ? installation.installedVersion
+                ? `Using your installed Codex · v${installation.installedVersion}.`
+                : "Using your installed Codex."
+              : installation?.installedVersion
+                ? `Managed by T3 Code · v${installation.installedVersion}.`
+                : "Managed by T3 Code."
+            : (tr(installation?.message) ?? "T3 Code downloads and manages Codex for you.");
   const accountDescription = finishingSignIn ? (
     "Finishing sign-in..."
   ) : installActive ? (
@@ -629,7 +638,7 @@ function ManagedCodexSetup({
     auth?.phase === "waiting" && requestedAccountEmail ? (
       `Continue as ${requestedAccountEmail} on OpenAI.`
     ) : (
-      (auth?.message ?? "Finish signing in in your browser.")
+      (tr(auth?.message) ?? "Finish signing in in your browser.")
     )
   ) : authenticated ? (
     provider?.auth.email?.trim() ? (
@@ -802,7 +811,9 @@ function ManagedCodexSetup({
   );
 
   const logoutWarning =
-    auth?.phase === "idle" && auth.message?.startsWith("Signed out locally.") ? auth.message : null;
+    auth?.phase === "idle" && auth.message?.startsWith("Signed out locally.")
+      ? tr(auth.message)
+      : null;
 
   if (presentation === "onboarding") {
     const setupError =
@@ -811,7 +822,7 @@ function ManagedCodexSetup({
       (authQuery.error || installQuery.error
         ? "Could not read setup status. Reconnect and try again."
         : installation?.phase === "failed"
-          ? installation.message
+          ? tr(installation.message)
           : null);
     return (
       <>
@@ -1060,7 +1071,7 @@ function ManagedCodexSetup({
         <p role="alert" className="px-3 py-2 text-xs text-destructive sm:px-4">
           {error ??
             (installation?.phase === "failed"
-              ? installation.message
+              ? tr(installation.message)
               : "Could not read Codex setup status. Reconnect and try again.")}
         </p>
       ) : null}

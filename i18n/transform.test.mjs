@@ -63,6 +63,7 @@ describe("i18n/transform", () => {
       webSrcDir: WEB_SRC,
       localeModulePath: LOCALE_MOD,
     });
+    expect(transformed).not.toBeNull();
     expect(transformed.code).toContain(
       "(__IS_ZH__ ? `将 ${page} 重置为默认值` : `Reset ${page} to default`)",
     );
@@ -128,6 +129,7 @@ export function Lang() { return <div>{DISPLAY_LOCALE_LABELS.system}</div>; }
       webSrcDir: WEB_SRC,
       localeModulePath: LOCALE_MOD,
     });
+    expect(transformed).not.toBeNull();
     expect(transformed.code).toContain('system: (__IS_ZH__ ? "跟随系统" : "System default")');
     expect(transformed.code).toContain('en: "English"');
     expect(transformed.code).toContain('"zh-Hans": "简体中文"');
@@ -136,6 +138,7 @@ export function Lang() { return <div>{DISPLAY_LOCALE_LABELS.system}</div>; }
       true,
     );
     expect(shouldProcessModuleId(`${WEB_SRC}/i18n/locale.ts`, WEB_SRC)).toBe(false);
+    expect(shouldProcessModuleId(`${WEB_SRC}/i18n/runtimeDict.ts`, WEB_SRC)).toBe(false);
     expect(shouldProcessModuleId(`${WEB_SRC}/foo.test.tsx`, WEB_SRC)).toBe(false);
     expect(shouldProcessModuleId(`${WEB_SRC}/diffWorker.ts?worker`, WEB_SRC)).toBe(false);
   });
@@ -165,11 +168,122 @@ export function Lang() { return <div>{DISPLAY_LOCALE_LABELS.system}</div>; }
       },
     );
     expect(transformed).not.toBeNull();
-    // Lowercase d:/ vs uppercase D:/ still resolves cleanly to "../i18n/locale"
     expect(transformed.code).toContain('import { __IS_ZH__ } from "../i18n/locale";');
-    // Identical brand translation does not emit redundant ternary
     expect(transformed.code).toContain("<span>Google</span>");
-    // Plural suffix ternary collapses to empty string in Chinese
     expect(transformed.code).toContain('(__IS_ZH__ ? "" : (n === 1 ? "" : "s"))');
+  });
+
+  it("extracts and translates SelectValue render-prop arrow functions, contextMenu.show, scalar tooltip vars, and nested tooltips inside <code>", () => {
+    const code = `export function Controls({ api, disabled }: { api: any; disabled: boolean }) {
+  const sendTooltip = disabled ? "Environment disconnected" : "Send message";
+  const openMenu = () => api.contextMenu.show([{ id: "copy", label: "Copy full path" }]);
+  return (
+    <div>
+      <code>
+        v0.1.8
+        <TooltipPopup>Copy version</TooltipPopup>
+      </code>
+      <SelectValue>
+        {(value: string | null) => (value === "prefer" ? "Prefer" : "Manual only")}
+      </SelectValue>
+      <TooltipPopup>{sendTooltip}</TooltipPopup>
+    </div>
+  );
+}
+`;
+    const dict = {
+      "Environment disconnected": "环境已断开连接",
+      "Send message": "发送消息",
+      "Copy full path": "复制完整路径",
+      "Copy version": "复制版本号",
+      Prefer: "优先使用",
+      "Manual only": "仅手动选择",
+    };
+    const { extracted, transformed } = analyzeModule(code, `${WEB_SRC}/components/Controls.tsx`, {
+      dict,
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(extracted.has("v0.1.8")).toBe(false);
+    expect(extracted.has("Copy version")).toBe(true);
+    expect(extracted.has("Prefer")).toBe(true);
+    expect(extracted.has("Copy full path")).toBe(true);
+    expect(extracted.has("Environment disconnected")).toBe(true);
+    expect(transformed).not.toBeNull();
+    expect(transformed.code).toContain('{__IS_ZH__ ? "复制版本号" : "Copy version"}');
+    expect(transformed.code).toContain('(__IS_ZH__ ? "优先使用" : "Prefer")');
+    expect(transformed.code).toContain('label: (__IS_ZH__ ? "复制完整路径" : "Copy full path")');
+    expect(transformed.code).toContain(
+      '(__IS_ZH__ ? "环境已断开连接" : "Environment disconnected")',
+    );
+  });
+
+  it("preserves native language names in DISPLAY_LOCALE_LABELS while translating system", () => {
+    const code = `const DISPLAY_LOCALE_LABELS = {
+  system: "Follow system",
+  en: "English",
+  "zh-Hans": "简体中文",
+} as const;
+export function LocaleSelect() {
+  return <span>{DISPLAY_LOCALE_LABELS.en}</span>;
+}
+`;
+    const dict = {
+      "Follow system": "跟随系统",
+      English: "英语",
+    };
+    const { extracted, transformed } = analyzeModule(
+      code,
+      `${WEB_SRC}/components/LocaleSelect.tsx`,
+      {
+        dict,
+        webSrcDir: WEB_SRC,
+        localeModulePath: LOCALE_MOD,
+      },
+    );
+    expect(extracted.has("Follow system")).toBe(true);
+    expect(extracted.has("English")).toBe(false);
+    expect(transformed.code).toContain('system: (__IS_ZH__ ? "跟随系统" : "Follow system")');
+    expect(transformed.code).toContain('en: "English"');
+  });
+
+  it("preserves T3 Code brand lockup via file-scoped override while translating Code elsewhere", () => {
+    const brandCode = `export function Brand() {
+  return (
+    <span>
+      <T3Wordmark />
+      <span>Code</span>
+      <Badge>Beta</Badge>
+    </span>
+  );
+}
+`;
+    const dict = {
+      Code: "代码",
+      "components/sidebar/SidebarChrome.tsx::Code": "Code",
+    };
+    const brandResult = analyzeModule(
+      brandCode,
+      `${WEB_SRC}/components/sidebar/SidebarChrome.tsx`,
+      {
+        dict,
+        webSrcDir: WEB_SRC,
+        localeModulePath: LOCALE_MOD,
+      },
+    );
+    // Neither "Code" (overridden to "Code") nor "Beta" (stage badge) should be mutated!
+    expect(brandResult.transformed).toBeNull();
+
+    const otherResult = analyzeModule(
+      `export function Tab() { return <span>Code</span>; }`,
+      `${WEB_SRC}/components/Tab.tsx`,
+      {
+        dict,
+        webSrcDir: WEB_SRC,
+        localeModulePath: LOCALE_MOD,
+      },
+    );
+    expect(otherResult.transformed).not.toBeNull();
+    expect(otherResult.transformed.code).toContain('{__IS_ZH__ ? "代码" : "Code"}');
   });
 });

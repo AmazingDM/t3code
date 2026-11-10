@@ -4,6 +4,7 @@ import type { ProviderDriverKind, ServerProviderModel } from "@t3tools/contracts
 import type { CustomModelDefinition } from "@t3tools/shared/model";
 
 import { cn } from "../../lib/utils";
+import { tr } from "~/i18n/locale";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from "../ui/select";
@@ -202,7 +203,7 @@ export function CustomModelEditor({
                 <SelectItem key={preset.id} value={preset.id}>
                   <span className="flex items-baseline gap-2">
                     <code className="font-mono text-xs">{preset.id}</code>
-                    <span className="text-muted-foreground">{preset.label}</span>
+                    <span className="text-muted-foreground">{tr(preset.label)}</span>
                   </span>
                 </SelectItem>
               ))}

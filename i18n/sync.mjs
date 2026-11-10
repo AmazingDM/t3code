@@ -118,7 +118,21 @@ async function main() {
   for (const [key, meta] of candidates) {
     if (Object.hasOwn(overrideDict, key) && isValidTranslation(key, overrideDict[key])) continue;
     if (Object.hasOwn(autoDict, key) && isValidTranslation(key, autoDict[key])) continue;
-    missing.push({ key, context: meta.context, files: [...meta.files] });
+    const files = [...meta.files];
+    if (
+      files.length > 0 &&
+      files.every((file) => {
+        const scopedKey = `${file}::${key}`;
+        return (
+          (Object.hasOwn(overrideDict, scopedKey) &&
+            isValidTranslation(key, overrideDict[scopedKey])) ||
+          (Object.hasOwn(autoDict, scopedKey) && isValidTranslation(key, autoDict[scopedKey]))
+        );
+      })
+    ) {
+      continue;
+    }
+    missing.push({ key, context: meta.context, files });
   }
 
   console.log(

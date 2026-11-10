@@ -10,6 +10,7 @@ import { getProviderOptionCurrentLabel } from "@t3tools/shared/model";
 import { CheckIcon, ChevronRightIcon, ChevronUpIcon, WorkflowIcon } from "lucide-react";
 import { type KeyboardEvent, type ReactNode, use, useRef, useState } from "react";
 
+import { tr } from "~/i18n/locale";
 import { cn } from "~/lib/utils";
 import {
   Menu,
@@ -139,9 +140,9 @@ export function describeComposerEffort(
       traits.reportedModelSelection,
     );
   if (!word && !glyph && !fast && !display.ultracode && !contextWindow)
-    return { suffix: null, detail: display.label };
+    return { suffix: null, detail: tr(display.label) };
   return {
-    detail: display.label,
+    detail: tr(display.label),
     suffix: (
       <span
         className={cn(
@@ -152,7 +153,7 @@ export function describeComposerEffort(
       >
         {word ? (
           <span data-composer-control-label className="max-w-24 truncate">
-            {word}
+            {tr(word)}
           </span>
         ) : glyph ? (
           <EffortGlyph count={glyph.count} filled={glyph.filled} size={size} />
@@ -206,7 +207,7 @@ function ColumnRow(props: {
   } as const;
   const content = (
     <>
-      <span className="min-w-0 flex-1 truncate">{props.label}</span>
+      <span className="min-w-0 flex-1 truncate">{tr(props.label)}</span>
       {props.selected ? (
         <>
           {props.isDefault ? <span className="sr-only">Default</span> : null}
@@ -255,8 +256,8 @@ function EffortLevels(props: { traits: TraitsSelectionInput }) {
           const value = traits.currentLabel(descriptor);
           return value ? (
             <div key={descriptor.id}>
-              <div className={COLUMN_LABEL}>{descriptor.label}</div>
-              <div className="px-2 pb-1.5 text-muted-foreground/80 text-xs">{value}</div>
+              <div className={COLUMN_LABEL}>{tr(descriptor.label)}</div>
+              <div className="px-2 pb-1.5 text-muted-foreground/80 text-xs">{tr(value)}</div>
             </div>
           ) : null;
         })}
@@ -351,8 +352,8 @@ const OPTION_ROW = cn(COLUMN_ROW, "h-auto py-1");
 function OptionRowText(props: { label: string; value: string }) {
   return (
     <span className="flex min-w-0 flex-1 flex-col">
-      <span className="truncate text-muted-foreground text-xs">{props.label}</span>
-      <span className="truncate">{props.value}</span>
+      <span className="truncate text-muted-foreground text-xs">{tr(props.label)}</span>
+      <span className="truncate">{tr(props.value)}</span>
     </span>
   );
 }
@@ -440,10 +441,10 @@ function OptionMenuRow(props: {
             <MenuRadioItem key={choice.id} value={choice.id} closeOnClick>
               <span className="flex items-center gap-3">
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate">{choice.label}</span>
+                  <span className="truncate">{tr(choice.label)}</span>
                   {choice.description ? (
                     <span className="line-clamp-2 text-muted-foreground text-xs">
-                      {choice.description}
+                      {tr(choice.description)}
                     </span>
                   ) : null}
                 </span>
@@ -503,7 +504,8 @@ export function ComposerEffortColumn(props: { traits: TraitsSelectionInput | nul
       <div className="shrink-0 px-3 pt-2.5">
         <div className="flex h-8.25 -translate-y-px items-center gap-2 border-b border-border/70 pb-1.5 text-sm">
           <span className="text-muted-foreground">
-            {controls?.effort?.descriptor.label ?? (controls?.others.length ? "Options" : "Effort")}
+            {tr(controls?.effort?.descriptor.label) ??
+              (controls?.others.length ? "Options" : "Effort")}
           </span>
           <span className="ms-auto min-w-0 truncate text-muted-foreground text-xs">
             {picker.modelLabel}
@@ -544,7 +546,7 @@ function SpeedSegment(props: {
       {props.label === "Fast" || props.label === "Ultrafast" ? (
         <FastBolt ultra={props.label === "Ultrafast"} />
       ) : null}
-      {props.label}
+      {tr(props.label)}
     </>
   );
   if (!props.description) return <button {...buttonProps}>{content}</button>;
@@ -608,7 +610,7 @@ function UltracodeControl(props: { traits: TraitsSelectionInput }) {
         onClick={() => traits.changeBoolean(ultracodeToggle.id, !on)}
       >
         <WorkflowIcon aria-hidden="true" className="size-3" />
-        {ultracodeToggle.label}
+        {tr(ultracodeToggle.label)}
       </button>
     </div>
   );

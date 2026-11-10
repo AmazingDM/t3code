@@ -20,6 +20,7 @@ import { serverEnvironment } from "../../state/server";
 import { useAtomCommand } from "../../state/use-atom-command";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
+import { tr } from "~/i18n/locale";
 import { SettingsRow } from "./settingsLayout";
 import { ProviderAuthenticationSection } from "./ProviderAuthenticationSection";
 
@@ -135,7 +136,9 @@ function ProviderSetupActions({
     installation === null
       ? "Checking the Antigravity runtime."
       : installation?.phase === "downloading"
-        ? `Downloading ${(installation.downloadedBytes / 1_000_000).toFixed(1)} MB${installation.totalBytes === null ? "" : ` of ${(installation.totalBytes / 1_000_000).toFixed(1)} MB`}.`
+        ? installation.totalBytes === null
+          ? `Downloading ${(installation.downloadedBytes / 1_000_000).toFixed(1)} MB.`
+          : `Downloading ${(installation.downloadedBytes / 1_000_000).toFixed(1)} MB of ${(installation.totalBytes / 1_000_000).toFixed(1)} MB.`
         : installation?.phase === "extracting"
           ? "Extracting Antigravity."
           : installation?.phase === "verifying"
@@ -235,7 +238,7 @@ function ProviderSetupActions({
             installation?.message &&
             installation.message !== installationStatusMessage ? (
               <p className="text-muted-foreground [overflow-wrap:anywhere]">
-                {installation.message}
+                {tr(installation.message)}
               </p>
             ) : null}
             <div className="grid min-h-7 grid-cols-[1.75rem_minmax(0,1fr)] gap-2">

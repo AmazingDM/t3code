@@ -190,7 +190,9 @@ export function SettingInheritance({
   const hasMultipleEnvironments = new Set(targets.map((target) => target.environmentId)).size > 1;
   const overrideSummary =
     overridingProjects.length > 0
-      ? `${summary} · ${overridingProjects.length} project ${overridingProjects.length === 1 ? "override" : "overrides"}`
+      ? overridingProjects.length === 1
+        ? `${summary} · 1 project override`
+        : `${summary} · ${overridingProjects.length} project overrides`
       : summary;
   const chains = targets.flatMap((target) => {
     const environment = environments.find(

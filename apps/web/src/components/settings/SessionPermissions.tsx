@@ -3,6 +3,7 @@ import {
   AUTH_SCOPE_OPTIONS,
   sessionPermissionsUnavailableMessage,
 } from "@t3tools/shared/authScopeOptions";
+import { tr } from "~/i18n/locale";
 import { useEnvironmentSessionState } from "~/state/session";
 
 export function SessionPermissions({
@@ -25,7 +26,7 @@ export function SessionPermissions({
       <ul className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
         {AUTH_SCOPE_OPTIONS.map(({ scope, title }) => (
           <li key={scope} className="flex items-start justify-between gap-3">
-            <span>{title}</span>
+            <span>{tr(title)}</span>
             <span className="shrink-0 text-muted-foreground">
               {sessionGrantsScope(session.data!, scope) ? "Allowed" : "Not granted"}
             </span>
@@ -35,11 +36,14 @@ export function SessionPermissions({
     </div>
   ) : (
     <p className="py-3 text-xs text-muted-foreground">
-      {sessionPermissionsUnavailableMessage({
-        connected,
-        failed: session.hasError,
-        rejected: !session.hasError && !session.isPending && session.data?.authenticated === false,
-      })}
+      {tr(
+        sessionPermissionsUnavailableMessage({
+          connected,
+          failed: session.hasError,
+          rejected:
+            !session.hasError && !session.isPending && session.data?.authenticated === false,
+        }),
+      )}
     </p>
   );
 }

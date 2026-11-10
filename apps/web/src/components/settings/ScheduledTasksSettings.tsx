@@ -1,3 +1,4 @@
+import { tr } from "~/i18n/locale";
 import { useAtomValue } from "@effect/atom-react";
 import { connectionStatusTitle } from "@t3tools/client-runtime/connection";
 import { AsyncResult } from "effect/reactivity";
@@ -260,14 +261,14 @@ function WebhookFiltersField({
               <div className="grid w-44 shrink-0 grid-cols-1">
                 <SelectTrigger size="sm" aria-label={`Filter ${index + 1} test`}>
                   <SelectValue>
-                    {WEBHOOK_FILTER_OPS.find((option) => option.op === filter.op)?.label}
+                    {tr(WEBHOOK_FILTER_OPS.find((option) => option.op === filter.op)?.label)}
                   </SelectValue>
                 </SelectTrigger>
               </div>
               <SelectPopup>
                 {WEBHOOK_FILTER_OPS.map((option) => (
                   <SelectItem key={option.op} value={option.op}>
-                    {option.label}
+                    {tr(option.label)}
                   </SelectItem>
                 ))}
               </SelectPopup>

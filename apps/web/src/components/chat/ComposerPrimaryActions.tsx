@@ -10,10 +10,7 @@ import { StageBackdropButtonArt, useSidebarStageBackdropVariant } from "../Sideb
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
-import {
-  alternateComposerDispatchAction,
-  resolveComposerDispatchMode,
-} from "@t3tools/client-runtime/state/composer-dispatch";
+import { resolveComposerDispatchMode } from "@t3tools/client-runtime/state/composer-dispatch";
 
 interface PendingActionState {
   questionIndex: number;
@@ -118,7 +115,6 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
       canSteer,
       alternateModifier: shortcutModifiers.metaKey || shortcutModifiers.ctrlKey,
     }) === "queue";
-  const alternateAction = alternateComposerDispatchAction(followUpBehavior);
   const isSendDisabled = !canOperateThread || sendDisabledReason !== null;
   const stageBackdropVariant = useSidebarStageBackdropVariant(environmentIdentificationMode);
 
@@ -242,12 +238,19 @@ export const ComposerPrimaryActions = memo(function ComposerPrimaryActions({
             ? "Updating queued message"
             : "Submitting message"
           : null));
+  const modClickLabel = isMacPlatform(navigator.platform) ? "⌘" : "Ctrl";
   const submitTooltip =
     submitStatus ??
     (compactsBeforeSend
       ? `Summarize ${compactTokens} tokens of history, then send`
       : isRunning && !isEditingQueuedMessage && canSteer
-        ? `Click to ${followUpBehavior}, ${isMacPlatform(navigator.platform) ? "⌘" : "Ctrl"}-click${alternateShortcutLabel ? ` or ${alternateShortcutLabel}` : ""} to ${alternateAction}`
+        ? followUpBehavior === "steer"
+          ? alternateShortcutLabel
+            ? `Click to steer, ${modClickLabel}-click or ${alternateShortcutLabel} to queue`
+            : `Click to steer, ${modClickLabel}-click to queue`
+          : alternateShortcutLabel
+            ? `Click to queue, ${modClickLabel}-click or ${alternateShortcutLabel} to steer`
+            : `Click to queue, ${modClickLabel}-click to steer`
         : submitLabel);
 
   const sendButton = (

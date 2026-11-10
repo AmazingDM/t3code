@@ -3,6 +3,7 @@ import type {
   ServerProviderVersionAdvisory,
   ServerProviderCompatibilityAdvisory,
 } from "@t3tools/contracts";
+import { tr } from "~/i18n/locale";
 
 export const PROVIDER_STATUS_STYLES = {
   disabled: {
@@ -44,7 +45,7 @@ export function getProviderStatusKey(provider: ServerProvider | undefined): Prov
   return provider?.status ?? "warning";
 }
 
-export function getProviderSummary(provider: ServerProvider | undefined) {
+function getRawProviderSummary(provider: ServerProvider | undefined) {
   if (!provider) {
     return {
       headline: "Checking provider status",
@@ -103,6 +104,14 @@ export function getProviderSummary(provider: ServerProvider | undefined) {
   };
 }
 
+export function getProviderSummary(provider: ServerProvider | undefined) {
+  const raw = getRawProviderSummary(provider);
+  return {
+    headline: tr(raw.headline),
+    detail: tr(raw.detail),
+  };
+}
+
 export function getProviderVersionLabel(version: string | null | undefined) {
   if (!version) return null;
   const antigravity = /^agy_acp_server_(\d{4})(\d{2})(\d{2})_\d+(?:_(\w+))?$/.exec(version);
@@ -145,10 +154,11 @@ export function getProviderVersionAdvisoryPresentation(
     // Latest package versions cannot be updated into recommendations requiring another package.
     const isAlreadyLatest = advisory?.status === "current";
     return {
-      title: COMPATIBILITY_TITLES[compatibility.status],
-      detail:
+      title: tr(COMPATIBILITY_TITLES[compatibility.status]),
+      detail: tr(
         compatibility.message ??
-        (recommendation ? `Use ${recommendation} for full support.` : "Update for full support."),
+          (recommendation ? `Use ${recommendation} for full support.` : "Update for full support."),
+      ),
       updateCommand:
         targetVersion || latestIsIncompatible || isAlreadyLatest
           ? null
@@ -171,12 +181,13 @@ export function getProviderVersionAdvisoryPresentation(
   const versionLabel = getProviderVersionLabel(version);
 
   return {
-    title: label,
-    detail:
+    title: tr(label),
+    detail: tr(
       advisory.message ??
-      (versionLabel
-        ? `${label}: install ${versionLabel}.`
-        : `${label}: install the latest provider version.`),
+        (versionLabel
+          ? `Update available: install ${versionLabel}.`
+          : "Update available: install the latest provider version."),
+    ),
     updateCommand: advisory.updateCommand,
     emphasis: "normal" as const,
     targetVersion: null,

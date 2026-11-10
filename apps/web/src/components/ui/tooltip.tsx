@@ -9,6 +9,7 @@ import {
   type RefObject,
 } from "react";
 
+import { tr } from "~/i18n/locale";
 import { cn } from "~/lib/utils";
 import { useNativeTitlebarHeight } from "~/lib/windowControlsOverlay";
 
@@ -151,7 +152,7 @@ function TooltipPopup({
           {...props}
         >
           <div className="min-w-0 px-2 py-1" data-slot="tooltip-viewport">
-            {children}
+            {variant !== "code" && typeof children === "string" ? tr(children) : children}
           </div>
         </TooltipPrimitive.Popup>
       </TooltipPositioner>

@@ -1,4 +1,4 @@
-// @effect-diagnostics-next-line nodeBuiltinImport:off -- Build-time Vite plugin and CLI utility.
+// @effect-diagnostics-next-line nodeBuiltinImport:off -- Build-time Vite/CLI plugin.
 import * as NodeFS from "node:fs";
 // @effect-diagnostics-next-line nodeBuiltinImport:off
 import * as NodePath from "node:path";
@@ -33,6 +33,182 @@ export const TS_CONSTANT_WHITELIST = new Map([
     new Set(["INVOLVEMENT_TABS", "STATE_TABS", "SORT_OPTIONS"]),
   ],
   ["components/usage/usageShortcuts.ts", new Set(["METRIC_OPTIONS", "WINDOW_OPTIONS"])],
+  ["components/chat/runtimeModeConfig.ts", new Set(["runtimeModeConfig"])],
+  ["components/chat/threadDetailsItems.ts", new Set(["THREAD_DETAILS_ITEMS"])],
+  ["components/chat/threadActivityAnnouncement.ts", new Set(["THREAD_STATUS_TEXT"])],
+  ["components/chat/externalLinkContextMenu.ts", new Set(["EXTERNAL_LINK_CONTEXT_MENU_ITEMS"])],
+  ["components/mcp/mcpApps.ts", new Set(["MCP_APPS", "OTHER_MCP_APP_STEPS"])],
+  ["components/preview/previewConstants.ts", new Set(["PREVIEW_ERROR_CODE_MESSAGES"])],
+  [
+    "components/settings/AddProviderInstanceDialog.logic.ts",
+    new Set(["ADD_PROVIDER_WIZARD_STEPS", "ACP_REGISTRY_WIZARD_STEPS", "LOCAL_ACP_WIZARD_STEPS"]),
+  ],
+  ["components/settings/providerStatus.ts", new Set(["COMPATIBILITY_TITLES", "label"])],
+  [
+    "components/settings/KeybindingsSettings.logic.ts",
+    new Set(["KEYBINDING_GROUPS", "OTHER_KEYBINDING_GROUP"]),
+  ],
+  ["components/usage/usagePriceForm.ts", new Set(["USAGE_PRICE_FIELDS"])],
+  ["composerPlaceholder.ts", new Set(["DEFAULT_COMPOSER_PLACEHOLDER"])],
+  ["hooks/useSettings.ts", new Set(["PRIMARY_SETTINGS_UNAVAILABLE_MESSAGE"])],
+  ["lib/projectScriptKeybindings.ts", new Set(["PROJECT_SCRIPT_KEYBINDING_INVALID_MESSAGE"])],
+  ["state/use-orchestration-command.ts", new Set(["ORCHESTRATION_OPERATE_DENIED_MESSAGE"])],
+  ["components/permissions/usePermissionStatus.ts", new Set(["CHECK_FAILED_MESSAGE"])],
+]);
+
+export const TS_FUNCTION_WHITELIST = new Map([
+  [
+    "components/BranchToolbar.logic.ts",
+    new Set([
+      "resolveEnvironmentOptionLabel",
+      "resolveEnvModeLabel",
+      "resolveCurrentWorkspaceLabel",
+      "resolveLockedWorkspaceLabel",
+      "resolvePreviousWorktreeLabel",
+      "resolveBranchTriggerLabel",
+    ]),
+  ],
+  [
+    "components/desktopUpdate.logic.ts",
+    new Set([
+      "getArm64IntelBuildWarningDescription",
+      "getDesktopUpdateButtonTooltip",
+      "getDesktopUpdateInstallConfirmationMessage",
+      "getDesktopUpdateDisabledReason",
+      "getDesktopUpdateIdleTooltip",
+    ]),
+  ],
+  [
+    "components/settings/providerStatus.ts",
+    new Set(["getProviderSummary", "getProviderVersionAdvisoryPresentation"]),
+  ],
+  [
+    "components/GitActionsControl.logic.ts",
+    new Set([
+      "buildMenuItems",
+      "resolveQuickAction",
+      "resolveDefaultBranchActionDialogCopy",
+      "resolveFeatureBranchUnavailableReason",
+    ]),
+  ],
+  [
+    "components/threadActionMenu.logic.ts",
+    new Set(["buildDraftActionMenuItems", "buildThreadActionMenuItems"]),
+  ],
+  [
+    "components/preview/fileExplorerLabel.ts",
+    new Set([
+      "revealInFileExplorerLabel",
+      "revealInFileExplorerLabelForOs",
+      "revealInFileExplorerLabelForKind",
+    ]),
+  ],
+  ["editorLabels.ts", new Set(["editorLabelForPlatform", "openInEditorMenuLabel"])],
+  ["lib/utils.ts", new Set(["getLocalFileManagerName"])],
+  ["fileContextMenu.ts", new Set(["buildFileContextMenuItems"])],
+  [
+    "components/pullRequest/pullRequestLinkContextMenu.ts",
+    new Set(["openOnHostLabel", "pullRequestLinkContextMenuItems"]),
+  ],
+  ["components/chat/MarkdownFileLink.logic.ts", new Set(["markdownFileCopyMenuItems"])],
+  [
+    "components/settings/ConnectionsSettings.logic.ts",
+    new Set(["missingTailscaleEndpointDescription", "resolveLocalVersionStatusLabel"]),
+  ],
+  [
+    "components/settings/SnapShotSettings.logic.ts",
+    new Set([
+      "snapShotSetupSummary",
+      "snapShotSetupButtonLabel",
+      "snapShotFeedbackUnavailableMessage",
+      "snapShotDescription",
+      "snapShotAccessibilityUnavailableMessage",
+      "snapShotUnavailableMessage",
+    ]),
+  ],
+  ["components/settings/SnapShotSetupDialog.logic.ts", new Set(["captureSetupCheckMessage"])],
+  [
+    "components/ProviderUpdateLaunchNotification.logic.ts",
+    new Set(["getProviderUpdatedDescription"]),
+  ],
+  ["components/chat/composerAttachmentFiles.ts", new Set(["fileAttachmentCapabilityBlockReason"])],
+  ["components/chat/composerSubmission.ts", new Set(["getComposerPromptLengthValidationMessage"])],
+  [
+    "components/ChatView.logic.ts",
+    new Set([
+      "getAntigravitySendBlockReason",
+      "buildExpiredTerminalContextToastCopy",
+      "getStartedThreadModelChangeBlockReason",
+    ]),
+  ],
+  ["lib/attachmentUploadState.ts", new Set(["attachmentUploadBlockReason"])],
+]);
+
+const TSX_CONST_SKIP = new Set([
+  "SUGGESTED_SEARCHES",
+  "IMPORT_SOURCE_NAMES",
+  "PLATFORMS",
+  "LOCATION_PRESETS",
+  "MODIFIER_CODES",
+  "BACKSPACE",
+  "DELETE",
+  "CUT",
+]);
+
+const TSX_OBJ_DISPLAY_RE =
+  /(?:LABELS|DESCRIPTIONS|TITLES|COPY|MESSAGES|HEADINGS|PLACEHOLDERS|TOOLTIPS|OPTIONS|MODES|ITEMS|TABS|STEPS|GROUPS|ACTIONS|OVERRIDES|PRESENTATION|PRESENTATIONS|VISUALS|VERDICTS|PACE|STANDS|SIZES|FILTERS|ORIENTATIONS|PERMISSIONS|SIGNALS|TASKS|HEADER|EMPTY_STATE|LABEL|NOTE|TEXT)$/i;
+
+const TSX_OBJ_DISPLAY_NAMES = new Set([
+  "accessConfig",
+  "environmentItems",
+  "foldLabels",
+  "projectOptions",
+  "hostMenuOptions",
+  "serverMenuOptions",
+  "preferences",
+  "sendShortcutOptions",
+  "sortLabels",
+  "projectScopeItems",
+  "inheritance",
+  "accessCopy",
+  "actionLabel",
+  "statusLabel",
+  "options",
+]);
+
+const TSX_SCALAR_DISPLAY_RE =
+  /(?:Tooltip|Description|Placeholder|DisabledReason|BlockedReason|BlockReason|UnavailableReason|Summary|StatusText|ActionLabel|ButtonLabel|TriggerLabel|ScopeLabel|SelectLabel|ModeLabel|MoveLabel|ManageLabel|LinkLabel|WrapLabel|CopyLabel|ToggleLabel|PrimaryLabel|ValidationMessage|ShortcutStatus|DesktopOnlyMessage|SpeedNotice|FailureTitle|FailureHint)$/i;
+
+const TSX_SCALAR_DISPLAY_NAMES = new Set([
+  "UNSAFE_REDIRECT",
+  "UNREACHABLE",
+  "COMMIT_DIALOG_TITLE",
+  "COMMIT_DIALOG_DESCRIPTION",
+  "SCAN_LIMIT_MESSAGE",
+  "IMPORT_PERMISSION_MESSAGE",
+  "UPDATE_BRANCH_REBASE_FAILURE_HINT",
+  "FAILURE_HINT",
+  "CROSS_TRACK_NOTE",
+  "ADVANCED_BACKGROUND_ACTIVITY_DESCRIPTION",
+  "ULTRATHINK_IN_BODY_NOTE",
+  "submitLabel",
+  "submitStatus",
+  "railLabel",
+  "railTitle",
+  "expandLabel",
+  "collapseLabel",
+  "soundLabel",
+  "effectiveLabel",
+  "groupLabel",
+  "notAdded",
+  "checkSummary",
+  "artifactsStatus",
+  "logsStatus",
+  "progressAction",
+  "pendingAutoMergeLabel",
+  "armedAutoMergeLabel",
+  "linkedThreadsLabel",
+  "installationStatusMessage",
 ]);
 
 const DISPLAY_JSX_ATTR_EXACT = new Set([
@@ -68,6 +244,12 @@ const DISPLAY_OBJECT_PROP_NAMES = new Set([
   "summary",
   "headline",
   "detail",
+  "hint",
+  "note",
+  "continueLabel",
+  "pendingLabel",
+  "pending",
+  "failed",
 ]);
 
 const DEFAULT_PARAM_PROP_NAMES = new Set([
@@ -140,6 +322,10 @@ const TAILWIND_RE =
 const BRAND_OR_TECH_EXACT = new Set([
   "T3 Code",
   "T3",
+  "Alpha",
+  "Beta",
+  "Nightly",
+  "Dev",
   "Claude",
   "Claude Code",
   "Codex",
@@ -183,6 +369,8 @@ const BRAND_OR_TECH_EXACT = new Set([
   "IDE",
   "PR",
   "PRs",
+  "MR",
+  "MRs",
   "Enter",
   "Esc",
   "Tab",
@@ -257,13 +445,15 @@ export function shouldProcessModuleId(id, webSrcDir = WEB_SRC_DIR) {
   const normBase = normalizeFsPath(webSrcDir);
   if (!clean.startsWith(`${normBase}/`)) return false;
   const rel = clean.slice(normBase.length + 1);
-  if (rel === "i18n/locale.ts") return false;
+  if (rel.startsWith("i18n/")) return false;
   if (/\.(?:test|spec|renders)\.[cm]?[jt]sx?$/.test(rel)) return false;
   if (/\.browser\.test\.[cm]?[jt]sx?$/.test(rel)) return false;
   if (/[Ww]orker\.[cm]?[jt]sx?$/.test(rel)) return false;
 
   if (rel.endsWith(".tsx")) return true;
-  if (rel.endsWith(".ts") && TS_CONSTANT_WHITELIST.has(rel)) return true;
+  if (rel.endsWith(".ts") && (TS_CONSTANT_WHITELIST.has(rel) || TS_FUNCTION_WHITELIST.has(rel))) {
+    return true;
+  }
   return false;
 }
 
@@ -294,6 +484,7 @@ function getJsxElementName(openingElement) {
 
 function isDisplayJsxAttr(attrName, elementName) {
   if (elementName === "SettingResetButton" && attrName === "label") return false;
+  if (elementName === "code" && attrName !== "title" && attrName !== "aria-label") return false;
   if (DISPLAY_JSX_ATTR_EXACT.has(attrName)) return true;
   if (/(?:Label|Tooltip|Placeholder|Title|Description|Heading)$/.test(attrName)) return true;
   return false;
@@ -510,6 +701,31 @@ function lookupTranslation(dict, relFile, key) {
   return candidate;
 }
 
+function isFunctionNode(node) {
+  return (
+    node.type === "FunctionDeclaration" ||
+    node.type === "FunctionExpression" ||
+    node.type === "ArrowFunctionExpression"
+  );
+}
+
+function walkDirectReturns(bodyNode, onReturnArg) {
+  function visit(n) {
+    if (!n || typeof n !== "object") return;
+    if (n !== bodyNode && isFunctionNode(n)) return;
+    if (n.type === "ReturnStatement" && n.argument) {
+      onReturnArg(n.argument);
+      return;
+    }
+    for (const k of Object.keys(n)) {
+      const v = n[k];
+      if (Array.isArray(v)) v.forEach(visit);
+      else if (v && typeof v === "object") visit(v);
+    }
+  }
+  visit(bodyNode);
+}
+
 export function analyzeModule(code, filename, options = {}) {
   const { dict = null, webSrcDir = WEB_SRC_DIR, localeModulePath = LOCALE_MODULE_PATH } = options;
   const cleanFile = normalizeFsPath(filename.split("?")[0]);
@@ -517,7 +733,8 @@ export function analyzeModule(code, filename, options = {}) {
   const relFile = normalizeRelFile(cleanFile, webSrcDir);
   const isTsx = cleanFile.endsWith(".tsx");
   const tsAllowedConsts = !isTsx ? TS_CONSTANT_WHITELIST.get(relFile) : null;
-  if (!isTsx && !tsAllowedConsts) {
+  const tsAllowedFns = !isTsx ? TS_FUNCTION_WHITELIST.get(relFile) : null;
+  if (!isTsx && !tsAllowedConsts && !tsAllowedFns) {
     return { extracted: new Map(), transformed: null };
   }
 
@@ -537,9 +754,15 @@ export function analyzeModule(code, filename, options = {}) {
     }
   };
 
-  const handleStringLiteralExpr = (litNode, context, wrapJsxBraces = false) => {
+  const handleStringLiteralExpr = (
+    litNode,
+    context,
+    wrapJsxBraces = false,
+    requireCapitalStart = false,
+  ) => {
     if (!litNode || litNode.type !== "Literal" || typeof litNode.value !== "string") return false;
     const { leading, core, trailing } = splitPadding(litNode.value);
+    if (requireCapitalStart && !/^[A-Z0-9"“'(]/.test(core)) return false;
     const hasOverride =
       dict && (Object.hasOwn(dict, `${relFile}::${core}`) || Object.hasOwn(dict, core));
     if (!hasOverride && !isTranslatableText(core)) return false;
@@ -559,7 +782,7 @@ export function analyzeModule(code, filename, options = {}) {
     return false;
   };
 
-  const handleTemplateLiteralExpr = (tplNode, context) => {
+  const handleTemplateLiteralExpr = (tplNode, context, requireCapitalStart = false) => {
     if (!tplNode || tplNode.type !== "TemplateLiteral") return false;
     if (tplNode.expressions.length > 4) return false;
     const rawJoined = tplNode.quasis
@@ -569,6 +792,7 @@ export function analyzeModule(code, filename, options = {}) {
       })
       .join("");
     const { leading, core, trailing } = splitPadding(rawJoined);
+    if (requireCapitalStart && !/^[A-Z0-9"{“'(]/.test(core)) return false;
     const hasOverride =
       dict && (Object.hasOwn(dict, `${relFile}::${core}`) || Object.hasOwn(dict, core));
     if (!hasOverride && !isTranslatableText(core)) return false;
@@ -597,15 +821,15 @@ export function analyzeModule(code, filename, options = {}) {
     return false;
   };
 
-  const handleDisplayExpr = (rawNode, context) => {
+  const handleDisplayExpr = (rawNode, context, requireCapitalStart = false) => {
     const node = unwrapExpr(rawNode);
     if (!node) return;
     if (node.type === "Literal" && typeof node.value === "string") {
-      handleStringLiteralExpr(node, context, false);
+      handleStringLiteralExpr(node, context, false, requireCapitalStart);
       return;
     }
     if (node.type === "TemplateLiteral") {
-      handleTemplateLiteralExpr(node, context);
+      handleTemplateLiteralExpr(node, context, requireCapitalStart);
       return;
     }
     if (node.type === "ConditionalExpression") {
@@ -627,21 +851,57 @@ export function analyzeModule(code, filename, options = {}) {
         });
         return;
       }
-      handleDisplayExpr(node.consequent, context);
-      handleDisplayExpr(node.alternate, context);
+      handleDisplayExpr(node.consequent, context, requireCapitalStart);
+      handleDisplayExpr(node.alternate, context, requireCapitalStart);
       return;
     }
     if (node.type === "LogicalExpression") {
       if (node.operator === "??" || node.operator === "||") {
-        handleDisplayExpr(node.left, context);
+        handleDisplayExpr(node.left, context, requireCapitalStart);
       }
-      handleDisplayExpr(node.right, context);
+      handleDisplayExpr(node.right, context, requireCapitalStart);
+      return;
+    }
+    if (node.type === "ArrowFunctionExpression" || node.type === "FunctionExpression") {
+      if (node.body.type !== "BlockStatement") {
+        handleDisplayExpr(node.body, context, requireCapitalStart);
+      } else {
+        walkDirectReturns(node.body, (retArg) =>
+          handleDisplayExpr(retArg, context, requireCapitalStart),
+        );
+      }
+    }
+  };
+
+  const handleObjectDisplayProps = (objNode, contextPrefix) => {
+    for (const prop of objNode.properties) {
+      if (prop.type !== "Property") continue;
+      const keyName = getPropertyKeyName(prop);
+      if (!keyName) continue;
+      const propVal = unwrapExpr(prop.value);
+      if (DISPLAY_OBJECT_PROP_NAMES.has(keyName)) {
+        handleDisplayExpr(prop.value, `${contextPrefix}.${keyName}`, true);
+      } else if (keyName === "steps" && propVal?.type === "ArrayExpression") {
+        for (const stepEl of propVal.elements) {
+          handleDisplayExpr(stepEl, `${contextPrefix}.steps`, true);
+        }
+      }
     }
   };
 
   const handleDisplayRecordOrList = (constName, initNode) => {
     const unwrapped = unwrapExpr(initNode);
     if (!unwrapped) return;
+
+    if (
+      unwrapped.type === "Literal" ||
+      unwrapped.type === "TemplateLiteral" ||
+      unwrapped.type === "ConditionalExpression" ||
+      unwrapped.type === "LogicalExpression"
+    ) {
+      handleDisplayExpr(unwrapped, `const:${constName}`, true);
+      return;
+    }
 
     if (constName === "SETTINGS_SEARCH_ITEMS" && unwrapped.type === "ArrayExpression") {
       for (const el of unwrapped.elements) {
@@ -655,72 +915,120 @@ export function analyzeModule(code, filename, options = {}) {
           if (k === "title") titleProp = prop;
           if (k === "searchTerms") searchTermsProp = prop;
         }
-        if (!titleProp) continue;
-        const titleVal = unwrapExpr(titleProp.value);
-        if (!titleVal || titleVal.type !== "Literal" || typeof titleVal.value !== "string") {
-          continue;
-        }
-        const enTitle = titleVal.value;
-        const translated = handleStringLiteralExpr(titleVal, "settings-search-title", false);
-        if (translated) {
-          if (searchTermsProp) {
-            const stVal = unwrapExpr(searchTermsProp.value);
-            if (stVal && stVal.type === "ArrayExpression") {
+        if (!titleProp || titleProp.value.type !== "Literal") continue;
+        const rawTitle = titleProp.value.value;
+        if (typeof rawTitle !== "string") continue;
+        const translated = handleStringLiteralExpr(titleProp.value, "settings-search:title", false);
+        if (!translated || !dict) continue;
+
+        if (searchTermsProp) {
+          const arr = unwrapExpr(searchTermsProp.value);
+          if (arr?.type === "ArrayExpression") {
+            const alreadyIncluded = arr.elements.some(
+              (e) =>
+                e?.type === "Literal" &&
+                typeof e.value === "string" &&
+                e.value.toLowerCase() === rawTitle.toLowerCase(),
+            );
+            if (!alreadyIncluded) {
+              const insertPos = arr.start + 1;
+              const suffix = arr.elements.length > 0 ? ", " : "";
               patches.push({
-                start: stVal.start + 1,
-                end: stVal.start + 1,
-                text: `${JSON.stringify(enTitle)}, `,
+                start: insertPos,
+                end: insertPos,
+                text: `${JSON.stringify(rawTitle)}${suffix}`,
               });
             }
-          } else {
-            patches.push({
-              start: titleProp.end,
-              end: titleProp.end,
-              text: `, searchTerms: [${JSON.stringify(enTitle)}]`,
-            });
           }
+        } else if (item.properties.length > 0) {
+          const lastProp = item.properties[item.properties.length - 1];
+          patches.push({
+            start: lastProp.end,
+            end: lastProp.end,
+            text: `, searchTerms: [${JSON.stringify(rawTitle)}]`,
+          });
         }
       }
       return;
     }
 
     if (unwrapped.type === "ObjectExpression") {
+      const hasDirectDisplayProp = unwrapped.properties.some(
+        (p) => p.type === "Property" && DISPLAY_OBJECT_PROP_NAMES.has(getPropertyKeyName(p) ?? ""),
+      );
+      if (hasDirectDisplayProp) {
+        handleObjectDisplayProps(unwrapped, `dict:${constName}`);
+      }
       for (const prop of unwrapped.properties) {
         if (prop.type !== "Property") continue;
-        const keyName = getPropertyKeyName(prop);
-        if (constName === "DISPLAY_LOCALE_LABELS" && (keyName === "zh-Hans" || keyName === "en")) {
-          continue;
-        }
+        const propKey = getPropertyKeyName(prop);
+        if (constName === "DISPLAY_LOCALE_LABELS" && propKey && propKey !== "system") continue;
+        if (hasDirectDisplayProp && propKey && DISPLAY_OBJECT_PROP_NAMES.has(propKey)) continue;
         const propVal = unwrapExpr(prop.value);
         if (!propVal) continue;
-        if (propVal.type === "Literal" || propVal.type === "TemplateLiteral") {
-          handleDisplayExpr(propVal, `dict:${constName}`);
+        if (
+          propVal.type === "Literal" ||
+          propVal.type === "TemplateLiteral" ||
+          propVal.type === "ConditionalExpression" ||
+          propVal.type === "LogicalExpression"
+        ) {
+          handleDisplayExpr(propVal, `dict:${constName}`, true);
         } else if (propVal.type === "ObjectExpression") {
-          for (const subProp of propVal.properties) {
-            if (subProp.type !== "Property") continue;
-            const subKey = getPropertyKeyName(subProp);
-            if (subKey && DISPLAY_OBJECT_PROP_NAMES.has(subKey)) {
-              handleDisplayExpr(subProp.value, `dict:${constName}.${subKey}`);
-            }
-          }
+          handleObjectDisplayProps(propVal, `dict:${constName}`);
         }
       }
       return;
     }
 
     if (unwrapped.type === "ArrayExpression") {
+      const allowStringElements = /(?:STEPS|LABELS)$/i.test(constName);
       for (const el of unwrapped.elements) {
         const item = unwrapExpr(el);
-        if (!item || item.type !== "ObjectExpression") continue;
-        for (const prop of item.properties) {
-          if (prop.type !== "Property") continue;
-          const keyName = getPropertyKeyName(prop);
-          if (keyName && DISPLAY_OBJECT_PROP_NAMES.has(keyName)) {
-            handleDisplayExpr(prop.value, `list:${constName}.${keyName}`);
-          }
+        if (!item) continue;
+        if (item.type === "ObjectExpression") {
+          handleObjectDisplayProps(item, `list:${constName}`);
+        } else if (item.type === "ConditionalExpression") {
+          const cons = unwrapExpr(item.consequent);
+          const alt = unwrapExpr(item.alternate);
+          if (cons?.type === "ObjectExpression")
+            handleObjectDisplayProps(cons, `list:${constName}`);
+          if (alt?.type === "ObjectExpression") handleObjectDisplayProps(alt, `list:${constName}`);
+        } else if (allowStringElements && item.type === "Literal") {
+          handleDisplayExpr(item, `list:${constName}`, true);
         }
       }
     }
+  };
+
+  const walkDisplayFunctionBody = (fnBodyNode, fnName) => {
+    if (!fnBodyNode) return;
+    if (fnBodyNode.type !== "BlockStatement") {
+      const unwrapped = unwrapExpr(fnBodyNode);
+      if (unwrapped?.type === "ObjectExpression") {
+        handleObjectDisplayProps(unwrapped, `fn:${fnName}`);
+      } else {
+        handleDisplayExpr(fnBodyNode, `fn:${fnName}`, true);
+      }
+      return;
+    }
+    function visitFn(n) {
+      if (!n || typeof n !== "object") return;
+      if (n !== fnBodyNode && isFunctionNode(n)) return;
+      if (n.type === "ReturnStatement" && n.argument) {
+        const retVal = unwrapExpr(n.argument);
+        if (retVal && retVal.type !== "ObjectExpression" && retVal.type !== "ArrayExpression") {
+          handleDisplayExpr(retVal, `fn:${fnName}`, true);
+        }
+      } else if (n.type === "ObjectExpression") {
+        handleObjectDisplayProps(n, `fn-obj:${fnName}`);
+      }
+      for (const k of Object.keys(n)) {
+        const v = n[k];
+        if (Array.isArray(v)) v.forEach(visitFn);
+        else if (v && typeof v === "object") visitFn(v);
+      }
+    }
+    visitFn(fnBodyNode);
   };
 
   const isToastCall = (callNode) => {
@@ -740,24 +1048,68 @@ export function analyzeModule(code, filename, options = {}) {
     return false;
   };
 
+  const isContextMenuShowCall = (callNode) => {
+    const callee = callNode.callee;
+    return (
+      callee?.type === "MemberExpression" &&
+      callee.property?.type === "Identifier" &&
+      callee.property.name === "show" &&
+      callee.object?.type === "MemberExpression" &&
+      callee.object.property?.type === "Identifier" &&
+      callee.object.property.name === "contextMenu"
+    );
+  };
+
+  const isConfirmDialogCall = (callNode) => {
+    return (
+      callNode.callee?.type === "Identifier" && callNode.callee.name === "requestConfirmDialog"
+    );
+  };
+
   function walk(node) {
     if (!node || typeof node !== "object") return;
+
+    if (!isTsx && tsAllowedFns && node.type === "FunctionDeclaration" && node.id?.name) {
+      if (tsAllowedFns.has(node.id.name)) {
+        walkDisplayFunctionBody(node.body, node.id.name);
+        return;
+      }
+    }
 
     if (node.type === "VariableDeclarator" && node.id?.type === "Identifier" && node.init) {
       const constName = node.id.name;
       if (!isTsx) {
         if (tsAllowedConsts?.has(constName)) {
           handleDisplayRecordOrList(constName, node.init);
+          return;
         }
-        return;
-      }
-      if (
-        /(?:LABELS|DESCRIPTIONS|TITLES|COPY|MESSAGES|HEADINGS|PLACEHOLDERS|TOOLTIPS|OPTIONS)$/.test(
-          constName,
-        )
-      ) {
-        handleDisplayRecordOrList(constName, node.init);
-        return;
+        const fnInit = unwrapExpr(node.init);
+        if (
+          tsAllowedFns?.has(constName) &&
+          (fnInit?.type === "ArrowFunctionExpression" || fnInit?.type === "FunctionExpression")
+        ) {
+          walkDisplayFunctionBody(fnInit.body, constName);
+          return;
+        }
+      } else if (!TSX_CONST_SKIP.has(constName)) {
+        const unwrappedInit = unwrapExpr(node.init);
+        if (
+          unwrappedInit?.type === "ObjectExpression" ||
+          unwrappedInit?.type === "ArrayExpression"
+        ) {
+          if (TSX_OBJ_DISPLAY_RE.test(constName) || TSX_OBJ_DISPLAY_NAMES.has(constName)) {
+            handleDisplayRecordOrList(constName, node.init);
+          }
+        } else if (
+          unwrappedInit?.type === "Literal" ||
+          unwrappedInit?.type === "TemplateLiteral" ||
+          unwrappedInit?.type === "ConditionalExpression" ||
+          unwrappedInit?.type === "LogicalExpression"
+        ) {
+          if (TSX_SCALAR_DISPLAY_RE.test(constName) || TSX_SCALAR_DISPLAY_NAMES.has(constName)) {
+            handleDisplayExpr(node.init, `scalar:${constName}`, true);
+          }
+        }
       }
     }
 
@@ -776,17 +1128,43 @@ export function analyzeModule(code, filename, options = {}) {
       }
     }
 
-    if (node.type === "CallExpression" && isToastCall(node)) {
-      for (const arg of node.arguments) {
-        const unwrappedArg = unwrapExpr(arg);
-        if (unwrappedArg?.type === "Literal" || unwrappedArg?.type === "TemplateLiteral") {
-          handleDisplayExpr(unwrappedArg, "toast");
-        } else if (unwrappedArg?.type === "ObjectExpression") {
-          for (const prop of unwrappedArg.properties) {
-            if (prop.type !== "Property") continue;
-            const k = getPropertyKeyName(prop);
-            if (k === "title" || k === "description") {
-              handleDisplayExpr(prop.value, `toast:${k}`);
+    if (node.type === "CallExpression") {
+      if (isToastCall(node)) {
+        for (const arg of node.arguments) {
+          const unwrappedArg = unwrapExpr(arg);
+          if (unwrappedArg?.type === "Literal" || unwrappedArg?.type === "TemplateLiteral") {
+            handleDisplayExpr(unwrappedArg, "toast");
+          } else if (unwrappedArg?.type === "ObjectExpression") {
+            for (const prop of unwrappedArg.properties) {
+              if (prop.type !== "Property") continue;
+              const k = getPropertyKeyName(prop);
+              if (k === "title" || k === "description") {
+                handleDisplayExpr(prop.value, `toast:${k}`);
+              }
+            }
+          }
+        }
+      } else if (isContextMenuShowCall(node) && node.arguments.length > 0) {
+        const itemsArg = unwrapExpr(node.arguments[0]);
+        if (itemsArg?.type === "ArrayExpression") {
+          handleDisplayRecordOrList("contextMenuItems", itemsArg);
+        }
+      } else if (isConfirmDialogCall(node) && node.arguments.length > 0) {
+        handleDisplayExpr(node.arguments[0], "confirm:message", true);
+        if (node.arguments[1]) {
+          const opts = unwrapExpr(node.arguments[1]);
+          if (opts?.type === "ObjectExpression") {
+            for (const prop of opts.properties) {
+              if (prop.type !== "Property") continue;
+              const k = getPropertyKeyName(prop);
+              if (
+                k === "title" ||
+                k === "description" ||
+                k === "confirmLabel" ||
+                k === "cancelLabel"
+              ) {
+                handleDisplayExpr(prop.value, `confirm:${k}`, true);
+              }
             }
           }
         }
@@ -796,7 +1174,6 @@ export function analyzeModule(code, filename, options = {}) {
     if (node.type === "JSXElement" || node.type === "JSXFragment") {
       const elemName = node.openingElement ? getJsxElementName(node.openingElement) : "";
       if (
-        elemName === "code" ||
         elemName === "pre" ||
         elemName === "kbd" ||
         elemName === "svg" ||
@@ -820,28 +1197,30 @@ export function analyzeModule(code, filename, options = {}) {
         }
       }
 
-      for (const child of node.children ?? []) {
-        if (child.type === "JSXText") {
-          const cleaned = cleanJSXText(child.raw ?? child.value ?? "");
-          const { leading, core, trailing } = splitPadding(cleaned);
-          const hasOverride =
-            dict && (Object.hasOwn(dict, `${relFile}::${core}`) || Object.hasOwn(dict, core));
-          if (hasOverride || isTranslatableText(core)) {
-            recordCandidate(core, "jsx-text");
-            const zh = lookupTranslation(dict, relFile, core);
-            if (zh) {
-              const zhPadded = `${leading}${zh}${trailing}`;
-              if (zhPadded !== cleaned) {
-                patches.push({
-                  start: child.start,
-                  end: child.end,
-                  text: `{__IS_ZH__ ? ${JSON.stringify(zhPadded)} : ${JSON.stringify(cleaned)}}`,
-                });
+      if (elemName !== "code") {
+        for (const child of node.children ?? []) {
+          if (child.type === "JSXText") {
+            const cleaned = cleanJSXText(child.raw ?? child.value ?? "");
+            const { leading, core, trailing } = splitPadding(cleaned);
+            const hasOverride =
+              dict && (Object.hasOwn(dict, `${relFile}::${core}`) || Object.hasOwn(dict, core));
+            if (hasOverride || isTranslatableText(core)) {
+              recordCandidate(core, "jsx-text");
+              const zh = lookupTranslation(dict, relFile, core);
+              if (zh) {
+                const zhPadded = `${leading}${zh}${trailing}`;
+                if (zhPadded !== cleaned) {
+                  patches.push({
+                    start: child.start,
+                    end: child.end,
+                    text: `{__IS_ZH__ ? ${JSON.stringify(zhPadded)} : ${JSON.stringify(cleaned)}}`,
+                  });
+                }
               }
             }
+          } else if (child.type === "JSXExpressionContainer") {
+            handleDisplayExpr(child.expression, "jsx-expr");
           }
-        } else if (child.type === "JSXExpressionContainer") {
-          handleDisplayExpr(child.expression, "jsx-expr");
         }
       }
     }

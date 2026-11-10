@@ -22,6 +22,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from "../ui/select";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
+import { tr } from "~/i18n/locale";
 import { SettingsRow } from "./settingsLayout";
 import { RedactedSensitiveText } from "./RedactedSensitiveText";
 
@@ -78,7 +79,7 @@ export function ProviderAuthenticationSection({
     (provider.auth.type === "gemini-api-key" || provider.auth.type === "agent-platform");
   const accountDescription = active
     ? auth?.phase === "starting"
-      ? (auth.message ?? (usesCredentials ? "Connecting…" : "Starting sign-in…"))
+      ? (tr(auth.message) ?? (usesCredentials ? "Connecting…" : "Starting sign-in…"))
       : auth?.phase === "verifying"
         ? usesCredentials
           ? "Checking credentials and loading models…"
@@ -97,7 +98,7 @@ export function ProviderAuthenticationSection({
           : usesCredentials
             ? `Connect on ${environmentLabel} to load models.`
             : `Sign in on ${environmentLabel}.`;
-  const statusMessage = auth?.phase === "failed" ? auth.message : null;
+  const statusMessage = auth?.phase === "failed" ? tr(auth.message) : null;
   const disabled = readOnly || pending || query.error !== null || isDiscovering;
   const draftId = `${auth?.flowId ?? ""}:${interaction?.id ?? ""}`;
   const values = draft.id === draftId ? draft.values : {};
@@ -200,7 +201,7 @@ export function ProviderAuthenticationSection({
             >
               <SelectTrigger size="sm" aria-label="Sign-in method" className="w-44">
                 <SelectValue>
-                  {auth?.methods?.find((method) => method.id === methodId)?.name ??
+                  {tr(auth?.methods?.find((method) => method.id === methodId)?.name) ??
                     "Provider default"}
                 </SelectValue>
               </SelectTrigger>
@@ -208,7 +209,7 @@ export function ProviderAuthenticationSection({
                 <SelectItem value="">Provider default</SelectItem>
                 {auth?.methods?.map((method) => (
                   <SelectItem key={method.id} value={method.id}>
-                    {method.name}
+                    {tr(method.name)}
                   </SelectItem>
                 ))}
               </SelectPopup>
@@ -408,7 +409,7 @@ export function ProviderAuthenticationSection({
             >
               {interaction.fields.map((field) => (
                 <label key={field.name} className="grid gap-1">
-                  {field.label}
+                  {tr(field.label)}
                   <Input
                     size="sm"
                     type={field.secret ? "password" : "text"}

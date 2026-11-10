@@ -21,6 +21,7 @@ import {
 import { GaugeIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import { Fragment, useLayoutEffect, useState } from "react";
 
+import { tr } from "~/i18n/locale";
 import { usePrimarySettings } from "../../hooks/useSettings";
 import { observeResize } from "../../lib/observeResize";
 import { environmentPresentations } from "../../state/presentation";
@@ -130,7 +131,7 @@ function WindowBar({
   const resetsAt = window.resetsAt
     ? formatUpcomingTimestamp(window.resetsAt, timestampFormat, now)
     : null;
-  const summary = `${window.label}: ${remaining}% left${
+  const summary = `${tr(window.label)}: ${remaining}% left${
     timeLeft === null ? "" : `, ${timeLeft}% of the window left`
   }${resetsIn ? `, ${resetsIn}` : ""}`;
 
@@ -213,7 +214,7 @@ export function LimitWindows({
         return (
           <Fragment key={window.id}>
             <span className="flex min-w-0 items-center gap-2 text-xs">
-              <span className="truncate text-muted-foreground">{window.label}</span>
+              <span className="truncate text-muted-foreground">{tr(window.label)}</span>
               <span className="ms-auto shrink-0 font-medium text-foreground tabular-nums">
                 {remainingPercent(window)}% left
               </span>

@@ -21,6 +21,7 @@ import {
 } from "@t3tools/client-runtime/state/runtime";
 
 import { useCopyToClipboard } from "../../hooks/useCopyToClipboard";
+import { tr } from "~/i18n/locale";
 import { cn } from "../../lib/utils";
 import { formatElapsedDurationLabel, formatExpiresInLabel } from "../../timestampFormat";
 import { resolveDesktopPairingUrl, resolveHostedPairingUrl } from "./pairingUrls";
@@ -80,7 +81,7 @@ function AccessScopeSummary({
   readonly scopes: ReadonlyArray<AuthEnvironmentScope>;
   readonly label: string;
 }) {
-  const scopeCountLabel = `${scopes.length} ${scopes.length === 1 ? "scope" : "scopes"}`;
+  const scopeCountLabel = scopes.length === 1 ? "1 scope" : `${scopes.length} scopes`;
 
   return (
     <Popover>
@@ -96,7 +97,7 @@ function AccessScopeSummary({
           />
         }
       >
-        {scopeCountLabel}
+        {scopes.length === 1 ? "1 scope" : `${scopes.length} scopes`}
       </PopoverTrigger>
       <PopoverPopup
         side="top"
@@ -761,9 +762,11 @@ export const AuthorizedClientsHeaderAction = memo(function AuthorizedClientsHead
                         onCheckedChange={(checked) => togglePairingScope(scope, checked === true)}
                       />
                       <span className="min-w-0">
-                        <span className="block text-xs font-medium text-foreground">{title}</span>
+                        <span className="block text-xs font-medium text-foreground">
+                          {tr(title)}
+                        </span>
                         <span className="block text-xs leading-snug text-muted-foreground">
-                          {description}
+                          {tr(description)}
                         </span>
                       </span>
                     </label>
