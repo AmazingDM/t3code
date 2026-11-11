@@ -30,6 +30,7 @@ import {
 } from "@t3tools/contracts";
 import { filterFilesystemBrowseEntries } from "@t3tools/client-runtime/state/filesystem";
 import { type ReactNode } from "react";
+import { tr } from "../i18n/locale";
 import { formatRelativeTimeLabel } from "../timestampFormat";
 import { type Project, type SidebarThreadSummary, type Thread } from "../types";
 import { isSidebarHiddenThread } from "./Sidebar.logic";
@@ -356,7 +357,7 @@ export function buildCommandPaletteProjectMetadata(input: {
   const environmentLabels = new Set<string>();
 
   for (const project of input.projects) {
-    const label = input.locationByEnvironmentId.get(project.environmentId)?.label ?? "Remote";
+    const label = input.locationByEnvironmentId.get(project.environmentId)?.label ?? tr("Remote");
     searchTerms.push(project.title, project.workspaceRoot, label);
     environmentLabels.add(label);
   }
@@ -453,7 +454,7 @@ export function buildThreadActionItems<TThread extends BuildThreadActionItemsThr
       thread.id === input.activeThread?.id &&
       thread.environmentId === input.activeThread.environmentId;
     if (isCurrent) {
-      descriptionParts.push("Current thread");
+      descriptionParts.push(tr("Current thread"));
     }
 
     const leadingContent = input.renderLeadingContent?.(thread);
@@ -847,9 +848,8 @@ export function buildPaletteRemoteSourceReadiness(
       ? entry
       : {
           ...entry,
-          hint: entry.hint.replace(
-            "Open source control settings",
-            "Open Settings -> Source control",
+          hint: tr(
+            entry.hint.replace("Open source control settings", "Open Settings -> Source control"),
           ),
         };
   };

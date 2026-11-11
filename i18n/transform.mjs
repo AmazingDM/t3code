@@ -54,6 +54,9 @@ export const TS_CONSTANT_WHITELIST = new Map([
   ["lib/projectScriptKeybindings.ts", new Set(["PROJECT_SCRIPT_KEYBINDING_INVALID_MESSAGE"])],
   ["state/use-orchestration-command.ts", new Set(["ORCHESTRATION_OPERATE_DENIED_MESSAGE"])],
   ["components/permissions/usePermissionStatus.ts", new Set(["CHECK_FAILED_MESSAGE"])],
+  ["projectIconColors.ts", new Set(["PROJECT_ICON_COLORS"])],
+  ["projectIconOptions.ts", new Set(["PROJECT_EMOJIS"])],
+  ["textGenerators.ts", new Set(["TEXT_GENERATOR_PRESETS"])],
 ]);
 
 export const TS_FUNCTION_WHITELIST = new Map([
@@ -142,6 +145,34 @@ export const TS_FUNCTION_WHITELIST = new Map([
     ]),
   ],
   ["lib/attachmentUploadState.ts", new Set(["attachmentUploadBlockReason"])],
+  [
+    "components/Sidebar.logic.ts",
+    new Set(["buildBulkTitleRegenerationContextMenuItem", "buildBulkUnpinContextMenuItem"]),
+  ],
+  [
+    "components/CommandPalette.logic.ts",
+    new Set([
+      "buildLinkedThreadActionItems",
+      "filterCommandPaletteGroups",
+      "buildBrowseGroups",
+      "buildRootGroups",
+      "getCommandPaletteInputPlaceholder",
+      "remoteProjectInputPlaceholder",
+      "errorMessage",
+    ]),
+  ],
+  ["components/chat/useComposerMenuItems.ts", new Set(["useComposerMenuItems"])],
+  [
+    "state/sourceControlActions.ts",
+    new Set([
+      "useVcsInitAction",
+      "useVcsPullAction",
+      "useGitStackedAction",
+      "useSourceControlPublishRepositoryAction",
+      "usePreparePullRequestThreadAction",
+    ]),
+  ],
+  ["lib/toolCallDiff.ts", new Set(["toolCallDiff"])],
 ]);
 
 const TSX_CONST_SKIP = new Set([
@@ -334,6 +365,9 @@ const BRAND_OR_TECH_EXACT = new Set([
   "Grok",
   "Antigravity",
   "Gemini",
+  "OpenAI",
+  "OpenRouter",
+  "Anthropic",
   "GitHub",
   "GitLab",
   "Codeberg",
@@ -399,7 +433,7 @@ export function isTranslatableText(raw) {
   ) {
     return false;
   }
-  if (/^(?:\*\.[a-z0-9]+|[a-z]+\/[a-z0-9.+-]+)$/i.test(core)) return false;
+  if (/^\*\.[a-z0-9]+$/i.test(core) || /^[a-z]+\/[a-z0-9.+-]+$/.test(core)) return false;
   if (TAILWIND_RE.test(core)) return false;
 
   if (!withoutPlaceholders.includes(" ")) {
@@ -420,9 +454,11 @@ export function isValidTranslation(enKey, zhValue) {
   if (typeof zhValue !== "string" || zhValue.trim().length === 0) return false;
   const enPh = extractPlaceholders(enKey);
   const zhPh = extractPlaceholders(zhValue);
-  if (enPh.length !== zhPh.length) return false;
-  for (let i = 0; i < enPh.length; i++) {
-    if (enPh[i] !== zhPh[i]) return false;
+  if (enPh.length === 0) return zhPh.length === 0;
+  if (zhPh.length === 0) return false;
+  const enSet = new Set(enPh);
+  for (const p of zhPh) {
+    if (!enSet.has(p)) return false;
   }
   return true;
 }
@@ -450,10 +486,8 @@ export function shouldProcessModuleId(id, webSrcDir = WEB_SRC_DIR) {
   if (/\.browser\.test\.[cm]?[jt]sx?$/.test(rel)) return false;
   if (/[Ww]orker\.[cm]?[jt]sx?$/.test(rel)) return false;
 
-  if (rel.endsWith(".tsx")) return true;
-  if (rel.endsWith(".ts") && (TS_CONSTANT_WHITELIST.has(rel) || TS_FUNCTION_WHITELIST.has(rel))) {
-    return true;
-  }
+  if (rel.endsWith(".d.ts")) return false;
+  if (rel.endsWith(".tsx") || rel.endsWith(".ts")) return true;
   return false;
 }
 
@@ -483,7 +517,6 @@ function getJsxElementName(openingElement) {
 }
 
 function isDisplayJsxAttr(attrName, elementName) {
-  if (elementName === "SettingResetButton" && attrName === "label") return false;
   if (elementName === "code" && attrName !== "title" && attrName !== "aria-label") return false;
   if (DISPLAY_JSX_ATTR_EXACT.has(attrName)) return true;
   if (/(?:Label|Tooltip|Placeholder|Title|Description|Heading)$/.test(attrName)) return true;
@@ -734,7 +767,14 @@ export function analyzeModule(code, filename, options = {}) {
   const isTsx = cleanFile.endsWith(".tsx");
   const tsAllowedConsts = !isTsx ? TS_CONSTANT_WHITELIST.get(relFile) : null;
   const tsAllowedFns = !isTsx ? TS_FUNCTION_WHITELIST.get(relFile) : null;
-  if (!isTsx && !tsAllowedConsts && !tsAllowedFns) {
+  if (
+    !isTsx &&
+    !tsAllowedConsts &&
+    !tsAllowedFns &&
+    !/(?:toastManager|stackedThreadToast|requestConfirmDialog|contextMenu\.show|dialogs\.confirm|window\.confirm)\b/.test(
+      code,
+    )
+  ) {
     return { extracted: new Map(), transformed: null };
   }
 
@@ -1031,21 +1071,25 @@ export function analyzeModule(code, filename, options = {}) {
     visitFn(fnBodyNode);
   };
 
-  const isToastCall = (callNode) => {
+  const getToastCallKind = (callNode) => {
     const callee = callNode.callee;
-    if (!callee) return false;
+    if (!callee) return null;
     if (callee.type === "Identifier") {
-      return callee.name === "stackedThreadToast" || callee.name === "toast";
+      if (callee.name === "stackedThreadToast" || callee.name === "toast") return "add";
+      return null;
     }
     if (
       callee.type === "MemberExpression" &&
       callee.object?.type === "Identifier" &&
       callee.property?.type === "Identifier"
     ) {
-      if (callee.object.name === "toastManager" && callee.property.name === "add") return true;
-      if (callee.object.name === "toast") return true;
+      if (callee.object.name === "toastManager") {
+        if (callee.property.name === "add") return "add";
+        if (callee.property.name === "update") return "update";
+      }
+      if (callee.object.name === "toast") return "add";
     }
-    return false;
+    return null;
   };
 
   const isContextMenuShowCall = (callNode) => {
@@ -1061,9 +1105,51 @@ export function analyzeModule(code, filename, options = {}) {
   };
 
   const isConfirmDialogCall = (callNode) => {
-    return (
-      callNode.callee?.type === "Identifier" && callNode.callee.name === "requestConfirmDialog"
-    );
+    const callee =
+      callNode.callee?.type === "ChainExpression" ? callNode.callee.expression : callNode.callee;
+    if (callee?.type === "Identifier" && callee.name === "requestConfirmDialog") return true;
+    if (
+      callee?.type === "MemberExpression" &&
+      callee.property?.type === "Identifier" &&
+      callee.property.name === "confirm"
+    ) {
+      const obj =
+        callee.object?.type === "ChainExpression" ? callee.object.expression : callee.object;
+      if (obj?.type === "Identifier" && obj.name === "window") {
+        return true;
+      }
+      if (
+        obj?.type === "MemberExpression" &&
+        obj.property?.type === "Identifier" &&
+        obj.property.name === "dialogs"
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const handleConfirmMessageExpr = (rawNode) => {
+    const expr = unwrapExpr(rawNode);
+    if (!expr) return;
+    if (expr.type === "ConditionalExpression") {
+      handleConfirmMessageExpr(expr.consequent);
+      handleConfirmMessageExpr(expr.alternate);
+      return;
+    }
+    if (
+      expr.type === "CallExpression" &&
+      expr.callee?.type === "MemberExpression" &&
+      expr.callee.property?.type === "Identifier" &&
+      expr.callee.property.name === "join" &&
+      unwrapExpr(expr.callee.object)?.type === "ArrayExpression"
+    ) {
+      for (const el of unwrapExpr(expr.callee.object).elements) {
+        if (el) handleDisplayExpr(el, "confirm:line", true);
+      }
+      return;
+    }
+    handleDisplayExpr(rawNode, "confirm:message", true);
   };
 
   function walk(node) {
@@ -1113,26 +1199,16 @@ export function analyzeModule(code, filename, options = {}) {
       }
     }
 
-    if (!isTsx) {
-      for (const key of Object.keys(node)) {
-        const val = node[key];
-        if (Array.isArray(val)) val.forEach(walk);
-        else if (val && typeof val === "object") walk(val);
-      }
-      return;
-    }
-
-    if (node.type === "AssignmentPattern" && node.left?.type === "Identifier") {
-      if (DEFAULT_PARAM_PROP_NAMES.has(node.left.name)) {
-        handleDisplayExpr(node.right, `default-prop:${node.left.name}`);
-      }
-    }
-
     if (node.type === "CallExpression") {
-      if (isToastCall(node)) {
-        for (const arg of node.arguments) {
+      const toastKind = getToastCallKind(node);
+      if (toastKind) {
+        const argsToInspect = toastKind === "update" ? node.arguments.slice(1) : node.arguments;
+        for (const arg of argsToInspect) {
           const unwrappedArg = unwrapExpr(arg);
-          if (unwrappedArg?.type === "Literal" || unwrappedArg?.type === "TemplateLiteral") {
+          if (
+            toastKind === "add" &&
+            (unwrappedArg?.type === "Literal" || unwrappedArg?.type === "TemplateLiteral")
+          ) {
             handleDisplayExpr(unwrappedArg, "toast");
           } else if (unwrappedArg?.type === "ObjectExpression") {
             for (const prop of unwrappedArg.properties) {
@@ -1150,7 +1226,7 @@ export function analyzeModule(code, filename, options = {}) {
           handleDisplayRecordOrList("contextMenuItems", itemsArg);
         }
       } else if (isConfirmDialogCall(node) && node.arguments.length > 0) {
-        handleDisplayExpr(node.arguments[0], "confirm:message", true);
+        handleConfirmMessageExpr(node.arguments[0]);
         if (node.arguments[1]) {
           const opts = unwrapExpr(node.arguments[1]);
           if (opts?.type === "ObjectExpression") {
@@ -1171,15 +1247,24 @@ export function analyzeModule(code, filename, options = {}) {
       }
     }
 
+    if (!isTsx) {
+      for (const key of Object.keys(node)) {
+        const val = node[key];
+        if (Array.isArray(val)) val.forEach(walk);
+        else if (val && typeof val === "object") walk(val);
+      }
+      return;
+    }
+
+    if (node.type === "AssignmentPattern" && node.left?.type === "Identifier") {
+      if (DEFAULT_PARAM_PROP_NAMES.has(node.left.name)) {
+        handleDisplayExpr(node.right, `default-prop:${node.left.name}`);
+      }
+    }
+
     if (node.type === "JSXElement" || node.type === "JSXFragment") {
       const elemName = node.openingElement ? getJsxElementName(node.openingElement) : "";
-      if (
-        elemName === "pre" ||
-        elemName === "kbd" ||
-        elemName === "svg" ||
-        elemName === "style" ||
-        elemName === "script"
-      ) {
+      if (elemName === "style" || elemName === "script") {
         return;
       }
       if (node.openingElement?.attributes) {
@@ -1197,6 +1282,9 @@ export function analyzeModule(code, filename, options = {}) {
         }
       }
 
+      if (elemName === "pre" || elemName === "kbd" || elemName === "svg") {
+        return;
+      }
       if (elemName !== "code") {
         for (const child of node.children ?? []) {
           if (child.type === "JSXText") {

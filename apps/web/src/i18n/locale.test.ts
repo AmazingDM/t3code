@@ -33,6 +33,22 @@ describe("i18n runtime translator tr()", () => {
       "Acme Corp 的管理策略不允许 Codex。",
     );
     expect(tr("Update available: install v0.2.0.")).toBe("有可用更新：请安装 v0.2.0。");
+    expect(tr("In 30 minutes")).toBe("30 分钟后");
+    expect(tr("In 1 hour")).toBe("1 小时后");
+    expect(tr("Thu 14:00")).toBe("周四 14:00");
+    expect(tr("Open on GitHub")).toBe("在 GitHub 中打开");
+    expect(tr("Pending Approval")).toBe("待批准");
+    expect(tr("Speed")).toBe("速度");
+    expect(
+      tr(
+        "Install update v0.1.9 and restart T3 Code?\n\nAny running tasks will be interrupted. Make sure you're ready before continuing.",
+      ),
+    ).toBe(
+      "确定安装更新 v0.1.9 并重启 T3 Code？\n\n所有正在运行的任务都会被中断，请确认准备就绪后再继续。",
+    );
+    expect(
+      tr('Unpin thread "Refactor auth"?\nThis will move the thread out of your pinned section.'),
+    ).toBe("确定取消置顶线程“Refactor auth”？\n这会将该线程移出置顶区域。");
     // T3 Code brand and arbitrary user strings remain untouched
     expect(tr("T3 Code")).toBe("T3 Code");
     expect(tr("my-custom-project")).toBe("my-custom-project");

@@ -74,6 +74,7 @@ describe("i18n/transform", () => {
     expect(isValidTranslation("Delete {0} items", "删除项目")).toBe(false);
     expect(isValidTranslation("Delete {0} items", "删除 {0} 个项目")).toBe(true);
     expect(isValidTranslation("Plain text", "带 {0} 错误占位符")).toBe(false);
+    expect(isValidTranslation("Delete {0} thread{1}?", "确定删除这 {0} 个线程？")).toBe(true);
   });
 
   it("injects original English title into SETTINGS_SEARCH_ITEMS searchTerms for bilingual search", () => {
@@ -285,5 +286,78 @@ export function LocaleSelect() {
     );
     expect(otherResult.transformed).not.toBeNull();
     expect(otherResult.transformed.code).toContain('{__IS_ZH__ ? "代码" : "Code"}');
+  });
+  it("transforms toastManager.add and toastManager.update in .ts modules and preserves <pre> children while localizing aria-label", () => {
+    const tsCode = `export function notify(toastManager: any, toastId: string) {
+  toastManager.add({ type: "error", title: "Could not start thread" });
+  toastManager.update(toastId, { title: "Stack rebased", description: "That snooze time has passed. Choose another time." });
+}
+`;
+    const dict = {
+      "Could not start thread": "无法启动线程",
+      "Stack rebased": "堆栈已完成变基",
+      "That snooze time has passed. Choose another time.": "所选延后时间已过，请另选时间。",
+      "Captured terminal output": "已捕获的终端输出",
+      "Read/s": "读取/秒",
+    };
+    const tsRes = analyzeModule(tsCode, `${WEB_SRC}/hooks/useNotify.ts`, {
+      dict,
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(tsRes.extracted.has("Could not start thread")).toBe(true);
+    expect(tsRes.extracted.has("Stack rebased")).toBe(true);
+    expect(tsRes.transformed).not.toBeNull();
+    expect(tsRes.transformed.code).toContain(
+      `title: (__IS_ZH__ ? "无法启动线程" : "Could not start thread")`,
+    );
+    expect(tsRes.transformed.code).toContain(
+      `toastManager.update(toastId, { title: (__IS_ZH__ ? "堆栈已完成变基" : "Stack rebased")`,
+    );
+
+    const jsxCode = `export function Term() {
+  return (
+    <div>
+      <th>Read/s</th>
+      <pre aria-label="Captured terminal output">Keep raw English inside pre</pre>
+    </div>
+  );
+}
+`;
+    const jsxRes = analyzeModule(jsxCode, `${WEB_SRC}/components/Term.tsx`, {
+      dict,
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(jsxRes.extracted.has("Read/s")).toBe(true);
+    expect(jsxRes.extracted.has("Captured terminal output")).toBe(true);
+    expect(jsxRes.extracted.has("Keep raw English inside pre")).toBe(false);
+    expect(jsxRes.transformed.code).toContain(
+      `aria-label={__IS_ZH__ ? "已捕获的终端输出" : "Captured terminal output"}`,
+    );
+    expect(jsxRes.transformed.code).toContain(">Keep raw English inside pre</pre>");
+
+    const confirmTsCode = `export async function ask(localApi: any, labels: string[]) {
+  return localApi.dialogs.confirm(
+    labels.length === 1
+      ? [\`Close terminal "\${labels[0]}"?\`, "This stops the running process and clears its history."].join("\\n")
+      : [\`Close \${labels.length} terminals?\`].join("\\n"),
+  );
+}
+`;
+    const confirmRes = analyzeModule(confirmTsCode, `${WEB_SRC}/lib/terminalCloseConfirm.ts`, {
+      dict: {
+        'Close terminal "{0}"?': "确定关闭终端“{0}”？",
+        "This stops the running process and clears its history.":
+          "这会停止正在运行的进程并清空终端历史记录。",
+        "Close {0} terminals?": "确定关闭这 {0} 个终端？",
+      },
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(confirmRes.extracted.has('Close terminal "{0}"?')).toBe(true);
+    expect(confirmRes.extracted.has("Close {0} terminals?")).toBe(true);
+    expect(confirmRes.transformed).not.toBeNull();
+    expect(confirmRes.transformed.code).toContain("确定关闭终端");
   });
 });

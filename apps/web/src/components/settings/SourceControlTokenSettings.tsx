@@ -15,6 +15,7 @@ import {
 } from "@t3tools/client-runtime/source-control-clients";
 import { serverEnvironment } from "../../state/server";
 import { useAtomCommand } from "../../state/use-atom-command";
+import { tr } from "../../i18n/locale";
 import { Button, InlineButton } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -93,7 +94,7 @@ export function SourceControlTokenSettings({
           and the{" "}
           <code className="rounded bg-muted px-1 py-px text-2xs">{credentials.cliName}</code> login,
           so {definition.label} works without the {credentials.cliLabel}. Give it{" "}
-          {credentials.tokenAccess}.{" "}
+          {tr(credentials.tokenAccess)}.{" "}
           {normalizedHost || defaultHost ? (
             <InlineButton
               render={

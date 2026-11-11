@@ -98,6 +98,94 @@ function translateSegment(segment: string): string {
     return `Cursor SDK 模型目录请求超时（${cursorTimeout[1]}ms）。`;
   }
 
+  const snoozeIn = /^In (\d+) (minute|minutes|hour|hours|day|days)$/.exec(segment);
+  if (snoozeIn?.[1] && snoozeIn[2]) {
+    const unit = snoozeIn[2].startsWith("minute")
+      ? "分钟"
+      : snoozeIn[2].startsWith("hour")
+        ? "小时"
+        : "天";
+    return `${snoozeIn[1]} ${unit}后`;
+  }
+
+  const weekdayTime = /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) (.+)$/.exec(segment);
+  if (weekdayTime?.[1] && weekdayTime[2]) {
+    const dayMap: Record<string, string> = {
+      Sun: "周日",
+      Mon: "周一",
+      Tue: "周二",
+      Wed: "周三",
+      Thu: "周四",
+      Fri: "周五",
+      Sat: "周六",
+    };
+    return `${dayMap[weekdayTime[1]] ?? weekdayTime[1]} ${weekdayTime[2]}`;
+  }
+
+  const openOnHost = /^Open on (.+)$/.exec(segment);
+  if (openOnHost?.[1]) {
+    return `在 ${openOnHost[1]} 中打开`;
+  }
+
+  const scUnauth =
+    /^(.+) is not authenticated\. Open (?:Source Control settings|Settings -> Source control) for setup guidance\.$/.exec(
+      segment,
+    );
+  if (scUnauth?.[1]) {
+    return `${scUnauth[1]} 尚未认证，请打开“版本控制”设置查看配置指引。`;
+  }
+
+  const wrongArch =
+    /^`(.+)` is built for another CPU architecture, so this (.+) machine cannot run it\. Remove or replace it\. (.+)$/.exec(
+      segment,
+    );
+  if (wrongArch?.[1] && wrongArch[2] && wrongArch[3]) {
+    return `\`${wrongArch[1]}\` 编译自其他 CPU 架构，当前 ${wrongArch[2]} 设备无法运行。请移除或替换它。${translateSegment(wrongArch[3])}`;
+  }
+
+  const continuedFor = /^Continued for (.+)$/.exec(segment);
+  if (continuedFor?.[1]) {
+    return `已继续执行 ${continuedFor[1]}`;
+  }
+
+  const compactedIdle = /^Context compacted after (.+) idle$/.exec(segment);
+  if (compactedIdle?.[1]) {
+    return `空闲 ${compactedIdle[1]} 后已压缩上下文`;
+  }
+
+  const gitcafeHint =
+    /^Install the GitCafe CLI with `(.+)`, then run `(.+)`, save a token in Settings, or set CAFE_TOKEN on the server\.$/.exec(
+      segment,
+    );
+  if (gitcafeHint?.[1] && gitcafeHint[2]) {
+    return `请使用 \`${gitcafeHint[1]}\` 安装 GitCafe CLI，然后运行 \`${gitcafeHint[2]}\`，或在设置中保存令牌，或在服务器上设置 CAFE_TOKEN。`;
+  }
+
+  const removeProviderInst = /^Remove the (.+) provider instance\?$/.exec(segment);
+  if (removeProviderInst?.[1]) {
+    return `确定移除 ${removeProviderInst[1]} 服务商实例？`;
+  }
+
+  const resetProviderInst = /^Reset the (.+) provider to its defaults\?$/.exec(segment);
+  if (resetProviderInst?.[1]) {
+    return `确定将 ${resetProviderInst[1]} 服务商恢复为默认配置？`;
+  }
+
+  const closeBrowsers = /^Close (\d+) browsers while the agent is using them\?$/.exec(segment);
+  if (closeBrowsers?.[1]) {
+    return `智能体正在使用这 ${closeBrowsers[1]} 个浏览器，确定要关闭吗？`;
+  }
+
+  const installUpdate = /^Install update(?: (.+))? and restart T3 Code\?$/.exec(segment);
+  if (installUpdate) {
+    return `确定安装更新${installUpdate[1] ? ` ${installUpdate[1]} ` : ""}并重启 T3 Code？`;
+  }
+
+  const unpinThread = /^Unpin thread "(.+)"\?$/.exec(segment);
+  if (unpinThread?.[1]) {
+    return `确定取消置顶线程“${unpinThread[1]}”？`;
+  }
+
   return segment;
 }
 
@@ -114,6 +202,12 @@ export function tr(text: string | null | undefined): string | null | undefined {
   if (!__IS_ZH__ || !text) return text;
   const exact = ZH_RUNTIME_EXACT[text];
   if (exact !== undefined) return exact;
+  if (text.includes("\n")) {
+    return text
+      .split("\n")
+      .map((line) => (line ? tr(line) : line))
+      .join("\n");
+  }
   if (text.includes(" · ")) {
     return text.split(" · ").map(translateSegment).join(" · ");
   }

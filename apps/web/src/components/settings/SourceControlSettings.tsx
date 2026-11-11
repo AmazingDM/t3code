@@ -11,6 +11,7 @@ import type {
 } from "@t3tools/contracts";
 import { useSettingsScope } from "./SettingsScopeContext";
 import { ProjectDefaultsSettings } from "./ProjectDefaultsSettings";
+import { tr } from "../../i18n/locale";
 import { cn } from "../../lib/utils";
 import { useEnvironmentQuery } from "../../state/query";
 import { sourceControlEnvironment } from "../../state/sourceControl";
@@ -157,12 +158,12 @@ function itemSummary({
   }
 
   if (item.status !== "available") {
-    return <span>Not available on this server: {item.installHint}</span>;
+    return <span>Not available on this server: {tr(item.installHint)}</span>;
   }
 
   if (auth) {
     if (auth.status === "authenticated") {
-      const authDetail = optionLabel(auth.detail);
+      const authDetail = tr(optionLabel(auth.detail));
       return (
         <>
           <span>Authenticated</span>
@@ -178,11 +179,13 @@ function itemSummary({
     }
 
     if (!item.executable && auth.status === "unauthenticated") {
-      return <span>Available. {item.installHint}</span>;
+      return <span>Available. {tr(item.installHint)}</span>;
     }
 
     if (auth.status === "unauthenticated" && auth.accounts?.some((entry) => entry.authenticated)) {
-      return <span>{optionLabel(auth.detail) ?? `Every ${item.label} host is turned off.`}</span>;
+      return (
+        <span>{tr(optionLabel(auth.detail)) ?? `Every ${item.label} host is turned off.`}</span>
+      );
     }
 
     if (auth.status === "unauthenticated") {
@@ -194,10 +197,10 @@ function itemSummary({
         </span>
       );
     }
-    const authDetail = optionLabel(auth.detail);
+    const authDetail = tr(optionLabel(auth.detail));
     return (
       <span>
-        Could not verify {item.label}. {authDetail ?? item.installHint}
+        Could not verify {item.label}. {authDetail ?? tr(item.installHint)}
       </span>
     );
   }

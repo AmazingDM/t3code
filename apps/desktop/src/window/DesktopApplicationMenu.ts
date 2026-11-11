@@ -12,6 +12,7 @@ import * as ElectronDialog from "../electron/ElectronDialog.ts";
 import * as ElectronMenu from "../electron/ElectronMenu.ts";
 import * as DesktopEnvironment from "../app/DesktopEnvironment.ts";
 import * as DesktopUpdates from "../updates/DesktopUpdates.ts";
+import { setDesktopIsZh } from "./desktopLocaleState.ts";
 import * as DesktopWindow from "./DesktopWindow.ts";
 
 export class DesktopApplicationMenuActionError extends Schema.TaggedError<DesktopApplicationMenuActionError>()(
@@ -391,6 +392,7 @@ export const make = Effect.gen(function* () {
             const nextIsZh = pref === "zh-Hans" ? true : pref === "en" ? false : systemIsZh;
             if (nextIsZh === currentIsZh) return;
             currentIsZh = nextIsZh;
+            setDesktopIsZh(currentIsZh);
             runMenuEffect(
               "sync-menu-locale",
               electronMenu.setApplicationMenu(buildTemplate(currentIsZh)),
@@ -408,6 +410,7 @@ export const make = Effect.gen(function* () {
       (lang) => typeof lang === "string" && lang.toLowerCase().startsWith("zh"),
     );
     currentIsZh = systemIsZh;
+    setDesktopIsZh(currentIsZh);
 
     yield* electronMenu.setApplicationMenu(buildTemplate(currentIsZh));
   }).pipe(Effect.withSpan("desktop.menu.configure"));

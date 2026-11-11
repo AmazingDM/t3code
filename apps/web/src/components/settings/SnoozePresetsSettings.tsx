@@ -17,6 +17,7 @@ import { PlusIcon, XIcon } from "lucide-react";
 
 import { useNowMinute } from "../../hooks/useNowMinute";
 import { reconcileSnoozeDraft, sortSnoozeRows } from "./SnoozePresetsSettings.logic";
+import { tr } from "../../i18n/locale";
 import { formatShortTimestamp } from "../../timestampFormat";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -247,18 +248,24 @@ function SnoozePresetList(props: {
     }
     seenIds.add(resolved.id);
     seenWakes.add(resolved.snoozedUntil);
-    return { tone: "menu", label: resolved.label, when: resolved.whenLabel } as const;
+    return {
+      tone: "menu",
+      label: tr(resolved.label),
+      when: tr(resolved.whenLabel),
+    } as const;
   });
 
   const menuPresets = resolveSnoozePresets(now, { presets: props.presets, formatTime });
   const repeatedLabels = new Set(
     menuPresets
-      .map((preset) => preset.label)
+      .map((preset) => tr(preset.label))
       .filter((label, index, labels) => labels.indexOf(label) !== index),
   );
-  const menuOrder = menuPresets.map((preset) =>
-    repeatedLabels.has(preset.label) ? `${preset.label} ${preset.whenLabel}` : preset.label,
-  );
+  const menuOrder = menuPresets.map((preset) => {
+    const label = tr(preset.label);
+    const whenLabel = tr(preset.whenLabel);
+    return repeatedLabels.has(label) ? `${label} ${whenLabel}` : label;
+  });
 
   return (
     <div
@@ -292,7 +299,7 @@ function SnoozePresetList(props: {
                   <span className="ps-2 tabular-nums">{preview.when}</span>
                 </span>
               ) : (
-                <span className="truncate">{preview.text}</span>
+                <span className="truncate">{tr(preview.text)}</span>
               )}
               <Button
                 variant="ghost-muted"

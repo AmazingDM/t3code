@@ -7,6 +7,7 @@ import {
   type SnoozePreset,
 } from "@t3tools/client-runtime/state/thread-settled";
 
+import { tr } from "../i18n/locale";
 import { appAtomRegistry } from "../rpc/atomRegistry";
 import { serverEnvironment } from "../state/server";
 import { formatShortTimestamp } from "../timestampFormat";
@@ -20,7 +21,13 @@ export function resolveSnoozePresets(
   timestampFormat: TimestampFormat,
   environmentId: EnvironmentId,
 ): ReadonlyArray<SnoozePreset> {
-  return resolveSharedSnoozePresets(now, snoozeOptions(timestampFormat, environmentId));
+  return resolveSharedSnoozePresets(now, snoozeOptions(timestampFormat, environmentId)).map(
+    (preset) => ({
+      ...preset,
+      label: tr(preset.label),
+      whenLabel: tr(preset.whenLabel),
+    }),
+  );
 }
 
 /** A shown menu choice as picked; see the shared `pickSnoozePreset`. */

@@ -38,6 +38,7 @@ import * as ElectronApp from "../electron/ElectronApp.ts";
 import * as DesktopRendererHistory from "../telemetry/DesktopRendererHistory.ts";
 import { makeQuitShortcutHandler } from "./QuitHold.ts";
 import { copyContextMenuImage } from "./ContextMenuImage.ts";
+import { getDesktopIsZh } from "./desktopLocaleState.ts";
 
 const TITLEBAR_HEIGHT = 40;
 
@@ -576,6 +577,7 @@ export const make = Effect.gen(function* () {
         // Right-clicking a guest may leave native editing roles targeting the host renderer.
         contents.focus();
 
+        const isZh = getDesktopIsZh();
         const menuTemplate: Electron.MenuItemConstructorOptions[] = [];
 
         if (params.misspelledWord) {
@@ -588,7 +590,7 @@ export const make = Effect.gen(function* () {
             });
           }
           if (params.dictionarySuggestions.length === 0) {
-            menuTemplate.push({ label: "No suggestions", enabled: false });
+            menuTemplate.push({ label: isZh ? "暂无拼写建议" : "No suggestions", enabled: false });
           }
           menuTemplate.push({ type: "separator" });
         }
@@ -596,7 +598,7 @@ export const make = Effect.gen(function* () {
         if (Option.isSome(ElectronShell.parseSafeExternalUrl(params.linkURL))) {
           menuTemplate.push(
             {
-              label: "Copy Link",
+              label: isZh ? "复制链接" : "Copy Link",
               click: () => {
                 void runPromise(electronShell.copyText(params.linkURL));
               },
@@ -609,7 +611,7 @@ export const make = Effect.gen(function* () {
         if (Option.isSome(mailtoAddress)) {
           menuTemplate.push(
             {
-              label: "Copy Email Address",
+              label: isZh ? "复制邮箱地址" : "Copy Email Address",
               click: () => {
                 void runPromise(electronShell.copyText(mailtoAddress.value));
               },
@@ -620,7 +622,7 @@ export const make = Effect.gen(function* () {
 
         if (params.mediaType === "image") {
           menuTemplate.push({
-            label: "Copy Image",
+            label: isZh ? "复制图片" : "Copy Image",
             click: () => {
               void runPromise(
                 Effect.tryPromise({
@@ -634,10 +636,26 @@ export const make = Effect.gen(function* () {
         }
 
         menuTemplate.push(
-          { role: "cut", enabled: params.editFlags.canCut },
-          { role: "copy", enabled: params.editFlags.canCopy },
-          { role: "paste", enabled: params.editFlags.canPaste },
-          { role: "selectAll", enabled: params.editFlags.canSelectAll },
+          {
+            role: "cut",
+            ...(isZh ? { label: "剪切" } : {}),
+            enabled: params.editFlags.canCut,
+          },
+          {
+            role: "copy",
+            ...(isZh ? { label: "复制" } : {}),
+            enabled: params.editFlags.canCopy,
+          },
+          {
+            role: "paste",
+            ...(isZh ? { label: "粘贴" } : {}),
+            enabled: params.editFlags.canPaste,
+          },
+          {
+            role: "selectAll",
+            ...(isZh ? { label: "全选" } : {}),
+            enabled: params.editFlags.canSelectAll,
+          },
         );
 
         void runPromise(

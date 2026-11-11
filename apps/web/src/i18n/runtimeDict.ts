@@ -587,4 +587,79 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "ID or link": "ID 或链接",
   Project: "项目",
   Machine: "机器",
+  Speed: "速度",
+  Working: "运行中",
+  Connecting: "连接中",
+  Completed: "已完成",
+  Failed: "失败",
+  "Pending Approval": "待批准",
+  "Awaiting Input": "等待输入",
+  "Guest Request": "访客请求",
+  Waiting: "等待中",
+  "Plan Ready": "计划就绪",
+  "Current thread": "当前线程",
+  Remote: "远程",
+  "This morning": "今天上午",
+  "This afternoon": "今天下午",
+  "This evening": "今天晚上",
+  Tomorrow: "明天",
+  "Next week": "下周",
+  Monday: "周一",
+  Tuesday: "周二",
+  Wednesday: "周三",
+  Thursday: "周四",
+  Friday: "周五",
+  Saturday: "周六",
+  Sunday: "周日",
+  "Next Monday": "下周一",
+  "Next Tuesday": "下周二",
+  "Next Wednesday": "下周三",
+  "Next Thursday": "下周四",
+  "Next Friday": "下周五",
+  "Next Saturday": "下周六",
+  "Next Sunday": "下周日",
+  now: "现在",
+  "Passed for today": "今日时间已过",
+  "Duplicate of an option above": "与上方选项重复",
+  "Same time as an option above": "与上方选项唤醒时间相同",
+  "Superseded attempt": "已被替代的尝试",
+  Continued: "已继续",
+  "Compacting context": "正在压缩上下文",
+  "Context compaction": "上下文压缩",
+  "Compacting before the cache expires…": "正在缓存过期前压缩上下文…",
+  "Compacting…": "正在压缩上下文…",
+  "Context automatically compacted before cache expiry": "已在缓存过期前自动压缩上下文",
+  "Context compacted before sending": "发送前已压缩上下文",
+  "read and write access to pull requests and contents": "对拉取请求（PR）和仓库内容的读写权限",
+  "Install Git from https://git-scm.com/downloads or with your package manager.":
+    "请从 https://git-scm.com/downloads 或通过包管理器安装 Git。",
+  "Install Jujutsu with `brew install jj` or from https://github.com/jj-vcs/jj.":
+    "请通过 `brew install jj` 或从 https://github.com/jj-vcs/jj 安装 Jujutsu。",
+  "Install the GitHub command-line tool (`gh`) via https://cli.github.com/ or your package manager (for example `brew install gh`).":
+    "请通过 https://cli.github.com/ 或包管理器（例如 `brew install gh`）安装 GitHub 命令行工具（`gh`）。",
+  "Install the GitLab command-line tool (`glab`) from https://gitlab.com/gitlab-org/cli or your package manager (for example `brew install glab`).":
+    "请从 https://gitlab.com/gitlab-org/cli 或通过包管理器（例如 `brew install glab`）安装 GitLab 命令行工具（`glab`）。",
+  "Install `fj` 0.6 or later from https://codeberg.org/forgejo-contrib/forgejo-cli and run `fj --host <server-url> auth add-token`, or install `tea` 0.16 or later from https://gitea.com/gitea/tea and run `tea login add` for each Forgejo or Gitea server.":
+    "请从 https://codeberg.org/forgejo-contrib/forgejo-cli 安装 `fj` 0.6 或更高版本并运行 `fj --host <server-url> auth add-token`，或从 https://gitea.com/gitea/tea 安装 `tea` 0.16 或更高版本并为每个 Forgejo 或 Gitea 服务器运行 `tea login add`。",
+  "Run `tea login add` to authenticate a Forgejo or Gitea server.":
+    "请运行 `tea login add` 以认证 Forgejo 或 Gitea 服务器。",
+  "Install the Origin CLI with `curl -fsSL https://downloads.cursor.com/origin/install.sh | sh`, then run `origin auth login`.":
+    "请使用 `curl -fsSL https://downloads.cursor.com/origin/install.sh | sh` 安装 Origin CLI，然后运行 `origin auth login`。",
+  "Provider status unavailable. Open Source Control settings and rescan.":
+    "服务状态不可用，请打开“版本控制”设置并重新扫描。",
+  "Provider status unavailable. Open Settings -> Source control and rescan.":
+    "服务状态不可用，请打开“设置 -> 版本控制”并重新扫描。",
+  "Its saved settings, including any custom binary path, will be removed.":
+    "已保存的设置（包括自定义可执行文件路径）将被移除。",
+  "Its saved settings, including any custom binary path, will be removed. It will also be turned off.":
+    "已保存的设置（包括自定义可执行文件路径）将被移除，并且该服务商将被关闭。",
+  "Close browser while the agent is using it?": "智能体正在使用浏览器，确定要关闭吗？",
+  "The agent is actively controlling this browser. Closing it may interrupt the current browser action.":
+    "智能体正在控制此浏览器，关闭可能会中断当前的浏览器操作。",
+  "The agent is actively controlling these browsers. Closing them may interrupt the current browser actions.":
+    "智能体正在控制这些浏览器，关闭可能会中断当前的浏览器操作。",
+  "Any running tasks will be interrupted. Make sure you're ready before continuing.":
+    "所有正在运行的任务都会被中断，请确认准备就绪后再继续。",
+  "This will move the thread out of your pinned section.": "这会将该线程移出置顶区域。",
+  'Unpin thread "this thread"?': "确定取消置顶此线程？",
 };
