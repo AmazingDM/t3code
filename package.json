@@ -1,6 +1,26 @@
 {
   "name": "@t3tools/monorepo",
   "private": true,
+  "description": "Agent harness control surface with built-in Simplified Chinese (zh-Hans) localization and extensible multi-language (i18n) support.",
+  "keywords": [
+    "agent-harness",
+    "ai-agents",
+    "chinese",
+    "claude-code",
+    "codex",
+    "coding-agent",
+    "cursor",
+    "electron",
+    "i18n",
+    "internationalization",
+    "localization",
+    "mcp",
+    "multilingual",
+    "opencode",
+    "t3-code",
+    "zh-cn",
+    "zh-hans"
+  ],
   "type": "module",
   "scripts": {
     "prepare": "vp config --no-agent",

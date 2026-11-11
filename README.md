@@ -1,8 +1,25 @@
 # T3 Code
 
+**English** · **[简体中文](./README.zh-CN.md)**
+
 T3 Code is an "agent harness control surface". It enables control of the agents on your machine with a best-in-class mobile app ([iOS](https://apps.apple.com/us/app/t3-code-remote-claude-more/id6787819824), [Android](https://play.google.com/store/apps/details?id=com.t3tools.t3code)), [web app](https://app.t3.codes) and [Electron-based desktop app](https://t3.codes).
 
 Works with your subscriptions on Claude Code, Codex, Cursor, Grok Build, OpenCode, Google Antigravity, and fx. If they're set up on your computer, T3 Code can control them.
+
+## Internationalization (i18n) & Multi-Language Support
+
+This fork adds full **Internationalization (i18n)** support to T3 Code with **Simplified Chinese (`zh-Hans`)** built in out of the box, and an architecture designed to **easily extend to additional languages**:
+
+- **Built-in Simplified Chinese (`简体中文`) & English (`English`)**:
+  - Covers **5,088+ UI entries** across the web client and Electron desktop app, including settings, tooltips, dropdowns, provider configuration & authentication guides, toast notifications, confirmation dialogs, and Electron native application/context menus (while preserving the `T3 Code` brand, provider names, and user project titles).
+  - Switch display language anytime in **Settings → General → Display language** (`Follow system` / `简体中文` / `English`), with bilingual settings search so both localized terms and original English keywords work seamlessly.
+  - Prebuilt localized desktop installers are available on **[AmazingDM/t3code Releases](https://github.com/AmazingDM/t3code/releases)**.
+- **Extensible to More Languages (`zh-Hant`, `ja`, `ko`, `es`, `fr`, `de`, etc.)**:
+  - Localization is powered by a zero-intrusion **Oxc AST compile-time Vite plugin** (`i18n/transform.mjs` + `i18n/sync.mjs`) paired with a lightweight **runtime dictionary** (`apps/web/src/i18n/`) for dynamic server/provider payloads, keeping upstream merges clean without rewriting React components by hand.
+  - To add a new language:
+    1. Run `node i18n/sync.mjs` to extract all canonical English UI keys from the AST and create a locale dictionary pair (`i18n/<locale>.auto.json` and `i18n/<locale>.override.json`; supports automated LLM batch translation via `OPENAI_API_KEY`).
+    2. Register the new locale code and runtime dictionary in `apps/web/src/i18n/locale.ts` and the **Display language** selector in `SettingsPanels.tsx`, and bind the dictionary lookup in `i18n/transform.mjs`.
+    3. Add the matching Electron locale pack and native menu labels in `apps/desktop/src/window/`.
 
 ## "Wait, what are you selling me?"
 
@@ -23,7 +40,11 @@ We wanted something performant, remote-ready, and truly open. If we ever go the 
 > - Antigravity: enable it in Settings, then use **Install Antigravity** and **Sign in with Google**. No CLI is required.
 > - fx: install [fx](https://fx.sh) and run `fx login` on the machine running the T3 Code server ([setup guide](./docs/user/providers-fx.md))
 
-### Command line
+### Localized Desktop Build (Simplified Chinese & Multi-Language Fork)
+
+Download the latest localized desktop installer (`T3-Code-*-x64.exe`) directly from **[AmazingDM/t3code Releases](https://github.com/AmazingDM/t3code/releases)**.
+
+### Upstream Command line
 
 ```bash
 curl -fsSL https://t3.codes/install.sh | sh
@@ -39,9 +60,9 @@ Then run `t3` to start the server and open the local web app. `t3 service instal
 
 To try it once without installing, run `npx t3@latest`. It offers to install the `t3` command for you.
 
-### Desktop app
+### Upstream Desktop app
 
-Install the latest version of the desktop app from [GitHub Releases](https://github.com/pingdotgg/t3code/releases), or from your favorite package registry:
+Install the upstream English desktop app from [pingdotgg/t3code Releases](https://github.com/pingdotgg/t3code/releases), or from your favorite package registry:
 
 #### Windows (`winget`)
 
