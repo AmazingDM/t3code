@@ -118,6 +118,8 @@ export const TS_FUNCTION_WHITELIST = new Map([
     "components/settings/ConnectionsSettings.logic.ts",
     new Set(["missingTailscaleEndpointDescription", "resolveLocalVersionStatusLabel"]),
   ],
+  ["components/settings/ProjectDefaultsSettings.logic.ts", new Set(["providerNote"])],
+  ["hooks/showThreadUndoNotice.ts", new Set(["threadUndoLabel"])],
   [
     "components/settings/SnapShotSettings.logic.ts",
     new Set([

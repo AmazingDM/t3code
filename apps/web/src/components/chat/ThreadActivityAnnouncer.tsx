@@ -2,13 +2,14 @@ import type { ScreenReaderAnnouncements } from "@t3tools/contracts";
 import { memo, useEffect, useRef } from "react";
 
 import { useLiveRegion } from "../../hooks/useLiveRegion";
+import { tr } from "../../i18n/locale";
 import type { TimelineEntry } from "../../session-logic";
 
 import {
   nextThreadAnnouncement,
   type ThreadActivitySnapshot,
   type ThreadAnnouncementMemory,
-} from "./threadActivityAnnouncement";
+} from "@t3tools/client-runtime/state/thread-activity-announcement";
 import {
   nextTurnDetailAnnouncement,
   NO_TURN_DETAIL,
@@ -136,11 +137,11 @@ export const ThreadActivityAnnouncer = memo(function ThreadActivityAnnouncer({
       // NVDA reads two regions written in the same frame in either order, so a
       // status that lands with a message is read as its last sentence.
       const text = asOneAnnouncement(
-        turn.announcement === null ? detail.messages : [...detail.messages, turn.announcement],
+        turn.announcement === null ? detail.messages : [...detail.messages, tr(turn.announcement)],
       );
       write(text, holdAfter(text));
     } else if (turn.announcement !== null) {
-      announce(turn.announcement);
+      announce(tr(turn.announcement));
       step.quietUntil = Math.max(step.quietUntil, Date.now() + ACTIVITY_GAP_MS);
     }
     // A waiting label is stale once its step is over or the level no longer reads steps.

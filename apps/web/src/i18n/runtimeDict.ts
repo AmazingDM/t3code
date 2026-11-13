@@ -662,4 +662,69 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
     "所有正在运行的任务都会被中断，请确认准备就绪后再继续。",
   "This will move the thread out of your pinned section.": "这会将该线程移出置顶区域。",
   'Unpin thread "this thread"?': "确定取消置顶此线程？",
+  Settled: "已归置",
+  Snoozed: "已延后",
+  Unpinned: "已取消置顶",
+  Archived: "已归档",
+  Discarded: "已丢弃",
+  "Needs approval": "待审批",
+  "Needs your input": "待输入确认",
+  Done: "完成",
+  Stopped: "已停止",
+  "Could not obtain the T3 Connect session token.": "无法获取 T3 Connect 会话令牌。",
+  "Timed out obtaining the T3 Connect session token.": "获取 T3 Connect 会话令牌超时。",
+  "Could not refresh slow usage sources.": "无法刷新较慢的用量来源。",
+  "Could not synchronize the thread.": "无法同步线程。",
+  "Thread subscription failed; resubscribing.": "线程订阅失败，正在重新订阅。",
+  "Type your own answer": "输入你自己的回答",
+  "Add your own answer": "添加你自己的回答",
+  "Agent is already processing": "智能体正在处理",
+  "ACP session rejected a configuration option value": "ACP 会话拒绝了一个配置项的值",
+  "This provider does not support /compact. Start a new thread to continue with a fresh context.":
+    "此服务商不支持 /compact。请新建线程，以全新上下文继续。",
+  "Cursor CLI config could not be read; using the default agent transport":
+    "无法读取 Cursor CLI 配置，将使用默认智能体传输方式",
+  "Cursor steer requires non-empty text.": "Cursor 插话引导需要非空文本。",
+  "Cursor steer was interrupted before the run could take it.":
+    "Cursor 插话引导在运行接收之前被中断。",
+  "Login succeeded, but creating an SDK API key failed": "登录成功，但创建 SDK API 密钥失败",
+  "Cursor signed you in but could not create an API key. Your team's settings may restrict API keys: ask a team admin, or add CURSOR_API_KEY in provider settings.":
+    "Cursor 已让你登录，但无法创建 API 密钥。团队设置可能限制了 API 密钥：请联系团队管理员，或在服务商设置中添加 CURSOR_API_KEY。",
+  "Login failed or timed out": "登录失败或超时",
+  "Cursor sign-in failed or timed out. Check that this machine can reach Cursor, then start sign-in again.":
+    "Cursor 登录失败或超时。请确认这台机器可以访问 Cursor，然后重新登录。",
+  "Cursor sign-in failed": "Cursor 登录失败",
+  "Grok session skipped the requested reasoning effort": "Grok 会话跳过了所请求的推理强度",
+  "Kiro could not compact the conversation.": "Kiro 无法压缩此对话。",
+  "Muse Code has not finished installing. Run `muse --version` on this T3 server host, then refresh its status.":
+    "Muse Code 尚未完成安装。请在此 T3 服务器主机上运行 `muse --version`，然后刷新其状态。",
+  "OpenCode provider list was empty.": "OpenCode 服务商列表为空。",
+  "OpenCode could not read workspace usage.": "OpenCode 无法读取工作区用量。",
+  "Failed to replace the OpenCode service after an update.": "更新后无法替换 OpenCode 服务。",
+  "OpenCode service cannot be replaced through a shell shim":
+    "无法通过 shell 垫片替换 OpenCode 服务",
+  "OpenCode ended the turn with an error while T3 Code was reconnecting.":
+    "T3 Code 重新连接时，OpenCode 以错误结束了本轮。",
+  "The OpenCode event stream was lost and could not reconnect.":
+    "OpenCode 事件流已丢失，且无法重新连接。",
+  "No goal is set.": "尚未设置目标。",
+  "No OpenCode Console workspace is signed in.": "尚未登录 OpenCode Console 工作区。",
+  "Pi session closed while awaiting prompt acknowledgment": "等待提示确认时 Pi 会话已关闭",
+  "Pi transport closed while awaiting prompt acknowledgment": "等待提示确认时 Pi 传输已关闭",
+  "Cannot start a Pi turn after session closure": "会话关闭后无法开始 Pi 轮次",
+  "Pi turn ownership changed before it could start": "Pi 轮次在开始前更换了所属线程",
+  "Pi native wake belongs to a different app thread": "Pi 原生唤醒属于另一个应用线程",
+  "Forgejo API request failed without an HTTP status.":
+    "Forgejo API 请求失败，且没有 HTTP 状态码。",
+  "Authenticate this server with `fj --host <server-url> auth add-token`.":
+    "请使用 `fj --host <server-url> auth add-token` 认证此服务器。",
+  "This workflow run has not finished.": "此工作流运行尚未结束。",
+  "GitHub could not find the requested resource, or the credential cannot see it.":
+    "GitHub 找不到所请求的资源，或当前凭证无权查看。",
+  "GitHub Self-Hosted": "GitHub 自托管",
+  "GitHub returned an invalid change request list.": "GitHub 返回了无效的变更请求列表。",
+  "Params must be JSON.": "参数必须是 JSON。",
+  "Message too large.": "消息过大。",
+  "This tab has no agent owner. Ask the user to close it in the browser panel.":
+    "此标签页没有智能体所有者。请让用户在浏览器面板中关闭它。",
 };

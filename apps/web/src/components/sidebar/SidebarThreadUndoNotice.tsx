@@ -2,6 +2,7 @@ import { useAtomValue } from "@effect/atom-react";
 import { Undo2Icon } from "lucide-react";
 import { useState } from "react";
 
+import { tr } from "../../i18n/locale";
 import {
   threadUndoLabel,
   undoLatestThreadAction,
@@ -17,10 +18,11 @@ export function SidebarThreadUndoNotice() {
   const notice = useThreadUndoNotice((state) => state.notice);
   const keybindings = useAtomValue(primaryServerKeybindingsAtom);
   // Short enough to fit beside the utility icons; screen readers hear the full summary.
+  const actionLabel = notice ? tr(notice.action) : null;
   const summary = notice
     ? notice.count === 1
-      ? notice.action
-      : `${notice.action} ${notice.count}`
+      ? actionLabel
+      : `${actionLabel} ${notice.count}`
     : null;
 
   // Keeps the last text on screen while it fades out, then unmounts on transitionend.
