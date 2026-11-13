@@ -13,16 +13,30 @@
     <script>
       (() => {
         try {
-          const localePref = window.localStorage.getItem("t3code:locale");
-          const navLangs =
-            Array.isArray(navigator.languages) && navigator.languages.length > 0
-              ? navigator.languages
-              : [navigator.language];
+          const uiLang =
+            window.localStorage.getItem("t3code:ui-language") ??
+            window.localStorage.getItem("t3code:locale");
+          const desktopLangs = window.desktopBridge?.getPreferredSystemLanguages?.();
+          const sysLangs =
+            Array.isArray(desktopLangs) && desktopLangs.length > 0
+              ? desktopLangs
+              : Array.isArray(navigator.languages) && navigator.languages.length > 0
+                ? navigator.languages
+                : [navigator.language];
+          const isTraditionalZh = (l) => /^zh[-_](hant|tw|hk|mo)\b/i.test(l);
           const isZh =
-            localePref === "zh-Hans" ||
-            (localePref !== "en" &&
-              navLangs.some((l) => typeof l === "string" && l.toLowerCase().startsWith("zh")));
-          document.documentElement.lang = isZh ? "zh-Hans" : "en";
+            uiLang === "zh" ||
+            uiLang === "zh-Hans" ||
+            ((!uiLang || uiLang === "system") &&
+              sysLangs.some(
+                (l) =>
+                  typeof l === "string" && l.toLowerCase().startsWith("zh") && !isTraditionalZh(l),
+              ));
+          document.documentElement.lang = isZh
+            ? "zh"
+            : uiLang && uiLang !== "system" && uiLang !== "zh-Hans"
+              ? uiLang
+              : "en";
         } catch {}
         const LIGHT_BACKGROUND = "#ffffff";
         const DARK_BACKGROUND = "#000000";

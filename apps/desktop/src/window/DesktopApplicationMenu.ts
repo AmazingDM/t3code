@@ -1,3 +1,4 @@
+import { resolveLocale, SYSTEM_LANGUAGE } from "@t3tools/client-runtime/locales";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -11,9 +12,12 @@ import * as ElectronApp from "../electron/ElectronApp.ts";
 import * as ElectronDialog from "../electron/ElectronDialog.ts";
 import * as ElectronMenu from "../electron/ElectronMenu.ts";
 import * as DesktopEnvironment from "../app/DesktopEnvironment.ts";
+import * as DesktopClientSettings from "../settings/DesktopClientSettings.ts";
 import * as DesktopUpdates from "../updates/DesktopUpdates.ts";
 import { setDesktopIsZh } from "./desktopLocaleState.ts";
 import * as DesktopWindow from "./DesktopWindow.ts";
+
+const SUPPORTED_MENU_LOCALES = ["en", "de", "es", "fr", "ja", "ko", "pt-BR", "ru", "zh"] as const;
 
 export class DesktopApplicationMenuActionError extends Schema.TaggedError<DesktopApplicationMenuActionError>()(
   "DesktopApplicationMenuActionError",
@@ -31,6 +35,7 @@ export class DesktopApplicationMenu extends Context.Service<
   DesktopApplicationMenu,
   {
     readonly configure: Effect.Effect<void>;
+    readonly syncLanguage: (language: string) => Effect.Effect<void>;
   }
 >()("@t3tools/desktop/window/DesktopApplicationMenu") {}
 
@@ -129,6 +134,9 @@ export const make = Effect.gen(function* () {
   const electronApp = yield* ElectronApp.ElectronApp;
   const electronMenu = yield* ElectronMenu.ElectronMenu;
   const environment = yield* DesktopEnvironment.DesktopEnvironment;
+  const clientSettingsOption = yield* Effect.serviceOption(
+    DesktopClientSettings.DesktopClientSettings,
+  );
   const context = yield* Effect.context<DesktopApplicationMenuRuntimeServices>();
   const runPromise = Effect.runPromiseWith(context);
 
@@ -148,8 +156,11 @@ export const make = Effect.gen(function* () {
     );
   };
 
-  let systemIsZh = false;
+  let systemLocales: ReadonlyArray<string> = [];
   let currentIsZh = false;
+
+  const resolveMenuIsZh = (language: string): boolean =>
+    resolveLocale(language, systemLocales, SUPPORTED_MENU_LOCALES, "en") === "zh";
 
   const buildTemplate = (isZh: boolean): Electron.MenuItemConstructorOptions[] => {
     const t = (zh: string, en: string) => (isZh ? zh : en);
@@ -375,48 +386,35 @@ export const make = Effect.gen(function* () {
     return template;
   };
 
-  // Only sync locale from the main T3 Code renderer (preload exposes desktopBridge);
-  // ignore splash data: pages and external OAuth popups.
-  const READ_RENDERER_LOCALE_SCRIPT =
-    '(() => { try { return typeof window.desktopBridge === "object" && window.desktopBridge !== null ? (window.localStorage.getItem("t3code:locale") ?? "system") : null; } catch { return null; } })()';
-
-  yield* electronApp.on(
-    "browser-window-created",
-    (_event: unknown, window: Electron.BrowserWindow) => {
-      window.webContents.on("did-finish-load", () => {
-        if (window.isDestroyed() || window.webContents.isDestroyed()) return;
-        void window.webContents
-          .executeJavaScript(READ_RENDERER_LOCALE_SCRIPT)
-          .then((pref: unknown) => {
-            if (pref !== "zh-Hans" && pref !== "en" && pref !== "system") return;
-            const nextIsZh = pref === "zh-Hans" ? true : pref === "en" ? false : systemIsZh;
-            if (nextIsZh === currentIsZh) return;
-            currentIsZh = nextIsZh;
-            setDesktopIsZh(currentIsZh);
-            runMenuEffect(
-              "sync-menu-locale",
-              electronMenu.setApplicationMenu(buildTemplate(currentIsZh)),
-            );
-          })
-          .catch(() => {});
-      });
-    },
-  );
-
   const configure = Effect.gen(function* () {
     const preferredLanguages = yield* electronApp.preferredSystemLanguages;
     const systemLocale = yield* electronApp.systemLocale;
-    systemIsZh = [...preferredLanguages, systemLocale].some(
-      (lang) => typeof lang === "string" && lang.toLowerCase().startsWith("zh"),
+    systemLocales = [...preferredLanguages, systemLocale].filter(
+      (lang): lang is string => typeof lang === "string" && lang.trim().length > 0,
     );
-    currentIsZh = systemIsZh;
+    const savedLanguage = Option.isSome(clientSettingsOption)
+      ? yield* clientSettingsOption.value.get.pipe(
+          Effect.map(Option.map((settings) => settings.language)),
+          Effect.catch(() => Effect.succeedNone),
+        )
+      : Option.none<string>();
+    currentIsZh = resolveMenuIsZh(Option.getOrElse(savedLanguage, () => SYSTEM_LANGUAGE));
     setDesktopIsZh(currentIsZh);
 
     yield* electronMenu.setApplicationMenu(buildTemplate(currentIsZh));
   }).pipe(Effect.withSpan("desktop.menu.configure"));
 
+  const syncLanguage = Effect.fn("desktop.menu.syncLanguage")(function* (language: string) {
+    const nextIsZh = resolveMenuIsZh(language);
+    if (nextIsZh === currentIsZh) return;
+    currentIsZh = nextIsZh;
+    setDesktopIsZh(currentIsZh);
+    yield* electronMenu.setApplicationMenu(buildTemplate(currentIsZh));
+  });
+
   return DesktopApplicationMenu.of({
     configure,
+    syncLanguage,
   });
 });
 

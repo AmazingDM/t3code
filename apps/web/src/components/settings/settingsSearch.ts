@@ -13,7 +13,7 @@ import * as Schema from "effect/Schema";
 import { msg } from "gt-react";
 import { TYPOGRAPHY_ADVANCED_STORAGE_KEY } from "../../appearanceFonts";
 import { writeLocalStorageValue } from "../../hooks/useLocalStorage";
-import { commandLabel } from "./KeybindingsSettings.logic";
+import { commandLabel, englishCommandLabel } from "./KeybindingsSettings.logic";
 import type { ResolvedSettingsScope } from "./settingsScope";
 
 export type SettingsPath =
@@ -180,7 +180,7 @@ const KEYBINDING_SEARCH_ITEMS = STATIC_KEYBINDING_COMMANDS.toSorted((left, right
     id: keybindingSearchAnchorId(command),
     title: commandLabel(command),
     to: "/settings/keybindings" as const,
-    searchTerms: [command, ...defaultKeys],
+    searchTerms: [command, englishCommandLabel(command), ...defaultKeys],
     secondary: true,
     ...(defaultKeys.length === 0 ? { targetId: "keybindings" } : {}),
   };
@@ -679,12 +679,6 @@ export const SETTINGS_SEARCH_ITEMS = [
     scope: "project-defaults",
   },
   {
-    id: "display-language",
-    title: "Display language",
-    to: "/settings/general",
-    searchTerms: ["language locale chinese english 中文 简体中文 语言 汉化 界面语言"],
-  },
-  {
     id: "thread-notifications",
     title: "Thread notifications",
     to: "/settings/general",
@@ -701,7 +695,7 @@ export const SETTINGS_SEARCH_ITEMS = [
     title: msg("Language"),
     to: "/settings/general",
     searchTerms: [
-      "locale translation english deutsch german español spanish français french português portuguese brasil brazilian chinese 中文 japanese 日本語 korean 한국어 russian русский sprache idioma langue 语言 言語 언어 язык",
+      "locale translation english deutsch german español spanish français french português portuguese brasil brazilian chinese 中文 简体中文 汉化 界面语言 japanese 日本語 korean 한국어 russian русский sprache idioma langue 语言 言語 언어 язык",
     ],
   },
   {

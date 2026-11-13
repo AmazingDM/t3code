@@ -141,7 +141,9 @@ export function ProjectDefaultsSettings({ category }: { category: ProjectSetting
       }
       status={
         mixedModel
-          ? `${automaticModel ? "Automatic defaults differ." : "Defaults differ."} Select one environment or choose a shared model to edit effort.`
+          ? automaticModel
+            ? "Automatic defaults differ. Select one environment or choose a shared model to edit effort."
+            : "Defaults differ. Select one environment or choose a shared model to edit effort."
           : (presentation.providerNote ?? effortDisabledReason)
       }
       resetAction={

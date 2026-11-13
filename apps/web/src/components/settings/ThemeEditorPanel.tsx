@@ -422,10 +422,14 @@ export function ThemeEditorPanel({
 
   const appearanceLockReason = (appearance: ThemeAppearance): string | null => {
     if (editableAppearances && !editableAppearances.includes(appearance)) {
-      return `“${editingTheme?.label}” has no ${appearance} palette. Create a theme with the same name to add one.`;
+      return appearance === "light"
+        ? `“${editingTheme?.label}” has no light palette. Create a theme with the same name to add one.`
+        : `“${editingTheme?.label}” has no dark palette. Create a theme with the same name to add one.`;
     }
     if (!isEditing && takenAppearances.includes(appearance)) {
-      return `“${mergeTarget?.label}” already has a ${appearance} palette.`;
+      return appearance === "light"
+        ? `“${mergeTarget?.label}” already has a light palette.`
+        : `“${mergeTarget?.label}” already has a dark palette.`;
     }
     return null;
   };
@@ -776,7 +780,11 @@ export function ThemeEditorPanel({
         const editedModes = getThemeModes(editingTheme);
         const collision = editedModes.find((mode) => takenAppearances.includes(mode));
         if (collision) {
-          setError(`“${mergeTarget.label}” already has a ${collision} palette. Pick another name.`);
+          setError(
+            collision === "light"
+              ? `“${mergeTarget.label}” already has a light palette. Pick another name.`
+              : `“${mergeTarget.label}” already has a dark palette. Pick another name.`,
+          );
           return;
         }
         mergedAppearance = editedModes[0] ?? null;

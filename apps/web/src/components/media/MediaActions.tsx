@@ -133,7 +133,6 @@ export function MediaActions({
     let failureTitle = "Could not open media menu";
     let progressToast: ReturnType<typeof toastManager.add> | undefined;
     const result = await settlePromise(async () => {
-      const noun = source.kind === "image" ? "image" : "video";
       const unavailable = !canReadMedia || (source.src === null && source.asset === undefined);
       const canCopyImage =
         typeof navigator !== "undefined" &&
@@ -149,7 +148,11 @@ export function MediaActions({
       }
       if (source.onOpenFile)
         items.push({ id: "open-file", label: "Open in file viewer", disabled: !canReadMedia });
-      items.push({ id: "save", label: `Save ${noun}`, disabled: unavailable });
+      items.push({
+        id: "save",
+        label: source.kind === "image" ? "Save image" : "Save video",
+        disabled: unavailable,
+      });
       if (source.kind === "image") {
         items.push({
           id: "copy-image",
@@ -160,7 +163,10 @@ export function MediaActions({
 
       const action = await api.contextMenu.show(items, position);
       if (!action) return;
-      failureTitle = `Could not ${items.find((item) => item.id === action)?.label.toLowerCase() ?? "complete media action"}`;
+      const selectedLabel = items.find((item) => item.id === action)?.label;
+      failureTitle = selectedLabel
+        ? `Could not ${selectedLabel.toLowerCase()}`
+        : "Could not complete media action";
       const text =
         action === "copy-full-path" && reference?.kind === "file"
           ? reference.path
@@ -183,7 +189,12 @@ export function MediaActions({
       } else if (action === "save" || action === "copy-image") {
         progressToast = toastManager.add({
           type: "loading",
-          title: action === "save" ? `Preparing ${noun} download…` : "Copying image…",
+          title:
+            action === "save"
+              ? source.kind === "image"
+                ? "Preparing image download…"
+                : "Preparing video download…"
+              : "Copying image…",
         });
         await (action === "save" ? save() : copyImage());
         toastManager.update(progressToast, {

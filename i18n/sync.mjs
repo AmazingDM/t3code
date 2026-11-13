@@ -135,6 +135,18 @@ async function main() {
     missing.push({ key, context: meta.context, files });
   }
 
+  const gtEnPath = NodePath.join(WEB_SRC_DIR, "i18n", "translations", "en.json");
+  const gtZhPath = NodePath.join(WEB_SRC_DIR, "i18n", "translations", "zh.json");
+  if (NodeFS.existsSync(gtEnPath) && NodeFS.existsSync(gtZhPath)) {
+    const gtEn = JSON.parse(NodeFS.readFileSync(gtEnPath, "utf8"));
+    const gtZh = JSON.parse(NodeFS.readFileSync(gtZhPath, "utf8"));
+    const gtEnKeys = Object.keys(gtEn);
+    const gtMissing = gtEnKeys.filter((k) => !Object.hasOwn(gtZh, k));
+    console.log(
+      `[i18n/sync] Official GT keys: ${gtEnKeys.length} | zh.json covered: ${gtEnKeys.length - gtMissing.length} | Missing: ${gtMissing.length}`,
+    );
+  }
+
   console.log(
     `[i18n/sync] Total UI keys: ${candidates.size} | Translated: ${candidates.size - missing.length} | Missing: ${missing.length}`,
   );

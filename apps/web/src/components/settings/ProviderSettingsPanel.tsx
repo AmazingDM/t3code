@@ -138,11 +138,7 @@ function providerInstanceName(instance: ProviderInstanceConfig): string {
   );
 }
 
-async function confirmProviderInstanceRemoval(
-  question: string,
-  consequence = "",
-): Promise<boolean> {
-  const message = `${question}\nIts saved settings, including any custom binary path, will be removed.${consequence}`;
+async function confirmProviderInstanceRemoval(message: string): Promise<boolean> {
   const confirmed = await settlePromise(() =>
     ensureLocalApi().dialogs.confirm(message, { variant: "destructive" }),
   );
@@ -837,7 +833,10 @@ export function EnvironmentProviderSettings({
   const deleteInstance = useStableCallback(
     async (instanceId: ProviderInstanceId, instance: ProviderInstanceConfig) => {
       const confirmed = await confirmProviderInstanceRemoval(
-        `Remove the ${providerInstanceName(instance)} provider instance?`,
+        [
+          `Remove the ${providerInstanceName(instance)} provider instance?`,
+          "Its saved settings, including any custom binary path, will be removed.",
+        ].join("\n"),
       );
       if (!confirmed) return;
       const updateResult = await persistProviderInstance({
@@ -882,8 +881,12 @@ export function EnvironmentProviderSettings({
       resolveProviderInstanceEnabled(instance) &&
       !resolveProviderInstanceEnabled({ driver: driverKind });
     const confirmed = await confirmProviderInstanceRemoval(
-      `Reset the ${providerInstanceName(instance)} provider to its defaults?`,
-      turnsOff ? " It will also be turned off." : "",
+      [
+        `Reset the ${providerInstanceName(instance)} provider to its defaults?`,
+        turnsOff
+          ? "Its saved settings, including any custom binary path, will be removed. It will also be turned off."
+          : "Its saved settings, including any custom binary path, will be removed.",
+      ].join("\n"),
     );
     if (!confirmed) return;
     const result = await persistProviderInstance({ operation: "remove", instanceId });

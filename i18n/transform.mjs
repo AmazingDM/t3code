@@ -46,8 +46,14 @@ export const TS_CONSTANT_WHITELIST = new Map([
   ["components/settings/providerStatus.ts", new Set(["COMPATIBILITY_TITLES", "label"])],
   [
     "components/settings/KeybindingsSettings.logic.ts",
-    new Set(["KEYBINDING_GROUPS", "OTHER_KEYBINDING_GROUP"]),
+    new Set(["KEYBINDING_GROUPS", "OTHER_KEYBINDING_GROUP", "COMMAND_LABEL_OVERRIDES"]),
   ],
+  [
+    "components/settings/customModelEditor.logic.ts",
+    new Set(["EFFORT_CHOICES", "DESCRIPTOR_PRESETS_BY_KIND"]),
+  ],
+  ["components/settings/scheduledTasksSettings.logic.ts", new Set(["WEEKDAY_LABELS"])],
+  ["components/settings/ProjectSettingsPanel.logic.ts", new Set(["SCRATCH_PROJECT_TITLE"])],
   ["components/usage/usagePriceForm.ts", new Set(["USAGE_PRICE_FIELDS"])],
   ["composerPlaceholder.ts", new Set(["DEFAULT_COMPOSER_PLACEHOLDER"])],
   ["hooks/useSettings.ts", new Set(["PRIMARY_SETTINGS_UNAVAILABLE_MESSAGE"])],
@@ -83,7 +89,11 @@ export const TS_FUNCTION_WHITELIST = new Map([
   ],
   [
     "components/settings/providerStatus.ts",
-    new Set(["getProviderSummary", "getProviderVersionAdvisoryPresentation"]),
+    new Set([
+      "getRawProviderSummary",
+      "getProviderSummary",
+      "getProviderVersionAdvisoryPresentation",
+    ]),
   ],
   [
     "components/GitActionsControl.logic.ts",
@@ -116,14 +126,23 @@ export const TS_FUNCTION_WHITELIST = new Map([
   ["components/chat/MarkdownFileLink.logic.ts", new Set(["markdownFileCopyMenuItems"])],
   [
     "components/settings/ConnectionsSettings.logic.ts",
-    new Set(["missingTailscaleEndpointDescription", "resolveLocalVersionStatusLabel"]),
+    new Set([
+      "missingTailscaleEndpointDescription",
+      "resolveLocalVersionStatusLabel",
+      "parseManualDesktopSshTarget",
+      "parseRemotePairingFields",
+      "formatDesktopSshConnectionError",
+      "endpointShareHint",
+    ]),
   ],
   ["components/settings/ProjectDefaultsSettings.logic.ts", new Set(["providerNote"])],
   ["hooks/showThreadUndoNotice.ts", new Set(["threadUndoLabel"])],
   [
     "components/settings/SnapShotSettings.logic.ts",
     new Set([
+      "snapShotStatus",
       "snapShotSetupSummary",
+      "snapShotShortcutStatus",
       "snapShotSetupButtonLabel",
       "snapShotFeedbackUnavailableMessage",
       "snapShotDescription",
@@ -132,6 +151,48 @@ export const TS_FUNCTION_WHITELIST = new Map([
     ]),
   ],
   ["components/settings/SnapShotSetupDialog.logic.ts", new Set(["captureSetupCheckMessage"])],
+  ["components/settings/browserImportWizard.logic.ts", new Set(["formatSkippedDomains"])],
+  ["components/settings/deviceHostsSettings.logic.ts", new Set(["updateDeviceHosts"])],
+  ["components/settings/SecretsSettings.logic.ts", new Set(["secretProviderUses"])],
+  [
+    "components/settings/KeybindingsSettings.logic.ts",
+    new Set(["whenNodeRemoveLabel", "parseWhenExpressionDraft", "commandLabel"]),
+  ],
+  [
+    "components/settings/SettingsPanels.logic.ts",
+    new Set(["getChangedTypographySettingLabels", "getChangedBrowserSettingLabels"]),
+  ],
+  ["components/settings/customModelEditor.logic.ts", new Set(["validateDraft"])],
+  [
+    "components/settings/scheduledTasksSettings.logic.ts",
+    new Set(["scheduleLabel", "scheduleDraftErrors", "webhookDeliveryLabel"]),
+  ],
+  ["components/settings/settingsScope.ts", new Set(["resolveSettingsScope"])],
+  ["components/settings/settingsSearch.ts", new Set(["sourceControlHostSearchItems"])],
+  [
+    "components/settings/scopedSettings.ts",
+    new Set([
+      "planScopedSettingsPatch",
+      "planScopedSettingsClear",
+      "planProjectOverridesClear",
+      "persistScopedSettingsPatch",
+    ]),
+  ],
+  ["components/settings/SecretProviderDialog.logic.ts", new Set(["secretProviderFromDraft"])],
+  [
+    "components/settings/easDeviceHostsSettings.logic.ts",
+    new Set(["newEasDeviceHost", "easSessionLimits"]),
+  ],
+  [
+    "components/settings/simlockDeviceHostsSettings.logic.ts",
+    new Set(["simlockDeviceHostProblem", "simlockLeaseLimits"]),
+  ],
+  [
+    "components/settings/updateTrackSwitch.logic.ts",
+    new Set(["prepareLocalTrackSwitch", "nothingToMove"]),
+  ],
+  ["components/settings/useScopedModelAvailability.ts", new Set(["useScopedModelDisabledReason"])],
+  ["components/settings/useScopedSettings.ts", new Set(["useRunScopedPlan"])],
   [
     "components/ProviderUpdateLaunchNotification.logic.ts",
     new Set(["getProviderUpdatedDescription"]),
@@ -177,6 +238,47 @@ export const TS_FUNCTION_WHITELIST = new Map([
   ["lib/toolCallDiff.ts", new Set(["toolCallDiff"])],
 ]);
 
+const TSX_FUNCTION_WHITELIST = new Map([
+  ["components/settings/AddProviderInstanceDialog.tsx", new Set(["validateInstanceId"])],
+  ["components/settings/DeviceSourcesSettings.tsx", new Set(["hostStatus"])],
+  ["components/settings/DiagnosticsSettings.tsx", new Set(["formatProcessType"])],
+  ["components/settings/EnvironmentIconPicker.tsx", new Set(["resolveEnvironmentIconPickerLock"])],
+  ["components/settings/EnvironmentRow.tsx", new Set(["environmentTransportLabel"])],
+  ["components/settings/IntegrationsSettings.tsx", new Set(["viewportSelectLabel"])],
+  ["components/settings/ProjectFaviconPickerDialog.tsx", new Set(["emptyMessage"])],
+  ["components/settings/ProviderSettingsPanel.tsx", new Set(["providerEnvironmentDetail"])],
+  [
+    "components/settings/ResourceTelemetryDiagnostics.tsx",
+    new Set(["categoryLabel", "ioSemanticsLabel", "booleanStateLabel"]),
+  ],
+  ["components/settings/SavedEnvironmentRows.tsx", new Set(["savedBackendStatus"])],
+  ["components/settings/ScheduledTasksSettings.tsx", new Set(["relativeLabel"])],
+  [
+    "components/settings/SettingInheritance.tsx",
+    new Set(["formatValue", "settingInheritanceLayers"]),
+  ],
+  ["components/settings/SourceControlSettings.tsx", new Set(["authPresentation"])],
+  ["components/settings/StorageSettings.tsx", new Set(["lastRunSummary", "ruleStatus"])],
+  ["components/settings/TelemetryExportSettings.tsx", new Set(["endpointStatus"])],
+  ["components/settings/ThemeEditorPanel.tsx", new Set(["appearanceLockReason"])],
+  ["components/settings/TypographySettings.tsx", new Set(["resolveFontDefaultFamilies"])],
+]);
+
+const DISPLAY_FN_LOCAL_VARS = new Set([
+  "fallback",
+  "position",
+  "sessions",
+  "devices",
+  "reason",
+  "labels",
+  "nameIssue",
+  "unavailable",
+  "unavailableReason",
+  "list",
+  "families",
+  "days",
+]);
+
 const TSX_CONST_SKIP = new Set([
   "SUGGESTED_SEARCHES",
   "IMPORT_SOURCE_NAMES",
@@ -207,6 +309,10 @@ const TSX_OBJ_DISPLAY_NAMES = new Set([
   "actionLabel",
   "statusLabel",
   "options",
+  "summaries",
+  "rows",
+  "shared",
+  "WEEKDAY_SHORT",
 ]);
 
 const TSX_SCALAR_DISPLAY_RE =
@@ -242,6 +348,13 @@ const TSX_SCALAR_DISPLAY_NAMES = new Set([
   "armedAutoMergeLabel",
   "linkedThreadsLabel",
   "installationStatusMessage",
+  "inlineStatusDetail",
+  "subtitleText",
+  "detail",
+  "subtitle",
+  "problem",
+  "message",
+  "title",
 ]);
 
 const DISPLAY_JSX_ATTR_EXACT = new Set([
@@ -250,6 +363,7 @@ const DISPLAY_JSX_ATTR_EXACT = new Set([
   "description",
   "placeholder",
   "label",
+  "status",
   "aria-label",
   "aria-description",
   "ariaLabel",
@@ -266,6 +380,7 @@ const DISPLAY_JSX_ATTR_EXACT = new Set([
 
 const DISPLAY_OBJECT_PROP_NAMES = new Set([
   "label",
+  "triggerLabel",
   "title",
   "subtitle",
   "description",
@@ -283,15 +398,20 @@ const DISPLAY_OBJECT_PROP_NAMES = new Set([
   "pendingLabel",
   "pending",
   "failed",
+  "unavailableReason",
+  "disabledReason",
+  "message",
 ]);
 
 const DEFAULT_PARAM_PROP_NAMES = new Set([
   "tooltip",
   "placeholder",
+  "description",
   "emptyMessage",
   "confirmLabel",
   "cancelLabel",
   "submitLabel",
+  "expandLabel",
 ]);
 
 const NAMED_ENTITIES = {
@@ -769,6 +889,7 @@ export function analyzeModule(code, filename, options = {}) {
   const isTsx = cleanFile.endsWith(".tsx");
   const tsAllowedConsts = !isTsx ? TS_CONSTANT_WHITELIST.get(relFile) : null;
   const tsAllowedFns = !isTsx ? TS_FUNCTION_WHITELIST.get(relFile) : null;
+  const tsxAllowedFns = isTsx ? TSX_FUNCTION_WHITELIST.get(relFile) : null;
   if (
     !isTsx &&
     !tsAllowedConsts &&
@@ -804,7 +925,7 @@ export function analyzeModule(code, filename, options = {}) {
   ) => {
     if (!litNode || litNode.type !== "Literal" || typeof litNode.value !== "string") return false;
     const { leading, core, trailing } = splitPadding(litNode.value);
-    if (requireCapitalStart && !/^[A-Z0-9"“'(]/.test(core)) return false;
+    if (requireCapitalStart && !/^[A-Z0-9"“'(⌘]/.test(core)) return false;
     const hasOverride =
       dict && (Object.hasOwn(dict, `${relFile}::${core}`) || Object.hasOwn(dict, core));
     if (!hasOverride && !isTranslatableText(core)) return false;
@@ -904,6 +1025,11 @@ export function analyzeModule(code, filename, options = {}) {
       handleDisplayExpr(node.right, context, requireCapitalStart);
       return;
     }
+    if (node.type === "BinaryExpression" && node.operator === "+") {
+      handleDisplayExpr(node.left, context, requireCapitalStart);
+      handleDisplayExpr(node.right, context, requireCapitalStart);
+      return;
+    }
     if (node.type === "ArrowFunctionExpression" || node.type === "FunctionExpression") {
       if (node.body.type !== "BlockStatement") {
         handleDisplayExpr(node.body, context, requireCapitalStart);
@@ -921,11 +1047,28 @@ export function analyzeModule(code, filename, options = {}) {
       const keyName = getPropertyKeyName(prop);
       if (!keyName) continue;
       const propVal = unwrapExpr(prop.value);
-      if (DISPLAY_OBJECT_PROP_NAMES.has(keyName)) {
+      if (
+        DISPLAY_OBJECT_PROP_NAMES.has(keyName) ||
+        (keyName === "text" && contextPrefix === "fn-obj:savedBackendStatus") ||
+        (keyName === "value" && contextPrefix === "fn-obj:settingInheritanceLayers") ||
+        (keyName === "counts" && contextPrefix === "fn-obj:summaries")
+      ) {
         handleDisplayExpr(prop.value, `${contextPrefix}.${keyName}`, true);
+      } else if (keyName === "action" && propVal?.type === "ObjectExpression") {
+        handleObjectDisplayProps(propVal, `${contextPrefix}.action`);
       } else if (keyName === "steps" && propVal?.type === "ArrayExpression") {
         for (const stepEl of propVal.elements) {
           handleDisplayExpr(stepEl, `${contextPrefix}.steps`, true);
+        }
+      } else if (
+        (keyName === "families" || keyName === "choices") &&
+        propVal?.type === "ArrayExpression"
+      ) {
+        for (const itemEl of propVal.elements) {
+          const item = unwrapExpr(itemEl);
+          if (item?.type === "ObjectExpression") {
+            handleObjectDisplayProps(item, `${contextPrefix}.${keyName}`);
+          }
         }
       }
     }
@@ -934,6 +1077,23 @@ export function analyzeModule(code, filename, options = {}) {
   const handleDisplayRecordOrList = (constName, initNode) => {
     const unwrapped = unwrapExpr(initNode);
     if (!unwrapped) return;
+
+    if (unwrapped.type === "ConditionalExpression") {
+      const cons = unwrapExpr(unwrapped.consequent);
+      const alt = unwrapExpr(unwrapped.alternate);
+      if (
+        cons?.type === "ObjectExpression" ||
+        alt?.type === "ObjectExpression" ||
+        cons?.type === "ArrayExpression" ||
+        alt?.type === "ArrayExpression" ||
+        cons?.type === "ConditionalExpression" ||
+        alt?.type === "ConditionalExpression"
+      ) {
+        handleDisplayRecordOrList(constName, unwrapped.consequent);
+        handleDisplayRecordOrList(constName, unwrapped.alternate);
+        return;
+      }
+    }
 
     if (
       unwrapped.type === "Literal" ||
@@ -1002,6 +1162,10 @@ export function analyzeModule(code, filename, options = {}) {
         handleObjectDisplayProps(unwrapped, `dict:${constName}`);
       }
       for (const prop of unwrapped.properties) {
+        if (prop.type === "SpreadElement") {
+          handleDisplayRecordOrList(constName, prop.argument);
+          continue;
+        }
         if (prop.type !== "Property") continue;
         const propKey = getPropertyKeyName(prop);
         if (constName === "DISPLAY_LOCALE_LABELS" && propKey && propKey !== "system") continue;
@@ -1017,14 +1181,33 @@ export function analyzeModule(code, filename, options = {}) {
           handleDisplayExpr(propVal, `dict:${constName}`, true);
         } else if (propVal.type === "ObjectExpression") {
           handleObjectDisplayProps(propVal, `dict:${constName}`);
+        } else if (propVal.type === "ArrayExpression") {
+          handleDisplayRecordOrList(constName, propVal);
         }
       }
       return;
     }
 
     if (unwrapped.type === "ArrayExpression") {
-      const allowStringElements = /(?:STEPS|LABELS)$/i.test(constName);
+      const allowStringElements = /(?:STEPS|LABELS|HEADERS|WEEKDAY_SHORT)$/i.test(constName);
       for (const el of unwrapped.elements) {
+        if (el?.type === "SpreadElement") {
+          const spreadArg = unwrapExpr(el.argument);
+          if (spreadArg?.type === "ConditionalExpression") {
+            handleDisplayRecordOrList(constName, spreadArg.consequent);
+            handleDisplayRecordOrList(constName, spreadArg.alternate);
+          } else if (
+            allowStringElements &&
+            spreadArg?.type === "CallExpression" &&
+            spreadArg.callee?.type === "MemberExpression" &&
+            spreadArg.callee.property?.type === "Identifier" &&
+            spreadArg.callee.property.name === "map" &&
+            spreadArg.arguments[0]
+          ) {
+            handleDisplayExpr(spreadArg.arguments[0], `list:${constName}`, true);
+          }
+          continue;
+        }
         const item = unwrapExpr(el);
         if (!item) continue;
         if (item.type === "ObjectExpression") {
@@ -1035,7 +1218,10 @@ export function analyzeModule(code, filename, options = {}) {
           if (cons?.type === "ObjectExpression")
             handleObjectDisplayProps(cons, `list:${constName}`);
           if (alt?.type === "ObjectExpression") handleObjectDisplayProps(alt, `list:${constName}`);
-        } else if (allowStringElements && item.type === "Literal") {
+        } else if (
+          allowStringElements &&
+          (item.type === "Literal" || item.type === "TemplateLiteral")
+        ) {
           handleDisplayExpr(item, `list:${constName}`, true);
         }
       }
@@ -1048,19 +1234,66 @@ export function analyzeModule(code, filename, options = {}) {
       const unwrapped = unwrapExpr(fnBodyNode);
       if (unwrapped?.type === "ObjectExpression") {
         handleObjectDisplayProps(unwrapped, `fn:${fnName}`);
+      } else if (unwrapped?.type === "ArrayExpression") {
+        handleDisplayRecordOrList(fnName, unwrapped);
       } else {
         handleDisplayExpr(fnBodyNode, `fn:${fnName}`, true);
       }
       return;
     }
+    const allowInnerFns =
+      fnName === "useScopedModelDisabledReason" ||
+      fnName === "useRunScopedPlan" ||
+      fnName === "resolveSettingsScope" ||
+      fnName === "secretProviderUses";
     function visitFn(n) {
       if (!n || typeof n !== "object") return;
-      if (n !== fnBodyNode && isFunctionNode(n)) return;
+      if (n !== fnBodyNode && isFunctionNode(n) && !allowInnerFns) return;
       if (n.type === "ReturnStatement" && n.argument) {
         const retVal = unwrapExpr(n.argument);
-        if (retVal && retVal.type !== "ObjectExpression" && retVal.type !== "ArrayExpression") {
+        if (retVal?.type === "ArrayExpression") {
+          handleDisplayRecordOrList(fnName, retVal);
+        } else if (retVal && retVal.type !== "ObjectExpression") {
           handleDisplayExpr(retVal, `fn:${fnName}`, true);
         }
+      } else if (n.type === "ThrowStatement" && n.argument) {
+        const thrown = unwrapExpr(n.argument);
+        if (
+          thrown?.type === "NewExpression" &&
+          thrown.callee?.type === "Identifier" &&
+          thrown.callee.name === "Error" &&
+          thrown.arguments[0]
+        ) {
+          handleDisplayExpr(thrown.arguments[0], `fn-err:${fnName}`, true);
+        }
+      } else if (
+        n.type === "VariableDeclarator" &&
+        n.id?.type === "Identifier" &&
+        n.init &&
+        DISPLAY_FN_LOCAL_VARS.has(n.id.name)
+      ) {
+        handleDisplayRecordOrList(n.id.name, n.init);
+      } else if (
+        n.type === "AssignmentExpression" &&
+        n.left?.type === "Identifier" &&
+        n.left.name === "nameIssue" &&
+        n.right
+      ) {
+        handleDisplayExpr(n.right, `fn-var:${fnName}`, true);
+      } else if (
+        n.type === "CallExpression" &&
+        n.callee?.type === "Identifier" &&
+        n.callee.name === "decodeField" &&
+        n.arguments[2]
+      ) {
+        handleDisplayExpr(n.arguments[2], `fn-call:${fnName}`, true);
+      } else if (
+        n.type === "CallExpression" &&
+        n.callee?.type === "Identifier" &&
+        n.callee.name === "unavailable" &&
+        n.arguments[1]
+      ) {
+        handleDisplayExpr(n.arguments[1], `fn-call:${fnName}`, true);
       } else if (n.type === "ObjectExpression") {
         handleObjectDisplayProps(n, `fn-obj:${fnName}`);
       }
@@ -1131,27 +1364,35 @@ export function analyzeModule(code, filename, options = {}) {
     return false;
   };
 
-  const handleConfirmMessageExpr = (rawNode) => {
+  const handleJoinedLinesOrExpr = (rawNode, contextPrefix, requireCapitalStart = true) => {
     const expr = unwrapExpr(rawNode);
     if (!expr) return;
-    if (expr.type === "ConditionalExpression") {
-      handleConfirmMessageExpr(expr.consequent);
-      handleConfirmMessageExpr(expr.alternate);
+    if (expr.type === "ConditionalExpression" && requireCapitalStart) {
+      handleJoinedLinesOrExpr(expr.consequent, contextPrefix, true);
+      handleJoinedLinesOrExpr(expr.alternate, contextPrefix, true);
       return;
     }
     if (
       expr.type === "CallExpression" &&
       expr.callee?.type === "MemberExpression" &&
       expr.callee.property?.type === "Identifier" &&
-      expr.callee.property.name === "join" &&
-      unwrapExpr(expr.callee.object)?.type === "ArrayExpression"
+      expr.callee.property.name === "join"
     ) {
-      for (const el of unwrapExpr(expr.callee.object).elements) {
-        if (el) handleDisplayExpr(el, "confirm:line", true);
+      let receiver = unwrapExpr(expr.callee.object);
+      if (
+        receiver?.type === "CallExpression" &&
+        receiver.callee?.type === "MemberExpression" &&
+        receiver.callee.property?.type === "Identifier" &&
+        receiver.callee.property.name === "filter"
+      ) {
+        receiver = unwrapExpr(receiver.callee.object);
       }
-      return;
+      if (receiver?.type === "ArrayExpression") {
+        handleDisplayRecordOrList("JOINED_LABELS", receiver);
+        return;
+      }
     }
-    handleDisplayExpr(rawNode, "confirm:message", true);
+    handleDisplayExpr(rawNode, contextPrefix, requireCapitalStart);
   };
 
   function walk(node) {
@@ -1162,6 +1403,27 @@ export function analyzeModule(code, filename, options = {}) {
         walkDisplayFunctionBody(node.body, node.id.name);
         return;
       }
+    }
+
+    if (isTsx && tsxAllowedFns && node.type === "FunctionDeclaration" && node.id?.name) {
+      if (tsxAllowedFns.has(node.id.name)) {
+        walkDisplayFunctionBody(node.body, node.id.name);
+      }
+    }
+
+    if (
+      dict &&
+      relFile === "sourceControlPresentation.tsx" &&
+      node.type === "Property" &&
+      getPropertyKeyName(node) === "terminology" &&
+      code.slice(node.value.start, node.value.end) === "definition.changeRequest"
+    ) {
+      patches.push({
+        start: node.value.start,
+        end: node.value.end,
+        text: `(__IS_ZH__ ? { ...definition.changeRequest, shortLabelWithArticle: definition.changeRequest.shortLabel, singular: definition.changeRequest.shortLabel === "MR" ? "合并请求" : definition.changeRequest.shortLabel === "PR" ? "PR" : "变更请求", plural: definition.changeRequest.shortLabel === "MR" ? "合并请求" : definition.changeRequest.shortLabel === "PR" ? "PR" : "变更请求" } : definition.changeRequest)`,
+      });
+      return;
     }
 
     if (node.type === "VariableDeclarator" && node.id?.type === "Identifier" && node.init) {
@@ -1182,23 +1444,52 @@ export function analyzeModule(code, filename, options = {}) {
       } else if (!TSX_CONST_SKIP.has(constName)) {
         const unwrappedInit = unwrapExpr(node.init);
         if (
-          unwrappedInit?.type === "ObjectExpression" ||
-          unwrappedInit?.type === "ArrayExpression"
+          tsxAllowedFns?.has(constName) &&
+          (unwrappedInit?.type === "ArrowFunctionExpression" ||
+            unwrappedInit?.type === "FunctionExpression")
         ) {
-          if (TSX_OBJ_DISPLAY_RE.test(constName) || TSX_OBJ_DISPLAY_NAMES.has(constName)) {
-            handleDisplayRecordOrList(constName, node.init);
+          walkDisplayFunctionBody(unwrappedInit.body, constName);
+        } else if (
+          (unwrappedInit?.type === "ObjectExpression" ||
+            unwrappedInit?.type === "ArrayExpression" ||
+            unwrappedInit?.type === "ConditionalExpression") &&
+          (TSX_OBJ_DISPLAY_RE.test(constName) || TSX_OBJ_DISPLAY_NAMES.has(constName))
+        ) {
+          handleDisplayRecordOrList(constName, node.init);
+        } else if (
+          unwrappedInit?.type === "CallExpression" &&
+          unwrappedInit.callee?.type === "MemberExpression" &&
+          unwrappedInit.callee.property?.type === "Identifier" &&
+          unwrappedInit.callee.property.name === "map" &&
+          unwrappedInit.arguments[0] &&
+          TSX_OBJ_DISPLAY_NAMES.has(constName)
+        ) {
+          const cb = unwrapExpr(unwrappedInit.arguments[0]);
+          if (cb?.type === "ArrowFunctionExpression" || cb?.type === "FunctionExpression") {
+            walkDisplayFunctionBody(cb.body, constName);
           }
         } else if (
           unwrappedInit?.type === "Literal" ||
           unwrappedInit?.type === "TemplateLiteral" ||
           unwrappedInit?.type === "ConditionalExpression" ||
-          unwrappedInit?.type === "LogicalExpression"
+          unwrappedInit?.type === "LogicalExpression" ||
+          unwrappedInit?.type === "CallExpression"
         ) {
           if (TSX_SCALAR_DISPLAY_RE.test(constName) || TSX_SCALAR_DISPLAY_NAMES.has(constName)) {
-            handleDisplayExpr(node.init, `scalar:${constName}`, true);
+            handleJoinedLinesOrExpr(node.init, `scalar:${constName}`, true);
           }
         }
       }
+    }
+
+    if (
+      isTsx &&
+      node.type === "AssignmentExpression" &&
+      node.left?.type === "Identifier" &&
+      node.right &&
+      (TSX_SCALAR_DISPLAY_RE.test(node.left.name) || TSX_SCALAR_DISPLAY_NAMES.has(node.left.name))
+    ) {
+      handleDisplayExpr(node.right, `assign:${node.left.name}`, true);
     }
 
     if (node.type === "CallExpression") {
@@ -1216,8 +1507,10 @@ export function analyzeModule(code, filename, options = {}) {
             for (const prop of unwrappedArg.properties) {
               if (prop.type !== "Property") continue;
               const k = getPropertyKeyName(prop);
-              if (k === "title" || k === "description") {
-                handleDisplayExpr(prop.value, `toast:${k}`);
+              if (k === "title") {
+                handleDisplayExpr(prop.value, "toast:title");
+              } else if (k === "description") {
+                handleJoinedLinesOrExpr(prop.value, "toast:description");
               }
             }
           }
@@ -1228,7 +1521,7 @@ export function analyzeModule(code, filename, options = {}) {
           handleDisplayRecordOrList("contextMenuItems", itemsArg);
         }
       } else if (isConfirmDialogCall(node) && node.arguments.length > 0) {
-        handleConfirmMessageExpr(node.arguments[0]);
+        handleJoinedLinesOrExpr(node.arguments[0], "confirm:message");
         if (node.arguments[1]) {
           const opts = unwrapExpr(node.arguments[1]);
           if (opts?.type === "ObjectExpression") {
@@ -1243,6 +1536,79 @@ export function analyzeModule(code, filename, options = {}) {
               ) {
                 handleDisplayExpr(prop.value, `confirm:${k}`, true);
               }
+            }
+          }
+        }
+      } else if (isTsx && node.callee?.type === "Identifier") {
+        const calleeName = node.callee.name;
+        if (calleeName === "confirmProviderInstanceRemoval" && node.arguments[0]) {
+          handleJoinedLinesOrExpr(node.arguments[0], "confirm:message");
+        } else if (calleeName === "reportFailure" || calleeName === "reportError") {
+          if (node.arguments[0]) handleDisplayExpr(node.arguments[0], `call:${calleeName}`, true);
+          if (node.arguments[1]) handleDisplayExpr(node.arguments[1], `call:${calleeName}`, true);
+        } else if (
+          /^(?:set(?:[A-Z]\w*)?(?:Error|Notice|Warning|Message)|groupLabel|inertControl)$/.test(
+            calleeName,
+          ) &&
+          node.arguments[0]
+        ) {
+          handleDisplayExpr(node.arguments[0], `call:${calleeName}`, true);
+        } else if (
+          calleeName === "limit" &&
+          node.arguments.length >= 3 &&
+          node.arguments.length <= 4 &&
+          node.arguments[0]?.type === "Literal" &&
+          node.arguments[1]
+        ) {
+          handleDisplayExpr(node.arguments[1], "call:limit", true);
+        } else if (
+          calleeName === "useAtomCommand" &&
+          node.arguments[1]?.type === "Literal" &&
+          typeof node.arguments[1].value === "string"
+        ) {
+          handleDisplayExpr(node.arguments[1], "call:useAtomCommand", true);
+        } else if (calleeName === "booleanStateLabel" && node.arguments[1]) {
+          handleDisplayRecordOrList("booleanStateLabel", node.arguments[1]);
+        } else if (
+          (calleeName === "runCommand" || calleeName === "run") &&
+          node.arguments.length === 2 &&
+          node.arguments[0] &&
+          isFunctionNode(unwrapExpr(node.arguments[1]) ?? {})
+        ) {
+          handleDisplayExpr(node.arguments[0], `call:${calleeName}`, true);
+        } else if (
+          (calleeName === "updateAllMembers" || calleeName === "write") &&
+          node.arguments.length === 2 &&
+          node.arguments[1]
+        ) {
+          handleDisplayExpr(node.arguments[1], `call:${calleeName}`, true);
+        }
+      } else if (
+        isTsx &&
+        node.callee?.type === "MemberExpression" &&
+        node.callee.property?.type === "Identifier"
+      ) {
+        const methodName = node.callee.property.name;
+        const receiver = unwrapExpr(node.callee.object);
+        if (
+          methodName === "push" &&
+          receiver?.type === "Identifier" &&
+          TSX_OBJ_DISPLAY_NAMES.has(receiver.name) &&
+          node.arguments[0]
+        ) {
+          const arg0 = unwrapExpr(node.arguments[0]);
+          if (arg0?.type === "ObjectExpression") {
+            handleObjectDisplayProps(arg0, `push:${receiver.name}`);
+          }
+        } else if (methodName === "map" && receiver?.type === "ArrayExpression") {
+          for (const el of receiver.elements) {
+            const item = unwrapExpr(el);
+            if (
+              item?.type === "ObjectExpression" &&
+              item.properties.some((p) => getPropertyKeyName(p) === "title") &&
+              item.properties.some((p) => getPropertyKeyName(p) === "description")
+            ) {
+              handleObjectDisplayProps(item, "inline-map");
             }
           }
         }
@@ -1266,15 +1632,48 @@ export function analyzeModule(code, filename, options = {}) {
 
     if (node.type === "JSXElement" || node.type === "JSXFragment") {
       const elemName = node.openingElement ? getJsxElementName(node.openingElement) : "";
-      if (elemName === "style" || elemName === "script") {
+      if (elemName === "style" || elemName === "script" || elemName === "T" || elemName === "Tx") {
         return;
       }
       if (node.openingElement?.attributes) {
         for (const attr of node.openingElement.attributes) {
+          if (attr.type === "JSXSpreadAttribute" && attr.argument) {
+            const spreadArg = unwrapExpr(attr.argument);
+            if (
+              spreadArg?.type === "ObjectExpression" ||
+              spreadArg?.type === "ConditionalExpression"
+            ) {
+              handleDisplayRecordOrList("jsx-spread", spreadArg);
+            }
+            continue;
+          }
           if (attr.type !== "JSXAttribute" || attr.name?.type !== "JSXIdentifier" || !attr.value) {
             continue;
           }
           const attrName = attr.name.name;
+          if (
+            elemName === "DiagnosticsTable" &&
+            attrName === "headers" &&
+            attr.value.type === "JSXExpressionContainer"
+          ) {
+            handleDisplayRecordOrList("HEADERS", attr.value.expression);
+            continue;
+          }
+          if (attrName === "size" && attr.value.type === "JSXExpressionContainer") {
+            const sizeObj = unwrapExpr(attr.value.expression);
+            if (sizeObj?.type === "ObjectExpression") {
+              handleObjectDisplayProps(sizeObj, "attr:size");
+              continue;
+            }
+          }
+          if (
+            attr.value.type === "JSXExpressionContainer" &&
+            unwrapExpr(attr.value.expression)?.type === "ArrayExpression" &&
+            /(?:permissions|steps|items|options|tabs|rows|actions)$/i.test(attrName)
+          ) {
+            handleDisplayRecordOrList(`attr:${attrName}`, attr.value.expression);
+            continue;
+          }
           if (!isDisplayJsxAttr(attrName, elemName)) continue;
           if (attr.value.type === "Literal" && typeof attr.value.value === "string") {
             handleStringLiteralExpr(attr.value, `attr:${attrName}`, true);
@@ -1309,7 +1708,7 @@ export function analyzeModule(code, filename, options = {}) {
               }
             }
           } else if (child.type === "JSXExpressionContainer") {
-            handleDisplayExpr(child.expression, "jsx-expr");
+            handleJoinedLinesOrExpr(child.expression, "jsx-expr", false);
           }
         }
       }

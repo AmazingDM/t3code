@@ -206,6 +206,10 @@ function enqueueClientSettingsPersistence<A>(work: () => Promise<A>): Promise<A>
   return result;
 }
 
+export function whenClientSettingsPersisted(): Promise<void> {
+  return clientSettingsPersistenceQueue;
+}
+
 export function persistClientSettingsPatch(
   patch: ClientSettingsPatch,
   persist: (settings: ClientSettings) => Promise<void> = defaultClientSettingsPersistence,

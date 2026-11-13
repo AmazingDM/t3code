@@ -305,6 +305,7 @@ export function filterKeybindingRows(
     return (
       row.command.toLowerCase().includes(normalizedQuery) ||
       commandLabel(row.command).toLowerCase().includes(normalizedQuery) ||
+      englishCommandLabel(row.command).toLowerCase().includes(normalizedQuery) ||
       row.key.toLowerCase().includes(normalizedQuery) ||
       row.when.toLowerCase().includes(normalizedQuery) ||
       row.source.toLowerCase().includes(normalizedQuery)
@@ -368,7 +369,74 @@ export function buildKeybindingCommandOptions(
   return [...commands].toSorted((left, right) => compareCommands(left, right, commandLabel));
 }
 
-export function commandLabel(command: KeybindingCommand): string {
+const COMMAND_LABEL_OVERRIDES: Partial<Record<KeybindingCommand, string>> = {
+  "workspace.focusNext": "Focus Next Workspace Area",
+  "workspace.focusPrevious": "Focus Previous Workspace Area",
+  "sidebar.toggle": "Sidebar: Toggle",
+  "navigation.back": "Navigation: Back",
+  "navigation.forward": "Navigation: Forward",
+  "terminal.toggle": "Terminal: Toggle",
+  "terminal.split": "Terminal: Split",
+  "terminal.splitVertical": "Terminal: Split Vertical",
+  "terminal.new": "Terminal: New",
+  "terminal.close": "Terminal: Close",
+  "rightPanel.toggle": "Right Panel: Toggle",
+  "rightPanel.new": "Right Panel: New",
+  "threadPanel.toggle": "Thread Panel: Toggle",
+  "rightPanel.toggleMaximized": "Right Panel: Toggle Maximized",
+  "rightPanel.close": "Right Panel: Close",
+  "view.reopenClosed": "Reopen Closed Tab",
+  "pullRequest.copyNumber": "Pull Request: Copy Number",
+  "diff.toggle": "Diff: Toggle",
+  "preview.toggle": "Preview: Toggle",
+  "preview.refresh": "Preview: Refresh",
+  "preview.focusUrl": "Preview: Focus URL",
+  "preview.zoomIn": "Preview: Zoom In",
+  "preview.zoomOut": "Preview: Zoom Out",
+  "preview.resetZoom": "Preview: Reset Zoom",
+  "preview.find": "Preview: Find on Page",
+  "commandPalette.toggle": "Command Palette: Toggle",
+  "filePicker.toggle": "File Picker: Toggle",
+  "projectSearch.toggle": "Project Search: Toggle",
+  "usage.open": "Usage: Open",
+  "theme.select": "Theme: Select",
+  "appearance.cycle": "Appearance: Cycle",
+  "themeEditor.toggle": "Theme Editor: Toggle",
+  "composer.stash": "Composer: Stash",
+  "composer.sendAlternate": "Composer: Opposite Queue or Steer Action",
+  "composer.sendBackground": "Composer: Start in Background",
+  "composer.sendAndNewThread": "Composer: Send and Start New Thread",
+  "composer.dictation": "Composer: Start or Finish Dictation",
+  "composer.host": "Composer: Host",
+  "composer.cycleHost": "Composer: Cycle Host",
+  "composer.effort": "Composer: Effort",
+  "composer.increaseEffort": "Composer: Increase Effort",
+  "composer.decreaseEffort": "Composer: Decrease Effort",
+  "composer.mode": "Composer: Mode",
+  "composer.workspace": "Composer: Workspace",
+  "composer.previousWorktree": "Composer: Previous Worktree",
+  "composer.branch": "Composer: Branch",
+  "chat.new": "Chat: New",
+  "chat.newLocal": "Chat: New Local",
+  "chat.newWithoutProject": "Chat: New Without Project",
+  "chat.find": "Chat: Find",
+  "editor.openFavorite": "Editor: Open Favorite",
+  "modelPicker.toggle": "Model Picker: Toggle",
+  "modelPicker.previousProvider": "Model Picker: Previous Provider",
+  "modelPicker.nextProvider": "Model Picker: Next Provider",
+  "thread.stop": "Thread: Stop",
+  "thread.steerQueuedMessage": "Queue: Send First Queued Message",
+  "thread.editQueuedMessage": "Queue: Edit Last Queued Message",
+  "thread.previous": "Thread: Previous",
+  "thread.next": "Thread: Next",
+  "thread.copyReference": "Pull Request: Copy Link or Thread",
+  "thread.settle": "Thread: Settle",
+  "thread.pin": "Thread: Pin",
+  "thread.regenerateTitle": "Thread: Regenerate Title",
+  "thread.undo": "Thread: Undo",
+};
+
+export function englishCommandLabel(command: KeybindingCommand): string {
   if (command === "workspace.focusNext") return "Focus Next Workspace Area";
   if (command === "workspace.focusPrevious") return "Focus Previous Workspace Area";
   if (command === "composer.sendAlternate") return "Composer: Opposite Queue or Steer Action";
@@ -378,14 +446,30 @@ export function commandLabel(command: KeybindingCommand): string {
   if (command === "thread.steerQueuedMessage") return "Queue: Send First Queued Message";
   if (command === "thread.editQueuedMessage") return "Queue: Edit Last Queued Message";
   if (command === "thread.copyReference") return "Pull Request: Copy Link or Thread";
-  const usageMetric = METRIC_OPTIONS.find((option) => option.command === command);
-  if (usageMetric) return `Usage: ${usageMetric.label}`;
-  const usagePeriod = WINDOW_OPTIONS.find((option) => option.command === command);
-  if (usagePeriod) return `Usage: Period: ${usagePeriod.label}`;
   if (command === "view.reopenClosed") return "Reopen Closed Tab";
   if (command === "preview.focusUrl") return "Preview: Focus URL";
   if (command === "preview.find") return "Preview: Find on Page";
   const raw = String(command);
+  if (raw.startsWith("script.") && raw.endsWith(".run")) {
+    return `Run Script: ${titleCaseCommandSegment(raw.slice("script.".length, -".run".length))}`;
+  }
+  return raw.split(".").map(titleCaseCommandSegment).join(": ");
+}
+
+export function commandLabel(command: KeybindingCommand): string {
+  const staticLabel = COMMAND_LABEL_OVERRIDES[command];
+  if (staticLabel) return staticLabel;
+  const usageMetric = METRIC_OPTIONS.find((option) => option.command === command);
+  if (usageMetric) return `Usage: ${usageMetric.label}`;
+  const usagePeriod = WINDOW_OPTIONS.find((option) => option.command === command);
+  if (usagePeriod) return `Usage: Period: ${usagePeriod.label}`;
+  const raw = String(command);
+  if (raw.startsWith("thread.jump.")) {
+    return `Thread: Jump: ${raw.slice("thread.jump.".length)}`;
+  }
+  if (raw.startsWith("modelPicker.jump.")) {
+    return `Model Picker: Jump: ${raw.slice("modelPicker.jump.".length)}`;
+  }
   if (raw.startsWith("script.") && raw.endsWith(".run")) {
     return `Run Script: ${titleCaseCommandSegment(raw.slice("script.".length, -".run".length))}`;
   }

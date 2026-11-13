@@ -342,15 +342,10 @@ describe("DesktopApplicationMenu", () => {
   );
 
   it.effect(
-    "syncs menu locale from main renderer localStorage while ignoring auxiliary windows",
+    "reads saved client language at startup and updates menu when syncLanguage is called",
     () =>
       Effect.gen(function* () {
         const templates: Array<readonly Electron.MenuItemConstructorOptions[]> = [];
-        const secondTemplate =
-          yield* Deferred.make<readonly Electron.MenuItemConstructorOptions[]>();
-        const windowCreatedListeners: Array<
-          (event: unknown, window: Electron.BrowserWindow) => void
-        > = [];
 
         const appLayer = Layer.succeed(ElectronApp.ElectronApp, {
           metadata: Effect.die("unexpected metadata read"),
@@ -373,23 +368,13 @@ describe("DesktopApplicationMenu", () => {
           appendCommandLineSwitch: () => Effect.void,
           onBeforeQuitForUpdate: () => Effect.void,
           removeCommandLineSwitch: () => Effect.void,
-          on: (event, listener) =>
-            Effect.sync(() => {
-              if (event === "browser-window-created") {
-                windowCreatedListeners.push(
-                  listener as unknown as (event: unknown, window: Electron.BrowserWindow) => void,
-                );
-              }
-            }),
+          on: () => Effect.void,
         } satisfies ElectronApp.ElectronApp["Service"]);
 
         const recordingMenuLayer = Layer.succeed(ElectronMenu.ElectronMenu, {
           setApplicationMenu: (template) =>
-            Effect.gen(function* () {
+            Effect.sync(() => {
               templates.push(template);
-              if (templates.length === 2) {
-                yield* Deferred.succeed(secondTemplate, template);
-              }
             }),
           popupTemplate: () => Effect.void,
           showContextMenu: () => Effect.succeedNone,
@@ -414,43 +399,16 @@ describe("DesktopApplicationMenu", () => {
         yield* menu.configure;
         assert.equal(templates.length, 1);
         assert.isDefined(templates[0]?.find((item) => item.label === "文件"));
-        const emitWindowCreated = windowCreatedListeners[0];
-        assert.isDefined(emitWindowCreated);
 
-        // OAuth / splash window without desktopBridge returns null -> ignored
-        let popupDidFinishLoad: (() => void) | undefined;
-        const popupWindow = {
-          isDestroyed: () => false,
-          webContents: {
-            isDestroyed: () => false,
-            on: (ev: string, cb: () => void) => {
-              if (ev === "did-finish-load") popupDidFinishLoad = cb;
-            },
-            executeJavaScript: () => Promise.resolve(null),
-          },
-        } as unknown as Electron.BrowserWindow;
-        emitWindowCreated({}, popupWindow);
-        popupDidFinishLoad?.();
-        yield* Effect.promise(() => Promise.resolve());
-        assert.equal(templates.length, 1);
-
-        // Main renderer with explicit "en" preference switches menu to English
-        let mainDidFinishLoad: (() => void) | undefined;
-        const mainWindow = {
-          isDestroyed: () => false,
-          webContents: {
-            isDestroyed: () => false,
-            on: (ev: string, cb: () => void) => {
-              if (ev === "did-finish-load") mainDidFinishLoad = cb;
-            },
-            executeJavaScript: () => Promise.resolve("en"),
-          },
-        } as unknown as Electron.BrowserWindow;
-        emitWindowCreated({}, mainWindow);
-        mainDidFinishLoad?.();
-        const updated = yield* Deferred.await(secondTemplate);
+        // Non-zh locales render English native menu even on a zh-CN OS
+        yield* menu.syncLanguage("ja");
         assert.equal(templates.length, 2);
-        assert.isDefined(updated.find((item) => item.label === "File"));
+        assert.isDefined(templates[1]?.find((item) => item.label === "File"));
+
+        // Switching back to "system" restores Chinese menu on zh-CN OS
+        yield* menu.syncLanguage("system");
+        assert.equal(templates.length, 3);
+        assert.isDefined(templates[2]?.find((item) => item.label === "文件"));
       }),
   );
 });

@@ -52,24 +52,24 @@ function environmentIdentificationOptions(
 ): ReadonlyArray<readonly [EnvironmentIdentificationMode, string]> {
   if (stageVariant === "dev") {
     return [
-      ["artwork", "Dev artwork"],
-      ["nightly-artwork", "Nightly artwork"],
-      ["pill", "Version pill"],
-      ["none", "None"],
+      ["artwork", ENVIRONMENT_IDENTIFICATION_LABELS["dev-artwork"]],
+      ["nightly-artwork", ENVIRONMENT_IDENTIFICATION_LABELS["nightly-artwork"]],
+      ["pill", ENVIRONMENT_IDENTIFICATION_LABELS.pill],
+      ["none", ENVIRONMENT_IDENTIFICATION_LABELS.none],
     ];
   }
   if (stageVariant === "nightly") {
     return [
-      ["artwork", "Nightly artwork"],
-      ["dev-artwork", "Dev artwork"],
-      ["pill", "Version pill"],
-      ["none", "None"],
+      ["artwork", ENVIRONMENT_IDENTIFICATION_LABELS["nightly-artwork"]],
+      ["dev-artwork", ENVIRONMENT_IDENTIFICATION_LABELS["dev-artwork"]],
+      ["pill", ENVIRONMENT_IDENTIFICATION_LABELS.pill],
+      ["none", ENVIRONMENT_IDENTIFICATION_LABELS.none],
     ];
   }
   return [
-    ["artwork", "None"],
-    ["nightly-artwork", "Nightly artwork"],
-    ["dev-artwork", "Dev artwork"],
+    ["artwork", ENVIRONMENT_IDENTIFICATION_LABELS.none],
+    ["nightly-artwork", ENVIRONMENT_IDENTIFICATION_LABELS["nightly-artwork"]],
+    ["dev-artwork", ENVIRONMENT_IDENTIFICATION_LABELS["dev-artwork"]],
   ];
 }
 

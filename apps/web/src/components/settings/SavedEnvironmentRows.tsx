@@ -225,17 +225,14 @@ export function SavedBackendListRow({
     versionMismatch !== null &&
     (serverUpdateState.status === "idle" || serverUpdateState.status === "failed");
 
-  const statusTooltip = `${
-    unsupported
-      ? (environment.connection.error ?? connectionStatusText(environment.connection))
-      : enabled
-        ? connectionStatusText(environment.connection)
-        : "Switched off"
-  }${
-    versionMismatch
-      ? `\nUpdate available: ${versionMismatch.serverVersion} → ${versionMismatch.clientVersion}`
-      : ""
-  }`;
+  const baseStatusTooltip = unsupported
+    ? (environment.connection.error ?? connectionStatusText(environment.connection))
+    : enabled
+      ? connectionStatusText(environment.connection)
+      : "Switched off";
+  const statusTooltip = versionMismatch
+    ? `${baseStatusTooltip}\nUpdate available: ${versionMismatch.serverVersion} → ${versionMismatch.clientVersion}`
+    : baseStatusTooltip;
 
   return (
     <EnvironmentRow

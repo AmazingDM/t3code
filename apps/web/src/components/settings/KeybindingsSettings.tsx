@@ -954,7 +954,7 @@ function KeybindingSourceBadge({ source }: { source: KeybindingRow["source"] }) 
   if (source === "Default") return null;
   return (
     <Badge variant="outline" size="sm">
-      {source}
+      {source === "Custom" ? "Custom" : "Project"}
     </Badge>
   );
 }

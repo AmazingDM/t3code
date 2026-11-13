@@ -360,4 +360,120 @@ export function LocaleSelect() {
     expect(confirmRes.transformed).not.toBeNull();
     expect(confirmRes.transformed.code).toContain("确定关闭终端");
   });
+
+  it("leaves gt-react <T> and <Tx> untouched while localizing spread arrays, nested choices, and toast .join() arrays", () => {
+    const gtCode = `import { T, Tx } from "gt-react";
+export function SettingsHeader({ theme }: { theme: boolean }) {
+  const changedSettingLabels = [
+    ...(theme ? ["Theme"] : []),
+    "Font size",
+  ];
+  const EFFORT_OPTIONS = [
+    {
+      label: "Thinking",
+      choices: [{ value: "high", label: "High" }],
+    },
+  ];
+  return (
+    <div>
+      <T>Display</T>
+      <Tx>Preferences</Tx>
+      <span>{changedSettingLabels.join(", ")}{EFFORT_OPTIONS[0].label}</span>
+    </div>
+  );
+}
+`;
+    const dict = {
+      Display: "显示",
+      Preferences: "偏好设置",
+      Theme: "主题",
+      "Font size": "字号",
+      Thinking: "思考强度",
+      High: "高",
+    };
+    const res = analyzeModule(gtCode, `${WEB_SRC}/components/SettingsHeader.tsx`, {
+      dict,
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(res.extracted.has("Display")).toBe(false);
+    expect(res.extracted.has("Preferences")).toBe(false);
+    expect(res.extracted.has("Theme")).toBe(true);
+    expect(res.extracted.has("Font size")).toBe(true);
+    expect(res.extracted.has("Thinking")).toBe(true);
+    expect(res.extracted.has("High")).toBe(true);
+    expect(res.transformed).not.toBeNull();
+    expect(res.transformed.code).toContain("<T>Display</T>");
+    expect(res.transformed.code).toContain("<Tx>Preferences</Tx>");
+    expect(res.transformed.code).toContain('(__IS_ZH__ ? "主题" : "Theme")');
+    expect(res.transformed.code).toContain('label: (__IS_ZH__ ? "高" : "High")');
+
+    const toastJoinCode = `export function notifyReset(toastManager: any, scope: string) {
+  toastManager.add({
+    type: "warning",
+    title: "Project settings error",
+    description: [scope, "Using personal defaults until it is fixed."].filter(Boolean).join(" — "),
+  });
+}
+`;
+    const toastJoinRes = analyzeModule(toastJoinCode, `${WEB_SRC}/hooks/useScopedSettings.ts`, {
+      dict: {
+        "Project settings error": "项目设置错误",
+        "Using personal defaults until it is fixed.": "修复前将暂用个人默认设置。",
+      },
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(toastJoinRes.extracted.has("Using personal defaults until it is fixed.")).toBe(true);
+    expect(toastJoinRes.transformed?.code).toContain("修复前将暂用个人默认设置。");
+  });
+
+  it("translates JSXSpreadAttribute display props, JSX array attributes, and source control terminology", () => {
+    const jsxCode = `export function PickerDemo({ mixed }: { mixed: boolean }) {
+  return (
+    <div>
+      <ModelPicker {...(mixed ? { triggerLabel: "Automatic (mixed)" } : {})} />
+      <PermissionChecklist
+        permissions={[
+          { id: "screenRecording", title: "Screen Recording", description: "Capture the window you're using." },
+        ]}
+      />
+    </div>
+  );
+}
+`;
+    const dict = {
+      "Automatic (mixed)": "自动（不一致）",
+      "Screen Recording": "屏幕录制",
+      "Capture the window you're using.": "截取您当前正在使用的窗口。",
+    };
+    const res = analyzeModule(jsxCode, `${WEB_SRC}/components/PickerDemo.tsx`, {
+      dict,
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(res.extracted.has("Automatic (mixed)")).toBe(true);
+    expect(res.extracted.has("Screen Recording")).toBe(true);
+    expect(res.transformed?.code).toContain(
+      'triggerLabel: (__IS_ZH__ ? "自动（不一致）" : "Automatic (mixed)")',
+    );
+    expect(res.transformed?.code).toContain('title: (__IS_ZH__ ? "屏幕录制" : "Screen Recording")');
+
+    const scCode = `function presentDefinition(definition: any, providerName: string) {
+  return {
+    definition,
+    providerName,
+    terminology: definition.changeRequest,
+  };
+}
+`;
+    const scRes = analyzeModule(scCode, `${WEB_SRC}/sourceControlPresentation.tsx`, {
+      dict: {},
+      webSrcDir: WEB_SRC,
+      localeModulePath: LOCALE_MOD,
+    });
+    expect(scRes.transformed?.code).toContain(
+      'definition.changeRequest.shortLabel === "MR" ? "合并请求"',
+    );
+  });
 });

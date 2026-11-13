@@ -1,10 +1,24 @@
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-async function loadLocaleWithPreference(pref: "zh-Hans" | "en") {
+async function loadLocaleWithLanguage(
+  language: string | null,
+  options?: { legacy?: string; desktopLanguages?: ReadonlyArray<string>; navLanguages?: string[] },
+) {
   vi.resetModules();
+  vi.stubGlobal("navigator", {
+    languages: options?.navLanguages ?? ["en-US"],
+    language: options?.navLanguages?.[0] ?? "en-US",
+  });
   vi.stubGlobal("window", {
+    desktopBridge: options?.desktopLanguages
+      ? { getPreferredSystemLanguages: () => options.desktopLanguages }
+      : undefined,
     localStorage: {
-      getItem: (key: string) => (key === "t3code:locale" ? pref : null),
+      getItem: (key: string) => {
+        if (key === "t3code:ui-language") return language;
+        if (key === "t3code:locale") return options?.legacy ?? null;
+        return null;
+      },
       setItem: vi.fn(),
       removeItem: vi.fn(),
     },
@@ -13,13 +27,14 @@ async function loadLocaleWithPreference(pref: "zh-Hans" | "en") {
   return import("./locale");
 }
 
-describe("i18n runtime translator tr()", () => {
+describe("i18n runtime translator tr() and unified locale resolution", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("translates exact provider, trait, and status strings in zh-Hans mode", async () => {
-    const { tr } = await loadLocaleWithPreference("zh-Hans");
+  it("translates exact provider, trait, and status strings in zh mode", async () => {
+    const { tr, __IS_ZH__ } = await loadLocaleWithLanguage("zh");
+    expect(__IS_ZH__).toBe(true);
     expect(tr("Extra High")).toBe("超高");
     expect(tr("Adaptive · Max · 1M Context")).toBe("自适应 · 最高 · 1M 上下文");
     expect(tr("Extra High Fast")).toBe("超高 · 快速");
@@ -54,8 +69,25 @@ describe("i18n runtime translator tr()", () => {
     expect(tr("my-custom-project")).toBe("my-custom-project");
   });
 
-  it("passes strings through unchanged in English mode", async () => {
-    const { tr } = await loadLocaleWithPreference("en");
+  it("prefers Electron desktopBridge.getPreferredSystemLanguages() over pinned navigator.languages", async () => {
+    const { __IS_ZH__ } = await loadLocaleWithLanguage("system", {
+      desktopLanguages: ["zh-CN", "en-US"],
+      navLanguages: ["en-US"],
+    });
+    expect(__IS_ZH__).toBe(true);
+  });
+
+  it("respects legacy t3code:locale fallback before first hydration migration", async () => {
+    const { __IS_ZH__ } = await loadLocaleWithLanguage(null, {
+      legacy: "zh-Hans",
+      navLanguages: ["en-US"],
+    });
+    expect(__IS_ZH__).toBe(true);
+  });
+
+  it("passes strings through unchanged in non-zh modes", async () => {
+    const { tr, __IS_ZH__ } = await loadLocaleWithLanguage("en");
+    expect(__IS_ZH__).toBe(false);
     expect(tr("Extra High")).toBe("Extra High");
     expect(tr("Adaptive · Max")).toBe("Adaptive · Max");
     expect(tr(undefined)).toBeUndefined();
