@@ -727,4 +727,10 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "Message too large.": "消息过大。",
   "This tab has no agent owner. Ask the user to close it in the browser panel.":
     "此标签页没有智能体所有者。请让用户在浏览器面板中关闭它。",
+  "Waiting for approval": "等待批准",
+  "Waiting for approval on the host": "正在等待目标主机批准",
+  "This device is still loading its T3 Connect sign-in": "当前设备正在加载 T3 Connect 登录信息",
+  "Wait a moment. T3 Code retries on its own.": "请稍候，T3 Code 会自动重试。",
+  "If it keeps waiting, reload or restart T3 Code on this device.":
+    "若一直处于等待状态，请在此设备上刷新或重启 T3 Code。",
 };

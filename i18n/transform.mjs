@@ -236,6 +236,10 @@ export const TS_FUNCTION_WHITELIST = new Map([
     ]),
   ],
   ["lib/toolCallDiff.ts", new Set(["toolCallDiff"])],
+  [
+    "components/cloud/cloudEnvironmentConnectionPresentation.ts",
+    new Set(["presentSavedCloudEnvironmentConnection"]),
+  ],
 ]);
 
 const TSX_FUNCTION_WHITELIST = new Map([

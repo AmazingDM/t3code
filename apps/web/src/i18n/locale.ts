@@ -169,6 +169,24 @@ function translateSegment(segment: string): string {
     return `确定取消置顶线程“${unpinThread[1]}”？`;
   }
 
+  const waitingApprove = /^(.+) is waiting for someone to approve this device$/.exec(segment);
+  if (waitingApprove?.[1]) {
+    return `${waitingApprove[1]} 正在等待批准此设备`;
+  }
+
+  const approveOnConnected =
+    /^On a device already connected to (.+), open Settings > Sharing & access and approve (?:the device showing (.+)|this device)\.$/.exec(
+      segment,
+    );
+  if (approveOnConnected?.[1]) {
+    return `请在已连接到 ${approveOnConnected[1]} 的设备上打开“设置 > 共享与访问”，并批准${approveOnConnected[2] ? `显示验证码 ${approveOnConnected[2]} 的设备` : "此设备"}。`;
+  }
+
+  const approveCli = /^Or run `(t3 auth connect-device approve .+)` on (.+)\.$/.exec(segment);
+  if (approveCli?.[1] && approveCli[2]) {
+    return `或在 ${approveCli[2]} 上运行 \`${approveCli[1]}\`。`;
+  }
+
   return segment;
 }
 
