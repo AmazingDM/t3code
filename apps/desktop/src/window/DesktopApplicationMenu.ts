@@ -71,6 +71,13 @@ const runMainContentsCommand = Effect.fn("desktop.menu.runMainContentsCommand")(
   yield* desktopWindow.runMainContentsCommand(command);
 });
 
+const describeUpdate = (version: string | null, isZh: boolean) =>
+  version === null
+    ? isZh
+      ? "新版本的 T3 Code"
+      : "A new version of T3 Code"
+    : `T3 Code ${version}`;
+
 const checkForUpdatesFromMenu = Effect.fn("desktop.menu.checkForUpdates")(function* (
   isZh: boolean,
 ) {
@@ -88,6 +95,45 @@ const checkForUpdatesFromMenu = Effect.fn("desktop.menu.checkForUpdates")(functi
         : `T3 Code ${updateState.currentVersion} is currently the newest version available.`,
       buttons: [isZh ? "确定" : "OK"],
     });
+  } else if (updateState.status === "available") {
+    const { response } = yield* electronDialog.showMessageBox({
+      type: "info",
+      title: isZh ? "发现可用更新" : "Update available",
+      message: isZh
+        ? `${describeUpdate(updateState.availableVersion, true)} 现已可用。`
+        : `${describeUpdate(updateState.availableVersion, false)} is available.`,
+      detail: isZh
+        ? `当前正在运行 T3 Code ${updateState.currentVersion}。`
+        : `You're running T3 Code ${updateState.currentVersion}.`,
+      buttons: isZh ? ["下载", "稍后"] : ["Download", "Later"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response === 0) yield* updates.download;
+  } else if (updateState.status === "downloading") {
+    yield* electronDialog.showMessageBox({
+      type: "info",
+      title: isZh ? "正在下载更新" : "Update downloading",
+      message: isZh
+        ? `${describeUpdate(updateState.availableVersion, true)} 正在下载中。`
+        : `${describeUpdate(updateState.availableVersion, false)} is already downloading.`,
+      buttons: [isZh ? "确定" : "OK"],
+    });
+  } else if (updateState.status === "downloaded") {
+    const { response } = yield* electronDialog.showMessageBox({
+      type: "info",
+      title: isZh ? "更新已就绪" : "Update ready",
+      message: isZh
+        ? `${describeUpdate(updateState.downloadedVersion ?? updateState.availableVersion, true)} 已准备就绪，可以安装。`
+        : `${describeUpdate(updateState.downloadedVersion ?? updateState.availableVersion, false)} is ready to install.`,
+      detail: isZh
+        ? "T3 Code 将重启以完成安装，所有正在运行的任务都会被中断。"
+        : "T3 Code will restart to install it. Any running tasks will be interrupted.",
+      buttons: isZh ? ["立即重启", "稍后"] : ["Restart", "Later"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+    if (response === 0) yield* updates.install;
   } else if (updateState.status === "error") {
     yield* electronDialog.showMessageBox({
       type: "warning",
