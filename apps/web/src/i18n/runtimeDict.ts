@@ -733,4 +733,8 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "Wait a moment. T3 Code retries on its own.": "请稍候，T3 Code 会自动重试。",
   "If it keeps waiting, reload or restart T3 Code on this device.":
     "若一直处于等待状态，请在此设备上刷新或重启 T3 Code。",
+  "The device returned an incomplete screenshot. Try again.": "设备返回的截图不完整，请重试。",
+  "Device support needs npm, which is not on the T3 server's PATH. Install npm (it comes with Node.js from nodejs.org), restart T3 Code, then retry.":
+    "设备支持功能需要 npm，但当前 T3 服务器的 PATH 中未找到 npm。请先安装 npm（随 nodejs.org 的 Node.js 一并提供），重启 T3 Code 后重试。",
+  "This cannot be undone.": "此操作无法撤销。",
 };

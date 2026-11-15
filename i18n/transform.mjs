@@ -98,12 +98,15 @@ export const TS_FUNCTION_WHITELIST = new Map([
   [
     "components/GitActionsControl.logic.ts",
     new Set([
+      "resolveGitActionProgressPresentation",
       "buildMenuItems",
+      "getMenuActionDisabledReason",
       "resolveQuickAction",
       "resolveDefaultBranchActionDialogCopy",
       "resolveFeatureBranchUnavailableReason",
     ]),
   ],
+  ["components/settings/ResourceTelemetryDiagnostics.logic.ts", new Set(["formatSamplingStatus"])],
   [
     "components/threadActionMenu.logic.ts",
     new Set(["buildDraftActionMenuItems", "buildThreadActionMenuItems"]),
