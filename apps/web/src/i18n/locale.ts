@@ -196,6 +196,14 @@ function translateSegment(segment: string): string {
     return `${subject}尚未添加为 T3 Code 项目。请先将其添加为项目以读取变更请求。`;
   }
 
+  const noProjectOnHost =
+    /^No project in T3 Code is on (.+)\. Add any (.+) project to read its change requests\.$/.exec(
+      segment,
+    );
+  if (noProjectOnHost?.[1] && noProjectOnHost[2]) {
+    return `T3 Code 中尚无位于 ${noProjectOnHost[1]} 的项目。请添加任意 ${noProjectOnHost[2]} 项目以读取其变更请求。`;
+  }
+
   return segment;
 }
 

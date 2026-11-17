@@ -758,5 +758,10 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "The device returned an incomplete screenshot. Try again.": "设备返回的截图不完整，请重试。",
   "Device support needs npm, which is not on the T3 server's PATH. Install npm (it comes with Node.js from nodejs.org), restart T3 Code, then retry.":
     "设备支持功能需要 npm，但当前 T3 服务器的 PATH 中未找到 npm。请先安装 npm（随 nodejs.org 的 Node.js 一并提供），重启 T3 Code 后重试。",
+  "Change requests cannot be browsed for this project's host yet.":
+    "暂不支持浏览此项目代码托管平台的变更请求。",
+  "Checking ACP Registry agent readiness...": "正在检查 ACP 注册中心智能体就绪状态…",
+  "Kimi stopped this turn because of an error.": "Kimi 因发生错误停止了本轮运行。",
+  "Pi compact failed.": "Pi 上下文压缩失败。",
   "This cannot be undone.": "此操作无法撤销。",
 };
