@@ -5,6 +5,7 @@
  */
 export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   Reasoning: "推理强度",
+  "Reasoning effort": "推理强度",
   Effort: "推理强度",
   Thinking: "思考模式",
   Options: "选项",
@@ -695,6 +696,27 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
     "Cursor 登录失败或超时。请确认这台机器可以访问 Cursor，然后重新登录。",
   "Cursor sign-in failed": "Cursor 登录失败",
   "Grok session skipped the requested reasoning effort": "Grok 会话跳过了所请求的推理强度",
+  "Grok did not queue the interjection.": "Grok 未将插话引导加入队列。",
+  "Draft changed while preparing this message. Review it and send again.":
+    "准备此消息期间草稿已变更，请检查后重新发送。",
+  "Draft changed while preparing this message. Review it and save again.":
+    "准备此消息期间草稿已变更，请检查后重新保存。",
+  "The earlier edit was saved. Review your newer changes and save again.":
+    "先前的修改已保存，请检查最新改动后重新保存。",
+  "Answer changed while preparing attachments. Review it and send again.":
+    "准备附件期间回答已变更，请检查后重新发送。",
+  "Wait for attachments to finish uploading, or remove failed uploads.":
+    "请等待附件上传完成，或移除上传失败的附件。",
+  "Failed to submit user input.": "提交用户输入失败。",
+  "Uploaded attachment could not be verified. Attach the file again.":
+    "无法验证已上传的附件，请重新添加文件。",
+  "Uploaded attachment expired. Remove it and attach it again.":
+    "已上传的附件已过期，请移除后重新添加。",
+  "Uploaded attachment could not be verified. Retry when the server reconnects.":
+    "无法验证已上传的附件，请在服务端重新连接后重试。",
+  "Terminal write failed": "终端写入失败",
+  "Terminal paste interrupted. Paste again when the terminal is ready.":
+    "终端粘贴已中断，请在终端就绪后重新粘贴。",
   "Kiro could not compact the conversation.": "Kiro 无法压缩此对话。",
   "Muse Code has not finished installing. Run `muse --version` on this T3 server host, then refresh its status.":
     "Muse Code 尚未完成安装。请在此 T3 服务器主机上运行 `muse --version`，然后刷新其状态。",
@@ -736,5 +758,10 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "The device returned an incomplete screenshot. Try again.": "设备返回的截图不完整，请重试。",
   "Device support needs npm, which is not on the T3 server's PATH. Install npm (it comes with Node.js from nodejs.org), restart T3 Code, then retry.":
     "设备支持功能需要 npm，但当前 T3 服务器的 PATH 中未找到 npm。请先安装 npm（随 nodejs.org 的 Node.js 一并提供），重启 T3 Code 后重试。",
+  "Change requests cannot be browsed for this project's host yet.":
+    "暂不支持浏览此项目代码托管平台的变更请求。",
+  "Checking ACP Registry agent readiness...": "正在检查 ACP 注册中心智能体就绪状态…",
+  "Kimi stopped this turn because of an error.": "Kimi 因发生错误停止了本轮运行。",
+  "Pi compact failed.": "Pi 上下文压缩失败。",
   "This cannot be undone.": "此操作无法撤销。",
 };

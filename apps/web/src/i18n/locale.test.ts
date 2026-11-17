@@ -64,6 +64,17 @@ describe("i18n runtime translator tr() and unified locale resolution", () => {
     expect(
       tr('Unpin thread "Refactor auth"?\nThis will move the thread out of your pinned section.'),
     ).toBe("确定取消置顶线程“Refactor auth”？\n这会将该线程移出置顶区域。");
+    expect(
+      tr("acme/repo is not a project in T3 Code. Add it as a project to read its change requests."),
+    ).toBe("acme/repo 尚未添加为 T3 Code 项目。请先将其添加为项目以读取变更请求。");
+    expect(
+      tr(
+        "No project in T3 Code is on gitlab.com. Add any gitlab.com project to read its change requests.",
+      ),
+    ).toBe("T3 Code 中尚无位于 gitlab.com 的项目。请添加任意 gitlab.com 项目以读取其变更请求。");
+    expect(tr("Kimi stopped this turn because of an error.")).toBe(
+      "Kimi 因发生错误停止了本轮运行。",
+    );
     // T3 Code brand and arbitrary user strings remain untouched
     expect(tr("T3 Code")).toBe("T3 Code");
     expect(tr("my-custom-project")).toBe("my-custom-project");
