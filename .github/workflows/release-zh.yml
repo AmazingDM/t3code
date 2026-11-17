@@ -1,0 +1,258 @@
+name: Release ZH Desktop
+
+on:
+  push:
+    tags:
+      - "v*-zh"
+  workflow_dispatch:
+    inputs:
+      upstream_tag:
+        description: "上游版本标签（如 v0.1.10 或 v0.1.11-nightly.20261117.4825；留空则按分支自动读取最新正式版或 Nightly）"
+        required: false
+        default: ""
+        type: string
+      prerelease:
+        description: "是否标记为 Pre-release（auto 按版本号自动判断）"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - "true"
+          - "false"
+
+concurrency:
+  group: release-zh-${{ github.ref_name }}-${{ inputs.upstream_tag || 'auto' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-x64:
+    name: Build & Publish Windows x64 (ZH)
+    if: github.repository != 'pingdotgg/t3code'
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - name: Resolve release metadata
+        id: meta
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_TAG: ${{ inputs.upstream_tag }}
+          INPUT_PRERELEASE: ${{ inputs.prerelease }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ($env:EVENT_NAME -eq "push" -and $env:REF_NAME.EndsWith("-zh")) {
+            $rawTag = $env:REF_NAME.Substring(0, $env:REF_NAME.Length - 3)
+          } elseif (-not [string]::IsNullOrWhiteSpace($env:INPUT_TAG)) {
+            $rawTag = $env:INPUT_TAG.Trim()
+            if ($rawTag.EndsWith("-zh")) {
+              $rawTag = $rawTag.Substring(0, $rawTag.Length - 3)
+            }
+          } else {
+            $headers = @{
+              Accept = "application/vnd.github+json"
+              Authorization = "Bearer $env:GH_TOKEN"
+              "User-Agent" = "t3code-zh-release"
+            }
+            $wantsNightly = ($env:INPUT_PRERELEASE -eq "true") -or ($env:REF_NAME -match "nightly")
+            if ($wantsNightly) {
+              $releases = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/pingdotgg/t3code/releases?per_page=30"
+              $pre = $releases | Where-Object { -not $_.draft -and $_.prerelease -and $_.tag_name -match '^v\d+\.\d+\.\d+-(nightly|rc|beta|alpha)\.' } | Select-Object -First 1
+              if (-not $pre) {
+                throw "No upstream desktop pre-release/nightly found on pingdotgg/t3code"
+              }
+              $rawTag = [string]$pre.tag_name
+            } else {
+              $latest = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/pingdotgg/t3code/releases/latest"
+              $rawTag = [string]$latest.tag_name
+            }
+          }
+
+          if (-not $rawTag.StartsWith("v")) {
+            $rawTag = "v$rawTag"
+          }
+          $ver = $rawTag.Substring(1)
+          if ($ver -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') {
+            throw "Invalid semantic version resolved from tag '$rawTag': '$ver'"
+          }
+
+          $forkTag = "$rawTag-zh"
+          if ($env:INPUT_PRERELEASE -eq "true") {
+            $isPrerelease = "true"
+          } elseif ($env:INPUT_PRERELEASE -eq "false") {
+            $isPrerelease = "false"
+          } elseif ($ver.Contains("-")) {
+            $isPrerelease = "true"
+          } else {
+            $isPrerelease = "false"
+          }
+
+          $manifestName = if ($ver -match '-nightly\.\d{8}\.\d+$') { "nightly.yml" } else { "latest.yml" }
+
+          "upstream_tag=$rawTag" >> $env:GITHUB_OUTPUT
+          "version=$ver" >> $env:GITHUB_OUTPUT
+          "fork_tag=$forkTag" >> $env:GITHUB_OUTPUT
+          "is_prerelease=$isPrerelease" >> $env:GITHUB_OUTPUT
+          "manifest_name=$manifestName" >> $env:GITHUB_OUTPUT
+
+          Write-Host "Resolved release: upstream_tag=$rawTag version=$ver fork_tag=$forkTag is_prerelease=$isPrerelease manifest=$manifestName"
+
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          sparse-checkout: |
+            /*
+            !/.repos/
+          sparse-checkout-cone-mode: false
+
+      - name: Setup Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1.15.0
+        with:
+          node-version-file: package.json
+          cache: false
+          run-install: false
+
+      - name: Resolve pnpm store path
+        id: pnpm_cache_path
+        shell: pwsh
+        run: '"path=$(vp pm cache dir)" >> $env:GITHUB_OUTPUT'
+
+      - name: Cache pnpm store
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm_cache_path.outputs.path }}
+          key: zh-release-pnpm-v1-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            zh-release-pnpm-v1-${{ runner.os }}-
+
+      - name: Install dependencies
+        shell: pwsh
+        run: vp install
+
+      - name: Verify i18n translations
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $syncOut = vp exec node i18n/sync.mjs
+          $syncOut | ForEach-Object { Write-Host $_ }
+          if (($syncOut -join "`n") -match 'Missing:\s*[1-9]') {
+            throw "Untranslated i18n keys detected; aborting release build."
+          }
+
+      - name: Cache Rust resource monitor
+        id: resource_monitor_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: native/resource-monitor/target/x86_64-pc-windows-msvc/release/t3-resource-monitor.exe
+          key: zh-resource-monitor-x86_64-pc-windows-msvc-${{ hashFiles('native/resource-monitor/Cargo.lock', 'native/resource-monitor/Cargo.toml', 'native/resource-monitor/src/**') }}
+
+      - name: Setup Rust toolchain
+        if: steps.resource_monitor_cache.outputs.cache-hit != 'true'
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build Rust resource monitor
+        if: steps.resource_monitor_cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: cargo build --locked --release --manifest-path native/resource-monitor/Cargo.toml --target x86_64-pc-windows-msvc
+
+      - name: Build Windows x64 installer
+        shell: pwsh
+        env:
+          T3CODE_DESKTOP_REUSE_RESOURCE_MONITOR: "true"
+          T3CODE_DESKTOP_VERSION: ${{ steps.meta.outputs.version }}
+          T3CODE_DESKTOP_UPDATE_REPOSITORY: ${{ github.repository }}
+          T3CODE_CLERK_PUBLISHABLE_KEY: ${{ vars.T3CODE_CLERK_PUBLISHABLE_KEY || 'pk_live_Y2xlcmsudDMuY29kZXMk' }}
+          T3CODE_CLERK_JWT_TEMPLATE: ${{ vars.T3CODE_CLERK_JWT_TEMPLATE || 't3-relay' }}
+          T3CODE_CLERK_CLI_OAUTH_CLIENT_ID: ${{ vars.T3CODE_CLERK_CLI_OAUTH_CLIENT_ID || 'hzxSgY2cH10sDU2r' }}
+          T3CODE_RELAY_URL: ${{ vars.T3CODE_RELAY_URL || 'https://relay.t3.codes' }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $shortTmp = if (Test-Path "D:\") { "D:\t3tmp" } else { "C:\t3tmp" }
+          New-Item -ItemType Directory -Force -Path $shortTmp | Out-Null
+          $env:TEMP = $shortTmp
+          $env:TMP = $shortTmp
+          vp run dist:desktop:win:x64
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_TAG: ${{ steps.meta.outputs.upstream_tag }}
+          VER: ${{ steps.meta.outputs.version }}
+          FORK_TAG: ${{ steps.meta.outputs.fork_tag }}
+          IS_PRERELEASE: ${{ steps.meta.outputs.is_prerelease }}
+          MANIFEST_NAME: ${{ steps.meta.outputs.manifest_name }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $exe = "release/T3-Code-$env:VER-x64.exe"
+          $blockmap = "release/T3-Code-$env:VER-x64.exe.blockmap"
+          $manifest = "release/$env:MANIFEST_NAME"
+
+          foreach ($file in @($exe, $blockmap, $manifest)) {
+            if (-not (Test-Path $file)) {
+              throw "Expected build artifact missing: $file"
+            }
+          }
+
+          $editionLabel = if ($env:IS_PRERELEASE -eq "true") { "简体中文预发布版" } else { "简体中文版" }
+          $title = "T3 Code $env:UPSTREAM_TAG $editionLabel"
+          $notesFile = Join-Path $env:RUNNER_TEMP "release-notes.md"
+          $notes = @(
+            "同步上游 pingdotgg/t3code ``$env:UPSTREAM_TAG``，由 GitHub Actions 自动完成简体中文版 Windows x64 安装包构建与发布。",
+            "",
+            "- 上游版本：https://github.com/pingdotgg/t3code/releases/tag/$env:UPSTREAM_TAG",
+            "- 语言切换：设置 -> 常规 -> 语言（支持 跟随系统 / 简体中文 / English）",
+            "- 应用内更新：已内嵌 ``$env:GITHUB_REPOSITORY`` 更新源并附带 ``$env:MANIFEST_NAME``，支持软件内检查与差分增量更新"
+          ) -join "`n"
+          [System.IO.File]::WriteAllText($notesFile, $notes, (New-Object System.Text.UTF8Encoding($false)))
+
+          $exists = $false
+          gh release view $env:FORK_TAG --repo $env:GITHUB_REPOSITORY 2>$null | Out-Null
+          if ($LASTEXITCODE -eq 0) {
+            $exists = $true
+          }
+
+          if ($exists) {
+            gh release upload $env:FORK_TAG $exe $blockmap $manifest --clobber --repo $env:GITHUB_REPOSITORY
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if ($env:IS_PRERELEASE -eq "true") {
+              gh release edit $env:FORK_TAG --repo $env:GITHUB_REPOSITORY --prerelease --draft=false
+            } else {
+              gh release edit $env:FORK_TAG --repo $env:GITHUB_REPOSITORY --prerelease=false --latest --draft=false
+            }
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } else {
+            $createArgs = @(
+              "release", "create", $env:FORK_TAG,
+              $exe, $blockmap, $manifest,
+              "--repo", $env:GITHUB_REPOSITORY,
+              "--target", $env:GITHUB_SHA,
+              "--title", $title,
+              "--notes-file", $notesFile
+            )
+            if ($env:IS_PRERELEASE -eq "true") {
+              $createArgs += "--prerelease"
+            } else {
+              $createArgs += "--latest"
+            }
+            & gh @createArgs
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+          $rel = gh release view $env:FORK_TAG --repo $env:GITHUB_REPOSITORY --json tagName,url,isDraft,isPrerelease,assets | ConvertFrom-Json
+          $summary = @(
+            "### $title",
+            "- **Release URL**: $($rel.url)",
+            "- **Pre-release**: $($rel.isPrerelease)",
+            "- **Assets**:",
+            ($rel.assets | ForEach-Object { "  - ``$($_.name)`` ($($_.size) bytes, $($_.state))" })
+          ) -join "`n"
+          $summary >> $env:GITHUB_STEP_SUMMARY
