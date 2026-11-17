@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       upstream_tag:
-        description: "上游版本标签（如 v0.1.10 或 v0.1.11-nightly.20261117.4814；留空则自动读取上游最新正式版）"
+        description: "上游版本标签（如 v0.1.10 或 v0.1.11-nightly.20261117.4825；留空则按分支自动读取最新正式版或 Nightly）"
         required: false
         default: ""
         type: string
@@ -59,8 +59,18 @@ jobs:
               Authorization = "Bearer $env:GH_TOKEN"
               "User-Agent" = "t3code-zh-release"
             }
-            $latest = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/pingdotgg/t3code/releases/latest"
-            $rawTag = [string]$latest.tag_name
+            $wantsNightly = ($env:INPUT_PRERELEASE -eq "true") -or ($env:REF_NAME -match "nightly")
+            if ($wantsNightly) {
+              $releases = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/pingdotgg/t3code/releases?per_page=30"
+              $pre = $releases | Where-Object { -not $_.draft -and $_.prerelease -and $_.tag_name -match '^v\d+\.\d+\.\d+-(nightly|rc|beta|alpha)\.' } | Select-Object -First 1
+              if (-not $pre) {
+                throw "No upstream desktop pre-release/nightly found on pingdotgg/t3code"
+              }
+              $rawTag = [string]$pre.tag_name
+            } else {
+              $latest = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/pingdotgg/t3code/releases/latest"
+              $rawTag = [string]$latest.tag_name
+            }
           }
 
           if (-not $rawTag.StartsWith("v")) {
