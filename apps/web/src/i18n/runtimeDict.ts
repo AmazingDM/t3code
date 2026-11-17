@@ -5,6 +5,7 @@
  */
 export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   Reasoning: "推理强度",
+  "Reasoning effort": "推理强度",
   Effort: "推理强度",
   Thinking: "思考模式",
   Options: "选项",
@@ -695,6 +696,27 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
     "Cursor 登录失败或超时。请确认这台机器可以访问 Cursor，然后重新登录。",
   "Cursor sign-in failed": "Cursor 登录失败",
   "Grok session skipped the requested reasoning effort": "Grok 会话跳过了所请求的推理强度",
+  "Grok did not queue the interjection.": "Grok 未将插话引导加入队列。",
+  "Draft changed while preparing this message. Review it and send again.":
+    "准备此消息期间草稿已变更，请检查后重新发送。",
+  "Draft changed while preparing this message. Review it and save again.":
+    "准备此消息期间草稿已变更，请检查后重新保存。",
+  "The earlier edit was saved. Review your newer changes and save again.":
+    "先前的修改已保存，请检查最新改动后重新保存。",
+  "Answer changed while preparing attachments. Review it and send again.":
+    "准备附件期间回答已变更，请检查后重新发送。",
+  "Wait for attachments to finish uploading, or remove failed uploads.":
+    "请等待附件上传完成，或移除上传失败的附件。",
+  "Failed to submit user input.": "提交用户输入失败。",
+  "Uploaded attachment could not be verified. Attach the file again.":
+    "无法验证已上传的附件，请重新添加文件。",
+  "Uploaded attachment expired. Remove it and attach it again.":
+    "已上传的附件已过期，请移除后重新添加。",
+  "Uploaded attachment could not be verified. Retry when the server reconnects.":
+    "无法验证已上传的附件，请在服务端重新连接后重试。",
+  "Terminal write failed": "终端写入失败",
+  "Terminal paste interrupted. Paste again when the terminal is ready.":
+    "终端粘贴已中断，请在终端就绪后重新粘贴。",
   "Kiro could not compact the conversation.": "Kiro 无法压缩此对话。",
   "Muse Code has not finished installing. Run `muse --version` on this T3 server host, then refresh its status.":
     "Muse Code 尚未完成安装。请在此 T3 服务器主机上运行 `muse --version`，然后刷新其状态。",

@@ -187,6 +187,15 @@ function translateSegment(segment: string): string {
     return `或在 ${approveCli[2]} 上运行 \`${approveCli[1]}\`。`;
   }
 
+  const notAProject =
+    /^(.+) is not a project in T3 Code\. Add it as a project to read its change requests\.$/.exec(
+      segment,
+    );
+  if (notAProject?.[1]) {
+    const subject = notAProject[1] === "This repository" ? "此仓库" : `${notAProject[1]} `;
+    return `${subject}尚未添加为 T3 Code 项目。请先将其添加为项目以读取变更请求。`;
+  }
+
   return segment;
 }
 

@@ -13,6 +13,7 @@ import { CircleAlertIcon, XIcon } from "lucide-react";
 import { OpenAI } from "../Icons";
 import { ChatGptUsageButton } from "../settings/ChatGptUsageButton";
 import { ExpandableText } from "../settings/ExpandableText";
+import { tr } from "~/i18n/locale";
 
 export function copyAdminRequest() {
   void writeTextToClipboard(CHATGPT_WORKSPACE_ADMIN_REQUEST, "admin request").then(
@@ -105,7 +106,10 @@ export const ThreadErrorBanner = memo(function ThreadErrorBanner({
               ) : null}
             </div>
           ) : (
-            <ExpandableText text={error} collapsedText={getThreadErrorBannerMessage(error)} />
+            <ExpandableText
+              text={tr(error)}
+              collapsedText={tr(getThreadErrorBannerMessage(error))}
+            />
           )}
         </AlertDescription>
         {(chatGptLimit || onDismiss) && (
