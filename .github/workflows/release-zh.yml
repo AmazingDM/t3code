@@ -475,7 +475,6 @@ jobs:
             $createArgs = @(
               "release", "create", $env:FORK_TAG,
               "--repo", $env:GITHUB_REPOSITORY,
-              "--target", $env:RELEASE_SHA,
               "--title", $title,
               "--notes-file", $notesFile
             )
@@ -483,6 +482,13 @@ jobs:
               $createArgs += "--prerelease"
             } else {
               $createArgs += "--latest"
+            }
+            $tagSha = gh api "repos/$env:GITHUB_REPOSITORY/commits/$env:FORK_TAG" --jq .sha 2>$null
+            if ($LASTEXITCODE -eq 0) {
+              if ($tagSha -ne $env:RELEASE_SHA) { throw "Release tag points to a different build commit." }
+              $createArgs += "--verify-tag"
+            } else {
+              $createArgs += "--target", $env:RELEASE_SHA
             }
             & gh @createArgs @assets
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
