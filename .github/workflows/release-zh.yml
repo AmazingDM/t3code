@@ -56,6 +56,7 @@ jobs:
           fetch-depth: 0
           sparse-checkout: |
             package.json
+            .github/release-notes/
           sparse-checkout-cone-mode: false
 
       - name: Resolve release metadata
@@ -128,6 +129,14 @@ jobs:
                 $shouldBuild = "false"
                 Write-Host "Release $forkTag already has $exeName and $manifestName uploaded; skipping build."
               }
+            }
+          }
+
+          if ($shouldBuild -eq "true") {
+            $notesFile = ".github/release-notes/$rawTag.md"
+            if (-not (Test-Path -LiteralPath $notesFile -PathType Leaf) -or
+                [string]::IsNullOrWhiteSpace((Get-Content -LiteralPath $notesFile -Raw))) {
+              throw "Add the translated upstream release notes at $notesFile before publishing."
             }
           }
 
@@ -247,17 +256,8 @@ jobs:
             }
           }
 
-          $editionLabel = if ($env:IS_PRERELEASE -eq "true") { "简体中文预发布版" } else { "简体中文版" }
-          $title = "T3 Code $env:UPSTREAM_TAG $editionLabel"
-          $notesFile = Join-Path $env:RUNNER_TEMP "release-notes.md"
-          $notes = @(
-            "同步上游 pingdotgg/t3code ``$env:UPSTREAM_TAG``，由 GitHub Actions 自动完成简体中文版 Windows x64 安装包构建与发布。",
-            "",
-            "- 上游版本：https://github.com/pingdotgg/t3code/releases/tag/$env:UPSTREAM_TAG",
-            "- 语言切换：设置 -> 常规 -> 语言（支持 跟随系统 / 简体中文 / English）",
-            "- 应用内更新：已内嵌 ``$env:GITHUB_REPOSITORY`` 更新源并附带 ``$env:MANIFEST_NAME``，支持软件内检查与差分增量更新"
-          ) -join "`n"
-          [System.IO.File]::WriteAllText($notesFile, $notes, (New-Object System.Text.UTF8Encoding($false)))
+          $title = "T3 Code $env:UPSTREAM_TAG"
+          $notesFile = ".github/release-notes/$env:UPSTREAM_TAG.md"
 
           $exists = $false
           gh release view $env:FORK_TAG --repo $env:GITHUB_REPOSITORY 2>$null | Out-Null
@@ -269,9 +269,9 @@ jobs:
             gh release upload $env:FORK_TAG $exe $blockmap $manifest --clobber --repo $env:GITHUB_REPOSITORY
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             if ($env:IS_PRERELEASE -eq "true") {
-              gh release edit $env:FORK_TAG --repo $env:GITHUB_REPOSITORY --prerelease --draft=false
+              gh release edit $env:FORK_TAG --repo $env:GITHUB_REPOSITORY --title $title --notes-file $notesFile --prerelease --draft=false
             } else {
-              gh release edit $env:FORK_TAG --repo $env:GITHUB_REPOSITORY --prerelease=false --latest --draft=false
+              gh release edit $env:FORK_TAG --repo $env:GITHUB_REPOSITORY --title $title --notes-file $notesFile --prerelease=false --latest --draft=false
             }
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           } else {
