@@ -296,7 +296,10 @@ const config: ExpoConfig = {
   },
   android: {
     icon: variant.assets.appIcon,
-    package: variant.androidPackage,
+    package: repoEnv.T3CODE_ANDROID_PACKAGE ?? variant.androidPackage,
+    ...(repoEnv.T3CODE_ANDROID_VERSION_CODE
+      ? { versionCode: Number(repoEnv.T3CODE_ANDROID_VERSION_CODE) }
+      : {}),
     ...(repoEnv.T3CODE_ANDROID_GOOGLE_SERVICES_FILE
       ? { googleServicesFile: repoEnv.T3CODE_ANDROID_GOOGLE_SERVICES_FILE }
       : {}),
