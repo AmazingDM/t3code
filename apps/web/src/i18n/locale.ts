@@ -1,3 +1,4 @@
+/* oxlint-disable t3code/no-untranslated-copy -- This module implements translations for legacy runtime strings. */
 import { resolveLocale } from "@t3tools/client-runtime/locales";
 import {
   DEFAULT_LOCALE,

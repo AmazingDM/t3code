@@ -6,8 +6,6 @@ import { act, fakeTimers, render } from "../../../test/render";
 import type { TimelineEntry } from "../../session-logic";
 import { ThreadActivityAnnouncer } from "./ThreadActivityAnnouncer";
 
-vi.mock("../../i18n/locale", () => ({ tr: (text: string) => text }));
-
 const run = RunId.make("run-1");
 const at = "2026-01-01T00:00:00.000Z";
 

@@ -2,7 +2,7 @@ import type { ScreenReaderAnnouncements } from "@t3tools/contracts";
 import { memo, useEffect, useRef } from "react";
 
 import { useLiveRegion } from "../../hooks/useLiveRegion";
-import { tr } from "../../i18n/locale";
+import { m } from "../../i18n/messages";
 import type { TimelineEntry } from "../../session-logic";
 
 import {
@@ -111,12 +111,11 @@ export const ThreadActivityAnnouncer = memo(function ThreadActivityAnnouncer({
       return;
     }
     const previous = memoryRef.current?.threadKey === threadKey ? memoryRef.current : null;
-    const turn = nextThreadAnnouncement(previous?.memory ?? null, {
-      status,
-      requestId,
-      runId,
-      runStatus,
-    });
+    const turn = nextThreadAnnouncement(
+      previous?.memory ?? null,
+      { status, requestId, runId, runStatus },
+      m,
+    );
     // A new level starts from what the turn already holds, so raising it mid-turn replays nothing.
     const previousDetail = previous?.level === level ? previous.detail : null;
     const detail = nextTurnDetailAnnouncement(previousDetail, {
@@ -137,11 +136,11 @@ export const ThreadActivityAnnouncer = memo(function ThreadActivityAnnouncer({
       // NVDA reads two regions written in the same frame in either order, so a
       // status that lands with a message is read as its last sentence.
       const text = asOneAnnouncement(
-        turn.announcement === null ? detail.messages : [...detail.messages, tr(turn.announcement)],
+        turn.announcement === null ? detail.messages : [...detail.messages, turn.announcement],
       );
       write(text, holdAfter(text));
     } else if (turn.announcement !== null) {
-      announce(tr(turn.announcement));
+      announce(turn.announcement);
       step.quietUntil = Math.max(step.quietUntil, Date.now() + ACTIVITY_GAP_MS);
     }
     // A waiting label is stale once its step is over or the level no longer reads steps.

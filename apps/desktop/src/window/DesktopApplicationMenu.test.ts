@@ -16,6 +16,7 @@ vi.mock("electron", () => ({
 import * as ElectronApp from "../electron/ElectronApp.ts";
 import * as ElectronDialog from "../electron/ElectronDialog.ts";
 import * as ElectronMenu from "../electron/ElectronMenu.ts";
+import { applyLanguage } from "../i18n/messages.ts";
 import * as DesktopApplicationMenu from "./DesktopApplicationMenu.ts";
 import * as DesktopConfig from "../app/DesktopConfig.ts";
 import * as DesktopEnvironment from "../app/DesktopEnvironment.ts";
@@ -393,84 +394,15 @@ describe("DesktopApplicationMenu", () => {
           ),
         ),
       );
+      yield* applyLanguage("system").pipe(Effect.provide(zhAppLayer));
       yield* menu.configure;
 
       const template = yield* Deferred.await(applicationMenuTemplate);
+      yield* applyLanguage("en").pipe(Effect.provide(zhAppLayer));
       assert.isDefined(template.find((item) => item.label === "文件"));
       assert.isDefined(template.find((item) => item.label === "编辑"));
-      assert.isDefined(template.find((item) => item.label === "视图"));
+      assert.isDefined(template.find((item) => item.label === "查看"));
     }),
-  );
-
-  it.effect(
-    "reads saved client language at startup and updates menu when syncLanguage is called",
-    () =>
-      Effect.gen(function* () {
-        const templates: Array<readonly Electron.MenuItemConstructorOptions[]> = [];
-
-        const appLayer = Layer.succeed(ElectronApp.ElectronApp, {
-          metadata: Effect.die("unexpected metadata read"),
-          name: Effect.succeed("T3 Code"),
-          systemLocale: Effect.succeed("zh-CN"),
-          preferredSystemLanguages: Effect.succeed(["zh-CN"]),
-          whenReady: Effect.void,
-          requestSingleInstanceLock: Effect.succeed(true),
-          quit: Effect.void,
-          exit: () => Effect.void,
-          relaunch: () => Effect.void,
-          setPath: () => Effect.void,
-          setName: () => Effect.void,
-          setAboutPanelOptions: () => Effect.void,
-          setAppUserModelId: () => Effect.void,
-          getAppMetrics: Effect.succeed([]),
-          setAsDefaultProtocolClient: () => Effect.succeed(true),
-          setDesktopName: () => Effect.void,
-          setDockIcon: () => Effect.void,
-          appendCommandLineSwitch: () => Effect.void,
-          onBeforeQuitForUpdate: () => Effect.void,
-          removeCommandLineSwitch: () => Effect.void,
-          on: () => Effect.void,
-        } satisfies ElectronApp.ElectronApp["Service"]);
-
-        const recordingMenuLayer = Layer.succeed(ElectronMenu.ElectronMenu, {
-          setApplicationMenu: (template) =>
-            Effect.sync(() => {
-              templates.push(template);
-            }),
-          popupTemplate: () => Effect.void,
-          showContextMenu: () => Effect.succeedNone,
-        } satisfies ElectronMenu.ElectronMenu["Service"]);
-
-        const menu = yield* DesktopApplicationMenu.DesktopApplicationMenu.pipe(
-          Effect.provide(
-            DesktopApplicationMenu.layer.pipe(
-              Layer.provideMerge(recordingMenuLayer),
-              Layer.provideMerge(layerDesktopWindow(yield* Deferred.make<string>())),
-              Layer.provideMerge(layerDesktopUpdates({})),
-              Layer.provideMerge(layerElectronDialog({})),
-              Layer.provideMerge(appLayer),
-              Layer.provideMerge(
-                DesktopEnvironment.layer(environmentInput).pipe(
-                  Layer.provide(Layer.mergeAll(NodeServices.layer, DesktopConfig.layerTest({}))),
-                ),
-              ),
-            ),
-          ),
-        );
-        yield* menu.configure;
-        assert.equal(templates.length, 1);
-        assert.isDefined(templates[0]?.find((item) => item.label === "文件"));
-
-        // Non-zh locales render English native menu even on a zh-CN OS
-        yield* menu.syncLanguage("ja");
-        assert.equal(templates.length, 2);
-        assert.isDefined(templates[1]?.find((item) => item.label === "File"));
-
-        // Switching back to "system" restores Chinese menu on zh-CN OS
-        yield* menu.syncLanguage("system");
-        assert.equal(templates.length, 3);
-        assert.isDefined(templates[2]?.find((item) => item.label === "文件"));
-      }),
   );
 
   it.effect("tells the user which update the menu check found", () =>
