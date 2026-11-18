@@ -56,9 +56,10 @@ function readSystemLocales(): ReadonlyArray<string> {
 
 export function useLanguagePreference(): string {
   const preferences = useAtomValue(mobilePreferencesAtom);
+  const initialLanguage = process.env.EXPO_PUBLIC_T3CODE_DEFAULT_LOCALE ?? DEFAULT_LOCALE;
   return AsyncResult.isSuccess(preferences)
-    ? (preferences.value.language ?? DEFAULT_LOCALE)
-    : DEFAULT_LOCALE;
+    ? (preferences.value.language ?? initialLanguage)
+    : initialLanguage;
 }
 
 /** Translates the screens inside it into the saved language; "system" follows the device. */

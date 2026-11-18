@@ -6,7 +6,12 @@ import assetLinks from "../web/public/.well-known/assetlinks.json";
 
 // Keep config parsing independent of local env files and build credentials.
 vi.mock("../../scripts/lib/public-config.ts", () => ({
-  loadRepoEnv: () => ({ APP_VARIANT: process.env.APP_VARIANT }),
+  loadRepoEnv: () =>
+    Object.fromEntries(
+      ["APP_VARIANT", "T3CODE_ANDROID_PACKAGE", "T3CODE_ANDROID_VERSION_CODE"]
+        .filter((key) => process.env[key] !== undefined)
+        .map((key) => [key, process.env[key]]),
+    ),
 }));
 
 afterEach(() => {
@@ -44,4 +49,13 @@ it.each([
     { scheme: "https", host, pathPrefix: "/threads/" },
   ]);
   expect(assetLinks.map((link) => link.target.package_name)).toContain(identifier);
+});
+
+it("uses the fork Android package and build number for a release APK", async () => {
+  vi.stubEnv("T3CODE_ANDROID_PACKAGE", "com.amazingdm.t3code");
+  vi.stubEnv("T3CODE_ANDROID_VERSION_CODE", "123");
+  const config = await loadConfig("production");
+  expect(config.android?.package).toBe("com.amazingdm.t3code");
+  expect(config.android?.versionCode).toBe(123);
+  expect(config.ios?.bundleIdentifier).toBe("com.t3tools.t3code");
 });
