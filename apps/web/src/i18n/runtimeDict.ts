@@ -4,6 +4,7 @@
  * descriptors, and server status payloads).
  */
 export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
+  "Could not create a temp directory for the ACP agent.": "无法为 ACP 智能体创建临时目录。",
   Reasoning: "推理强度",
   "Reasoning effort": "推理强度",
   Effort: "推理强度",

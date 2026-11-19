@@ -188,6 +188,12 @@ function translateSegment(segment: string): string {
     return `或在 ${approveCli[2]} 上运行 \`${approveCli[1]}\`。`;
   }
 
+  const wslProject =
+    /^(.+) is inside WSL\. Add it to the WSL backend instead of the Windows one\.$/.exec(segment);
+  if (wslProject?.[1]) {
+    return `${wslProject[1]} 位于 WSL 中。请使用 WSL 后端添加此项目。`;
+  }
+
   const notAProject =
     /^(.+) is not a project in T3 Code\. Add it as a project to read its change requests\.$/.exec(
       segment,

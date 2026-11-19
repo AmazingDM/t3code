@@ -36,6 +36,14 @@ describe("i18n runtime translator tr() and unified locale resolution", () => {
     const { tr, __IS_ZH__ } = await loadLocaleWithLanguage("zh");
     expect(__IS_ZH__).toBe(true);
     expect(tr("Extra High")).toBe("超高");
+    expect(
+      tr(
+        "//wsl.localhost/Ubuntu/home/project is inside WSL. Add it to the WSL backend instead of the Windows one.",
+      ),
+    ).toBe("//wsl.localhost/Ubuntu/home/project 位于 WSL 中。请使用 WSL 后端添加此项目。");
+    expect(tr("Could not create a temp directory for the ACP agent.")).toBe(
+      "无法为 ACP 智能体创建临时目录。",
+    );
     expect(tr("Adaptive · Max · 1M Context")).toBe("自适应 · 最高 · 1M 上下文");
     expect(tr("Extra High Fast")).toBe("超高 · 快速");
     expect(tr("Extra High Ultrafast")).toBe("超高 · 极速");

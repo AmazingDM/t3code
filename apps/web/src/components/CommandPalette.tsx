@@ -1,5 +1,6 @@
 import { thrownErrorMessage } from "@t3tools/client-runtime/errors";
 import { decodeMsg, msg, T, useGT, useMessages, Var } from "gt-react";
+import { tr } from "../i18n/locale";
 import { m, type MessageResolver } from "../i18n/messages";
 import { ThreadContextDragGhost } from "./chat/ThreadContextDragGhost";
 import { threadPullRequestLinkMode } from "@t3tools/client-runtime/thread-pull-request-compatibility";
@@ -2072,7 +2073,7 @@ function OpenCommandPaletteDialog(props: {
           stackedThreadToast({
             type: "error",
             title: gt("Failed to add project"),
-            description: thrownErrorMessage(error, m) ?? gt("An error occurred."),
+            description: tr(thrownErrorMessage(error, m)) ?? gt("An error occurred."),
           }),
         );
       }

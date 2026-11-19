@@ -8,6 +8,7 @@ import type {
   ScopedProjectRef,
   ThreadId,
 } from "@t3tools/contracts";
+import { tr } from "./i18n/locale";
 
 export interface DesktopAppActivationProject {
   readonly id: ProjectId;
@@ -85,7 +86,7 @@ export async function handleDesktopAppActivationRequest(
       return failure(
         request.requestId,
         "project-create-failed",
-        errorMessage(error, "T3 Code could not add the project."),
+        tr(errorMessage(error, "T3 Code could not add the project.")),
       );
     }
   }
