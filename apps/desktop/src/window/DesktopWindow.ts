@@ -9,6 +9,7 @@ import * as Schema from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 
 import * as Electron from "electron";
+import { msg } from "gt-i18n";
 
 import { type DesktopSnapShotEvent, DEFAULT_CLIENT_SETTINGS } from "@t3tools/contracts";
 
@@ -39,6 +40,7 @@ import * as PreviewPasskeys from "../preview/Passkeys.ts";
 import * as DesktopAppSettings from "../settings/DesktopAppSettings.ts";
 import * as DesktopClientSettings from "../settings/DesktopClientSettings.ts";
 import * as ElectronApp from "../electron/ElectronApp.ts";
+import { m } from "../i18n/messages.ts";
 import * as DesktopRendererHistory from "../telemetry/DesktopRendererHistory.ts";
 import { makeQuitShortcutHandler } from "./QuitHold.ts";
 import { copyContextMenuImage } from "./ContextMenuImage.ts";
@@ -671,7 +673,10 @@ export const make = Effect.gen(function* () {
             });
           }
           if (params.dictionarySuggestions.length === 0) {
-            menuTemplate.push({ label: isZh ? "暂无拼写建议" : "No suggestions", enabled: false });
+            menuTemplate.push({
+              label: isZh ? "暂无拼写建议" : m(msg("No suggestions")),
+              enabled: false,
+            });
           }
           menuTemplate.push({ type: "separator" });
         }
@@ -679,7 +684,7 @@ export const make = Effect.gen(function* () {
         if (Option.isSome(ElectronShell.parseSafeExternalUrl(params.linkURL))) {
           menuTemplate.push(
             {
-              label: isZh ? "复制链接" : "Copy Link",
+              label: m(msg("Copy Link")),
               click: () => {
                 void runPromise(electronShell.copyText(params.linkURL));
               },
@@ -692,7 +697,7 @@ export const make = Effect.gen(function* () {
         if (Option.isSome(mailtoAddress)) {
           menuTemplate.push(
             {
-              label: isZh ? "复制邮箱地址" : "Copy Email Address",
+              label: m(msg("Copy Email Address")),
               click: () => {
                 void runPromise(electronShell.copyText(mailtoAddress.value));
               },
@@ -703,7 +708,7 @@ export const make = Effect.gen(function* () {
 
         if (params.mediaType === "image") {
           menuTemplate.push({
-            label: isZh ? "复制图片" : "Copy Image",
+            label: m(msg("Copy Image")),
             click: () => {
               void runPromise(
                 Effect.tryPromise({
@@ -719,22 +724,22 @@ export const make = Effect.gen(function* () {
         menuTemplate.push(
           {
             role: "cut",
-            ...(isZh ? { label: "剪切" } : {}),
+            label: m(msg("Cut", { $context: "Edit menu item" })),
             enabled: params.editFlags.canCut,
           },
           {
             role: "copy",
-            ...(isZh ? { label: "复制" } : {}),
+            label: m(msg("Copy", { $context: "Edit menu item" })),
             enabled: params.editFlags.canCopy,
           },
           {
             role: "paste",
-            ...(isZh ? { label: "粘贴" } : {}),
+            label: m(msg("Paste", { $context: "Edit menu item" })),
             enabled: params.editFlags.canPaste,
           },
           {
             role: "selectAll",
-            ...(isZh ? { label: "全选" } : {}),
+            label: m(msg("Select All", { $context: "Edit menu item" })),
             enabled: params.editFlags.canSelectAll,
           },
         );

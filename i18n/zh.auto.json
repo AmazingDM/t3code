@@ -4517,6 +4517,7 @@
   "T3 Connect · {0} · Relay offline": "T3 Connect · {0} · 中继离线",
   "T3 Connect · {0} · Relay online": "T3 Connect · {0} · 中继在线",
   "T3 Connect · {0} · Relay status unavailable": "T3 Connect · {0} · 中继状态不可用",
+  "T3 Connect · {0} · {1}": "T3 Connect · {0} · {1}",
   "T3 process": "T3 进程",
   "T3 system footprint": "T3 系统资源占用",
   "Tab indents. Shift+Tab unindents. Press Escape, then Tab to leave.": "Tab 缩进，Shift+Tab 取消缩进。按 Escape 后再按 Tab 可移出焦点。",

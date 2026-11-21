@@ -20,6 +20,7 @@ import {
   SUPPORTED_LOCALES,
   writeCachedLanguageSetting,
 } from "./locales";
+import { setActiveLocale } from "./messages";
 
 type LocaleTranslations = Awaited<ReturnType<typeof getTranslationsSnapshot>>;
 
@@ -59,6 +60,7 @@ function activateLocale(locale: string): void {
     return;
   }
   snapshot = { locale, translations: { ...loadedTranslations } };
+  setActiveLocale(locale);
   if (typeof document !== "undefined") {
     document.documentElement.lang = locale;
   }
