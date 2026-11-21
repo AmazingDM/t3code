@@ -4,6 +4,16 @@
  * descriptors, and server status payloads).
  */
 export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
+  "Could not prepare temporary history for the DeepSeek Harness probe.":
+    "无法为 DeepSeek Harness 探测准备临时历史记录。",
+  "Cursor SDK session was closed.": "Cursor SDK 会话已关闭。",
+  "Cursor SDK worker is shutting down.": "Cursor SDK 工作进程正在关闭。",
+  "Cursor session was closed while opening.": "Cursor 会话在打开过程中已关闭。",
+  "Cursor SDK session is not open.": "Cursor SDK 会话尚未打开。",
+  "Cursor run was cancelled while starting.": "Cursor 运行在启动过程中已取消。",
+  "Your local changes would be overwritten by switching branches. Commit, stash, or discard them, then switch again.":
+    "切换分支会覆盖本地变更。请提交、暂存到 Git stash 或丢弃这些变更，再重新切换。",
+  "git checkout failed": "Git 检出失败",
   "Could not create a temp directory for the ACP agent.": "无法为 ACP 智能体创建临时目录。",
   "T3 Code could not determine the Pi version. Update Pi, then refresh its status.":
     "T3 Code 无法确定 Pi 版本。请更新 Pi，然后刷新服务商状态。",

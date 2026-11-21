@@ -82,6 +82,14 @@ function translateSegment(segment: string): string {
     return `Cursor SDK 模型目录请求超时（${cursorTimeout[1]}ms）。`;
   }
 
+  const cursorSdkFailure = /^Cursor Agent SDK ([\w.]+) failed(?:: (.+)|\.)$/.exec(segment);
+  if (cursorSdkFailure?.[1]) {
+    const reason = cursorSdkFailure[2];
+    return reason
+      ? `Cursor Agent SDK ${cursorSdkFailure[1]} 调用失败：${ZH_RUNTIME_EXACT[reason] ?? reason}`
+      : `Cursor Agent SDK ${cursorSdkFailure[1]} 调用失败。`;
+  }
+
   const snoozeIn = /^In (\d+) (minute|minutes|hour|hours|day|days)$/.exec(segment);
   if (snoozeIn?.[1] && snoozeIn[2]) {
     const unit = snoozeIn[2].startsWith("minute")

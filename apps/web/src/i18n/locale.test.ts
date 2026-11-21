@@ -44,6 +44,12 @@ describe("i18n runtime translator tr() and unified locale resolution", () => {
     expect(tr("Could not create a temp directory for the ACP agent.")).toBe(
       "无法为 ACP 智能体创建临时目录。",
     );
+    expect(tr("Cursor Agent SDK run.wait failed: Cursor SDK session was closed.")).toBe(
+      "Cursor Agent SDK run.wait 调用失败：Cursor SDK 会话已关闭。",
+    );
+    expect(tr("Cursor Agent SDK run.start failed: Cannot use example-model")).toBe(
+      "Cursor Agent SDK run.start 调用失败：Cannot use example-model",
+    );
     expect(tr("Adaptive · Max · 1M Context")).toBe("自适应 · 最高 · 1M 上下文");
     expect(tr("Extra High Fast")).toBe("超高 · 快速");
     expect(tr("Extra High Ultrafast")).toBe("超高 · 极速");

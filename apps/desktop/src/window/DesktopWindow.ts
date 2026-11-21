@@ -44,6 +44,7 @@ import { m } from "../i18n/messages.ts";
 import * as DesktopRendererHistory from "../telemetry/DesktopRendererHistory.ts";
 import { makeQuitShortcutHandler } from "./QuitHold.ts";
 import { copyContextMenuImage } from "./ContextMenuImage.ts";
+import { getDesktopIsZh } from "./desktopLocaleState.ts";
 
 const TITLEBAR_HEIGHT = 40;
 
@@ -684,7 +685,10 @@ export const make = Effect.gen(function* () {
             });
           }
           if (params.dictionarySuggestions.length === 0) {
-            menuTemplate.push({ label: m(msg("No suggestions")), enabled: false });
+            menuTemplate.push({
+              label: getDesktopIsZh() ? "暂无拼写建议" : m(msg("No suggestions")),
+              enabled: false,
+            });
           }
           menuTemplate.push({ type: "separator" });
         }

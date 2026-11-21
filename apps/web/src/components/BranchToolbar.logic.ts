@@ -13,6 +13,7 @@ import { msg } from "gt-react";
 import { sanitizeNewRefName } from "@t3tools/shared/git";
 import { workspaceRelativeFilePath } from "@t3tools/shared/path";
 import { toSortableTimestamp } from "@t3tools/client-runtime/state/thread-sort";
+import { tr } from "../i18n/locale";
 import { m, type MessageResolver } from "../i18n/messages";
 import { deriveCanInterruptRunningThread } from "../session-logic";
 export { deriveLocalBranchNameFromRemoteRef, sanitizeNewRefName } from "@t3tools/shared/git";
@@ -23,7 +24,8 @@ const isGitCommandError = Schema.is(GitCommandError);
 // rather than the message's operation and cwd prefix.
 export function toBranchActionErrorMessage(error: unknown): string {
   if (isGitCommandError(error)) {
-    return error.reason === undefined ? error.detail : `${error.detail} (${error.reason})`;
+    const detail = tr(error.detail);
+    return error.reason === undefined ? detail : `${detail} (${error.reason})`;
   }
   return thrownErrorMessage(error, m) ?? m(msg("An error occurred."));
 }

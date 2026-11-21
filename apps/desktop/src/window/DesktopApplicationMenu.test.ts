@@ -4,6 +4,7 @@ import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
+import * as Queue from "effect/Queue";
 
 import type { DesktopUpdateCheckResult, DesktopUpdateState } from "@t3tools/contracts";
 import * as Electron from "electron";
@@ -350,7 +351,7 @@ describe("DesktopApplicationMenu", () => {
   );
   it.effect("uses the system language at startup and rebuilds the menu on language changes", () =>
     Effect.gen(function* () {
-      const templates: Array<readonly Electron.MenuItemConstructorOptions[]> = [];
+      const templates = yield* Queue.unbounded<readonly Electron.MenuItemConstructorOptions[]>();
 
       const appLayer = Layer.succeed(ElectronApp.ElectronApp, {
         metadata: Effect.die("unexpected metadata read"),
@@ -377,10 +378,7 @@ describe("DesktopApplicationMenu", () => {
       } satisfies ElectronApp.ElectronApp["Service"]);
 
       const recordingMenuLayer = Layer.succeed(ElectronMenu.ElectronMenu, {
-        setApplicationMenu: (template) =>
-          Effect.sync(() => {
-            templates.push(template);
-          }),
+        setApplicationMenu: (template) => Queue.offer(templates, template).pipe(Effect.asVoid),
         popupTemplate: () => Effect.void,
         showContextMenu: () => Effect.succeedNone,
       } satisfies ElectronMenu.ElectronMenu["Service"]);
@@ -401,21 +399,22 @@ describe("DesktopApplicationMenu", () => {
           ),
         ),
       );
-      yield* applyLanguage("system").pipe(Effect.provide(appLayer));
-      yield* menu.configure;
-      assert.equal(templates.length, 1);
-      assert.isDefined(templates[0]?.find((item) => item.label === "文件"));
-
       const setLanguage = (language: string) =>
         applyLanguage(language).pipe(Effect.provide(appLayer));
+      yield* setLanguage("system");
+      yield* menu.configure;
+      const startup = yield* Queue.take(templates);
+      assert.isDefined(startup.find((item) => item.label === "文件"));
+
       yield* setLanguage("en");
-      assert.equal(templates.length, 2);
-      assert.isDefined(templates[1]?.find((item) => item.label === "File"));
+      const english = yield* Queue.take(templates);
+      assert.isDefined(english.find((item) => item.label === "File"));
 
       yield* setLanguage("system");
-      assert.equal(templates.length, 3);
-      assert.isDefined(templates[2]?.find((item) => item.label === "文件"));
+      const chinese = yield* Queue.take(templates);
+      assert.isDefined(chinese.find((item) => item.label === "文件"));
       yield* setLanguage("en");
+      yield* Queue.take(templates);
     }),
   );
 
