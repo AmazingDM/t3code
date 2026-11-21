@@ -5,6 +5,10 @@
  */
 export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "Could not create a temp directory for the ACP agent.": "无法为 ACP 智能体创建临时目录。",
+  "T3 Code could not determine the Pi version. Update Pi, then refresh its status.":
+    "T3 Code 无法确定 Pi 版本。请更新 Pi，然后刷新服务商状态。",
+  "T3 Code could not determine the Pi version. Update Pi and try again.":
+    "T3 Code 无法确定 Pi 版本。请更新 Pi 后重试。",
   Reasoning: "推理强度",
   "Reasoning effort": "推理强度",
   Effort: "推理强度",

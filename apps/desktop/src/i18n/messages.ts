@@ -4,6 +4,7 @@ import { decodeOptions, gtFallback } from "gt-i18n";
 import { hashMessage } from "gt-i18n/internal";
 
 import * as ElectronApp from "../electron/ElectronApp.ts";
+import { setDesktopIsZh } from "../window/desktopLocaleState.ts";
 
 type Catalog = Readonly<Record<string, string>>;
 
@@ -79,5 +80,6 @@ export const applyLanguage = Effect.fn("desktop.i18n.applyLanguage")(function* (
   if (requestedLocale !== locale) return;
   activeLocale = locale;
   activeCatalog = catalog;
+  setDesktopIsZh(locale === "zh");
   for (const listener of listeners) listener();
 });

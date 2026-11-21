@@ -348,13 +348,11 @@ describe("DesktopApplicationMenu", () => {
       assert.equal(yield* Deferred.await(selectedAction), "main-reload");
     }),
   );
-  it.effect("localizes menu labels when system locale is Chinese", () =>
+  it.effect("uses the system language at startup and rebuilds the menu on language changes", () =>
     Effect.gen(function* () {
-      const selectedAction = yield* Deferred.make<string>();
-      const applicationMenuTemplate =
-        yield* Deferred.make<readonly Electron.MenuItemConstructorOptions[]>();
+      const templates: Array<readonly Electron.MenuItemConstructorOptions[]> = [];
 
-      const zhAppLayer = Layer.succeed(ElectronApp.ElectronApp, {
+      const appLayer = Layer.succeed(ElectronApp.ElectronApp, {
         metadata: Effect.die("unexpected metadata read"),
         name: Effect.succeed("T3 Code"),
         systemLocale: Effect.succeed("zh-CN"),
@@ -378,14 +376,23 @@ describe("DesktopApplicationMenu", () => {
         on: () => Effect.void,
       } satisfies ElectronApp.ElectronApp["Service"]);
 
+      const recordingMenuLayer = Layer.succeed(ElectronMenu.ElectronMenu, {
+        setApplicationMenu: (template) =>
+          Effect.sync(() => {
+            templates.push(template);
+          }),
+        popupTemplate: () => Effect.void,
+        showContextMenu: () => Effect.succeedNone,
+      } satisfies ElectronMenu.ElectronMenu["Service"]);
+
       const menu = yield* DesktopApplicationMenu.DesktopApplicationMenu.pipe(
         Effect.provide(
           DesktopApplicationMenu.layer.pipe(
-            Layer.provideMerge(layerElectronMenu(applicationMenuTemplate)),
-            Layer.provideMerge(layerDesktopWindow(selectedAction)),
+            Layer.provideMerge(recordingMenuLayer),
+            Layer.provideMerge(layerDesktopWindow(yield* Deferred.make<string>())),
             Layer.provideMerge(layerDesktopUpdates({})),
             Layer.provideMerge(layerElectronDialog({})),
-            Layer.provideMerge(zhAppLayer),
+            Layer.provideMerge(appLayer),
             Layer.provideMerge(
               DesktopEnvironment.layer(environmentInput).pipe(
                 Layer.provide(Layer.mergeAll(NodeServices.layer, DesktopConfig.layerTest({}))),
@@ -394,14 +401,21 @@ describe("DesktopApplicationMenu", () => {
           ),
         ),
       );
-      yield* applyLanguage("system").pipe(Effect.provide(zhAppLayer));
+      yield* applyLanguage("system").pipe(Effect.provide(appLayer));
       yield* menu.configure;
+      assert.equal(templates.length, 1);
+      assert.isDefined(templates[0]?.find((item) => item.label === "文件"));
 
-      const template = yield* Deferred.await(applicationMenuTemplate);
-      yield* applyLanguage("en").pipe(Effect.provide(zhAppLayer));
-      assert.isDefined(template.find((item) => item.label === "文件"));
-      assert.isDefined(template.find((item) => item.label === "编辑"));
-      assert.isDefined(template.find((item) => item.label === "查看"));
+      const setLanguage = (language: string) =>
+        applyLanguage(language).pipe(Effect.provide(appLayer));
+      yield* setLanguage("en");
+      assert.equal(templates.length, 2);
+      assert.isDefined(templates[1]?.find((item) => item.label === "File"));
+
+      yield* setLanguage("system");
+      assert.equal(templates.length, 3);
+      assert.isDefined(templates[2]?.find((item) => item.label === "文件"));
+      yield* setLanguage("en");
     }),
   );
 
@@ -424,6 +438,31 @@ describe("DesktopApplicationMenu", () => {
         downloadPercent: 100,
       });
       assert.include(`${dialog.title ?? ""} ${dialog.message} ${dialog.detail ?? ""}`, "0.1.7");
+    }),
+  );
+
+  it.effect("labels every role item so the menu follows the UI language", () =>
+    Effect.gen(function* () {
+      // Electron's role defaults are English on every platform, so each role item needs a label.
+      for (const platform of ["darwin", "linux", "win32"] as const) {
+        const applicationMenuTemplate =
+          yield* Deferred.make<readonly Electron.MenuItemConstructorOptions[]>();
+        yield* configureMenu(yield* Deferred.make<string>(), applicationMenuTemplate, {
+          platform,
+        });
+
+        const unlabeled: string[] = [];
+        const collect = (template: readonly Electron.MenuItemConstructorOptions[]) => {
+          for (const item of template) {
+            if (item.role !== undefined && typeof item.label !== "string") {
+              unlabeled.push(item.role);
+            }
+            if (Array.isArray(item.submenu)) collect(item.submenu);
+          }
+        };
+        collect(yield* Deferred.await(applicationMenuTemplate));
+        assert.deepStrictEqual(unlabeled, [], platform);
+      }
     }),
   );
 });

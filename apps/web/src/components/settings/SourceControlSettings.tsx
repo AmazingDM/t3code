@@ -1,3 +1,4 @@
+import { tr } from "../../i18n/locale";
 import { RefreshIcon } from "~/components/ui/refresh-icon";
 import { ChevronDownIcon } from "lucide-react";
 import { useAtomValue } from "@effect/atom-react";
@@ -167,7 +168,7 @@ function itemSummary({
   readonly authAccount: string | null;
   readonly resolve: MessageResolver;
 }) {
-  const installHint = sourceControlInstallHintText(item.installHint, resolve);
+  const installHint = tr(sourceControlInstallHintText(item.installHint, resolve));
   if (isVcsNotReady(item)) {
     return (
       <span>
@@ -225,7 +226,7 @@ function itemSummary({
     if (auth.status === "unauthenticated" && auth.accounts?.some((entry) => entry.authenticated)) {
       return (
         <span>
-          {optionLabel(auth.detail) ?? (
+          {tr(optionLabel(auth.detail)) ?? (
             <T>
               Every <Var>{item.label}</Var> host is turned off.
             </T>

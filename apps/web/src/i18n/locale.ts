@@ -1,4 +1,4 @@
-/* oxlint-disable t3code/no-untranslated-copy -- This module implements translations for legacy runtime strings. */
+/* oxlint-disable t3code/no-untranslated-copy -- Translates dynamic server text into Chinese. */
 import { resolveLocale } from "@t3tools/client-runtime/locales";
 import {
   DEFAULT_LOCALE,

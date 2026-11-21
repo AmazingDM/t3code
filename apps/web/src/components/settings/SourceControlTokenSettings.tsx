@@ -1,3 +1,4 @@
+import { tr } from "../../i18n/locale";
 import {
   isSecretReference,
   type EnvironmentId,
@@ -40,7 +41,7 @@ export function SourceControlTokenSettings({
   const tokenAccess =
     definition.kind === "github"
       ? gt("read and write access to pull requests and contents")
-      : credentials.tokenAccess;
+      : tr(credentials.tokenAccess);
   const { tokens } = useEnvironmentSettings(environmentId, (settings) =>
     readHostCredentialSettings(settings, definition.kind),
   );
