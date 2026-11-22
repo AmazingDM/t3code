@@ -14,6 +14,25 @@ export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "Your local changes would be overwritten by switching branches. Commit, stash, or discard them, then switch again.":
     "切换分支会覆盖本地变更。请提交、暂存到 Git stash 或丢弃这些变更，再重新切换。",
   "git checkout failed": "Git 检出失败",
+  "read and write access to repositories, issues and pull requests": "仓库、议题和 PR 的读写权限",
+  "Using the token saved in Settings; it overrides SRC_TOKEN and the src login.":
+    "正在使用设置中保存的 token，优先于 SRC_TOKEN 和 src 登录凭据。",
+  "Using SRC_TOKEN from the server environment; it overrides the account chosen in Settings.":
+    "正在使用服务器环境中的 SRC_TOKEN，优先于设置中选定的账号。",
+  "TanStack Source refused the token saved in Settings. Replace or remove it in Settings → Source control & issues.":
+    "TanStack Source 拒绝了设置中保存的 token。请前往「设置 → 版本控制与议题」更换或移除。",
+  "TanStack Source refused the token in SRC_TOKEN. Replace it, or unset it to use `src auth login`.":
+    "TanStack Source 拒绝了 SRC_TOKEN 中的 token。请更换它，或取消设置后使用 `src auth login`。",
+  "Could not reach TanStack Source.": "无法连接 TanStack Source。",
+  "TanStack Source returned an unreadable account.": "TanStack Source 返回了无法读取的账号信息。",
+  "TanStack Source returned an unreadable response.": "TanStack Source 返回了无法读取的响应。",
+  "Install the src CLI and run `src auth login --web`, save a TanStack Source token in Settings, or set SRC_TOKEN on the server.":
+    "请安装 src CLI 并运行 `src auth login --web`，也可以在设置中保存 TanStack Source token，或在服务器上设置 SRC_TOKEN。",
+  "TanStack Source refused the server's credential. Run `src auth login --web` again, or replace the token saved in Settings.":
+    "TanStack Source 拒绝了服务器凭据。请重新运行 `src auth login --web`，或更换设置中保存的 token。",
+  "Could not read the TanStack Source remote.": "无法读取 TanStack Source 远端。",
+  "No TanStack Source repository remote was found.": "未找到 TanStack Source 仓库远端。",
+  "Could not check out the TanStack Source pull request.": "无法检出 TanStack Source PR。",
   "Could not create a temp directory for the ACP agent.": "无法为 ACP 智能体创建临时目录。",
   "T3 Code could not determine the Pi version. Update Pi, then refresh its status.":
     "T3 Code 无法确定 Pi 版本。请更新 Pi，然后刷新服务商状态。",

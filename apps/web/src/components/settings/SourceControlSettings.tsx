@@ -191,7 +191,7 @@ function itemSummary({
 
   if (auth) {
     if (auth.status === "authenticated") {
-      const authDetail = optionLabel(auth.detail);
+      const authDetail = tr(optionLabel(auth.detail));
       return (
         <>
           {authAccount ? (
@@ -249,7 +249,7 @@ function itemSummary({
         </span>
       );
     }
-    const authDetail = optionLabel(auth.detail);
+    const authDetail = tr(optionLabel(auth.detail));
     return (
       <span>
         <T>

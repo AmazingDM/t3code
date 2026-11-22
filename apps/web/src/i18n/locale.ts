@@ -127,6 +127,30 @@ function translateSegment(segment: string): string {
     return `${scUnauth[1]} 尚未认证，请打开“版本控制”设置查看配置指引。`;
   }
 
+  const busyCheckout =
+    /^('.*')(?: and (\d+) more)? (?:is|are) still working in this checkout\. Wait for (?:it|them) to finish, or use a worktree for a separate branch\.$/.exec(
+      segment,
+    );
+  if (busyCheckout?.[1]) {
+    const threads = busyCheckout[2]
+      ? `${busyCheckout[1]} 等 ${Number(busyCheckout[2]) + 2} 个线程`
+      : `线程 ${busyCheckout[1]}`;
+    return `${threads}仍在此检出目录中工作。请等待当前操作完成，或在单独的工作树中使用其他分支。`;
+  }
+
+  const sourceLogin =
+    /^Run (`src auth login --web --hostname [^`]+`) to sign the src CLI in\.$/.exec(segment);
+  if (sourceLogin?.[1]) return `请运行 ${sourceLogin[1]} 登录 src CLI。`;
+
+  const acpCommandMissing =
+    /^ACP Registry agent (.+) requires '(.+)', but it is not available on this (environment|provider instance)'s PATH\.$/.exec(
+      segment,
+    );
+  if (acpCommandMissing?.[1] && acpCommandMissing[2]) {
+    const scope = acpCommandMissing[3] === "environment" ? "当前环境" : "此服务商实例";
+    return `ACP 注册中心智能体 ${acpCommandMissing[1]} 需要“${acpCommandMissing[2]}”，但${scope}的 PATH 中未找到该命令。`;
+  }
+
   const wrongArch =
     /^`(.+)` is built for another CPU architecture, so this (.+) machine cannot run it\. Remove or replace it\. (.+)$/.exec(
       segment,

@@ -89,6 +89,16 @@ describe("i18n runtime translator tr() and unified locale resolution", () => {
     expect(tr("Kimi stopped this turn because of an error.")).toBe(
       "Kimi 因发生错误停止了本轮运行。",
     );
+    expect(
+      tr(
+        "'Refactor auth', 'Review tests' and 2 more are still working in this checkout. Wait for them to finish, or use a worktree for a separate branch.",
+      ),
+    ).toBe(
+      "'Refactor auth', 'Review tests' 等 4 个线程仍在此检出目录中工作。请等待当前操作完成，或在单独的工作树中使用其他分支。",
+    );
+    expect(
+      tr("Run `src auth login --web --hostname source.tanstack.com` to sign the src CLI in."),
+    ).toBe("请运行 `src auth login --web --hostname source.tanstack.com` 登录 src CLI。");
     // T3 Code brand and arbitrary user strings remain untouched
     expect(tr("T3 Code")).toBe("T3 Code");
     expect(tr("my-custom-project")).toBe("my-custom-project");
