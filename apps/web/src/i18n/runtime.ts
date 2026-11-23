@@ -1,4 +1,3 @@
-import { resolveLocale } from "@t3tools/client-runtime/locales";
 import { getTranslationsSnapshot } from "gt-react";
 
 import {
@@ -17,7 +16,7 @@ import {
   LANGUAGE_MIGRATED_STORAGE_KEY,
   LEGACY_LOCALE_STORAGE_KEY,
   readCachedLanguageSetting,
-  SUPPORTED_LOCALES,
+  resolveWebLocaleSelection,
   writeCachedLanguageSetting,
 } from "./locales";
 import { setActiveLocale } from "./messages";
@@ -26,14 +25,22 @@ type LocaleTranslations = Awaited<ReturnType<typeof getTranslationsSnapshot>>;
 
 export interface I18nSnapshot {
   readonly locale: string;
+  readonly formattingLocale: string | undefined;
   readonly translations: LocaleTranslations;
 }
 
 const loadedTranslations: LocaleTranslations = { [DEFAULT_LOCALE]: {} };
 const pendingLoads = new Map<string, Promise<void>>();
 const listeners = new Set<() => void>();
-let snapshot: I18nSnapshot = { locale: DEFAULT_LOCALE, translations: { ...loadedTranslations } };
-let requestedLocale = DEFAULT_LOCALE;
+let snapshot: I18nSnapshot = {
+  locale: DEFAULT_LOCALE,
+  formattingLocale: undefined,
+  translations: { ...loadedTranslations },
+};
+let requestedLocale: ReturnType<typeof resolveWebLocaleSelection> = {
+  catalogLocale: DEFAULT_LOCALE,
+  formattingLocale: undefined,
+};
 let reloadPending = false;
 
 function loadLocale(locale: string): Promise<void> {
@@ -55,11 +62,16 @@ function loadLocale(locale: string): Promise<void> {
 }
 
 function activateLocale(locale: string): void {
-  if (requestedLocale !== locale) return;
-  if (snapshot.locale === locale && snapshot.translations[locale] === loadedTranslations[locale]) {
+  if (requestedLocale.catalogLocale !== locale) return;
+  const { formattingLocale } = requestedLocale;
+  if (
+    snapshot.locale === locale &&
+    snapshot.formattingLocale === formattingLocale &&
+    snapshot.translations[locale] === loadedTranslations[locale]
+  ) {
     return;
   }
-  snapshot = { locale, translations: { ...loadedTranslations } };
+  snapshot = { locale, formattingLocale, translations: { ...loadedTranslations } };
   setActiveLocale(locale);
   if (typeof document !== "undefined") {
     document.documentElement.lang = locale;
@@ -86,8 +98,7 @@ function migrateHydratedLanguageOnce(hydratedLanguage: string): string {
       migratedLanguage = "system";
     } else if (
       hydratedLanguage === DEFAULT_LOCALE &&
-      resolveLocale("system", getSystemLocales(), SUPPORTED_LOCALES, DEFAULT_LOCALE) !==
-        DEFAULT_LOCALE
+      resolveWebLocaleSelection("system", getSystemLocales()).catalogLocale !== DEFAULT_LOCALE
     ) {
       // Upstream previously defaulted `language` to "en", writing "en" into client-settings.json.
       migratedLanguage = "system";
@@ -110,21 +121,14 @@ function applyLanguageSetting(): void {
     : readCachedLanguageSetting();
   const cachedOk = hydrated ? writeCachedLanguageSetting(languageSetting) : false;
 
-  // Prefer desktopBridge.getPreferredSystemLanguages() over navigator.languages in packaged Electron.
-  const nextLocale = resolveLocale(
-    languageSetting,
-    getSystemLocales(),
-    SUPPORTED_LOCALES,
-    DEFAULT_LOCALE,
-  );
-  requestedLocale = nextLocale;
+  requestedLocale = resolveWebLocaleSelection(languageSetting, getSystemLocales());
   void whenLocaleReady();
 
   if (
     hydrated &&
     cachedOk &&
     !reloadPending &&
-    (nextLocale === "zh") !== __IS_ZH__ &&
+    (requestedLocale.catalogLocale === "zh") !== __IS_ZH__ &&
     typeof window !== "undefined" &&
     !import.meta.env.VITEST
   ) {
@@ -150,7 +154,7 @@ export function startI18n(): void {
 
 /** Resolves once the requested locale's translations are ready; immediate for English. */
 export function whenLocaleReady(): Promise<void> {
-  const locale = requestedLocale;
+  const locale = requestedLocale.catalogLocale;
   return loadLocale(locale).then(() => activateLocale(locale));
 }
 
@@ -163,4 +167,8 @@ export function subscribeI18n(listener: () => void): () => void {
 
 export function getI18nSnapshot(): I18nSnapshot {
   return snapshot;
+}
+
+export function getFormattingLocale(): string | undefined {
+  return snapshot.formattingLocale;
 }
