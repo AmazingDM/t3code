@@ -99,6 +99,20 @@ describe("i18n runtime translator tr() and unified locale resolution", () => {
     expect(
       tr("Run `src auth login --web --hostname source.tanstack.com` to sign the src CLI in."),
     ).toBe("请运行 `src auth login --web --hostname source.tanstack.com` 登录 src CLI。");
+    expect(tr("This Cursor SDK agent cannot resume.")).toBe("此 Cursor SDK 智能体无法恢复运行。");
+    expect(
+      tr(
+        "OpenCode sent nothing for 5 minutes, so T3 Code stopped the turn and restarted the agent. Send a message to continue.",
+      ),
+    ).toBe(
+      "OpenCode 已有 5 分钟未发送任何内容。T3 Code 已停止本轮并重启智能体。发送消息即可继续。",
+    );
+    expect(tr("Provider turn t-21 ended before it read the steering message.")).toBe(
+      "服务商轮次 t-21 尚未读取插话引导消息就已结束。",
+    );
+    expect(tr("Repository acme/repo was not found. Check the owner and name and try again.")).toBe(
+      "找不到仓库 acme/repo。请检查所有者和仓库名称后重试。",
+    );
     // T3 Code brand and arbitrary user strings remain untouched
     expect(tr("T3 Code")).toBe("T3 Code");
     expect(tr("my-custom-project")).toBe("my-custom-project");

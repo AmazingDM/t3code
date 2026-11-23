@@ -127,6 +127,27 @@ function translateSegment(segment: string): string {
     return `${scUnauth[1]} 尚未认证，请打开“版本控制”设置查看配置指引。`;
   }
 
+  const repositoryNotFound =
+    /^Repository (.+) was not found\. Check the owner and name and try again\.$/.exec(segment);
+  if (repositoryNotFound?.[1]) {
+    return `找不到仓库 ${repositoryNotFound[1]}。请检查所有者和仓库名称后重试。`;
+  }
+
+  const providerIdle =
+    /^(.+) sent nothing for (\d+) minutes?, so T3 Code stopped the turn and restarted the agent\. Send a message to continue\.$/.exec(
+      segment,
+    );
+  if (providerIdle?.[1] && providerIdle[2]) {
+    return `${providerIdle[1]} 已有 ${providerIdle[2]} 分钟未发送任何内容。T3 Code 已停止本轮并重启智能体。发送消息即可继续。`;
+  }
+
+  const steeringMissed = /^Provider turn (.+) ended before it read the steering message\.$/.exec(
+    segment,
+  );
+  if (steeringMissed?.[1]) {
+    return `服务商轮次 ${steeringMissed[1]} 尚未读取插话引导消息就已结束。`;
+  }
+
   const busyCheckout =
     /^('.*')(?: and (\d+) more)? (?:is|are) still working in this checkout\. Wait for (?:it|them) to finish, or use a worktree for a separate branch\.$/.exec(
       segment,

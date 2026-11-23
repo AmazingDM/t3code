@@ -6,6 +6,7 @@
 export const ZH_RUNTIME_EXACT: Readonly<Record<string, string>> = {
   "Could not prepare temporary history for the DeepSeek Harness probe.":
     "无法为 DeepSeek Harness 探测准备临时历史记录。",
+  "This Cursor SDK agent cannot resume.": "此 Cursor SDK 智能体无法恢复运行。",
   "Cursor SDK session was closed.": "Cursor SDK 会话已关闭。",
   "Cursor SDK worker is shutting down.": "Cursor SDK 工作进程正在关闭。",
   "Cursor session was closed while opening.": "Cursor 会话在打开过程中已关闭。",
